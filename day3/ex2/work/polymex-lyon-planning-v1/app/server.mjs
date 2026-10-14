@@ -80,6 +80,11 @@ const routes = {
     return { human_plan_w20: humanBaseline(), published: p?.kpis || null, events: { total: ev.length, applied: applied.length, proposed: ev.filter((e) => e.status === 'proposed').length }, rules: { active: rules.filter((r) => r.status === 'active').length, proposed: rules.filter((r) => r.status === 'proposed').length, retired: rules.filter((r) => r.status === 'retired').length }, overrides: { total: ov.length, with_rule: ov.filter((o) => String(o.status).startsWith('rule')).length }, deviations: { total: ex.length, open: ex.filter((x) => x.status === 'open').length } };
   },
   'GET /api/audit': () => readAudit(300),
+  // EVOLUTIONS 1, 3, 4
+  'GET /api/goal': (b, actor) => O.goalStatus({ actor }),
+  'POST /api/events/answer': (b, actor) => O.answerEvent({ event_id: b.event_id, answered_at: b.answered_at, actor }),
+  'POST /api/promise': (b, actor) => O.promise({ request: b, actor }),
+  'GET /api/promises': () => store.read('promises') || [],
   'POST /api/reset': (b, actor) => { guard(actor, 'write', 'plan:published'); store.reset(); audit(actor, 'reset', {}); return { ok: true }; },
 };
 

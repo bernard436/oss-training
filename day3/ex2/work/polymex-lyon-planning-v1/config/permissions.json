@@ -20,7 +20,9 @@
    "llm:explainer",
    "tool:submit_event",
    "tool:write_explanation",
-   "audit"
+   "audit",
+   "event:answered",
+   "promise"
   ]
  },
  "kill_switch": {
@@ -49,7 +51,9 @@
     "write:event:proposed",
     "write:rule:proposed",
     "write:rule:validated",
-    "call:whatif"
+    "call:whatif",
+    "write:event:answered",
+    "write:promise"
    ]
   },
   "human:sylvie": {
@@ -59,14 +63,17 @@
     "write:event:proposed",
     "write:event:confirmed",
     "write:rule:proposed",
-    "call:whatif"
+    "call:whatif",
+    "write:event:answered"
    ]
   },
   "human:stephane": {
-   "why": "Key accounts. Asks what-if questions; never confirms his own requests.",
+   "why": "Key accounts. Asks what-if, gives promises from the plan and records when the customer got an answer; never confirms his own requests.",
    "grants": [
     "read:plan:published",
-    "call:whatif"
+    "call:whatif",
+    "write:event:answered",
+    "write:promise"
    ]
   },
   "human:kevin": {
@@ -118,6 +125,19 @@
    "enabled": false,
    "grants": [
     "write:sap:process_orders"
+   ]
+  },
+  "human:herve": {
+   "why": "Site director, sponsor. Reads the published plan and the scorecard.",
+   "grants": [
+    "read:plan:published"
+   ]
+  },
+  "human:julien": {
+   "why": "Plant controller. Reads the scorecard and the audit trail to sign the baseline and the gain.",
+   "grants": [
+    "read:plan:published",
+    "read:audit"
    ]
   }
  }

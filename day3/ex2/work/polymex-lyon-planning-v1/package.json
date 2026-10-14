@@ -8,7 +8,7 @@
  },
  "scripts": {
   "reset": "node -e \"import('./platform/store.mjs').then((s) => s.reset())\"",
-  "test": "node --test tests/platform.test.mjs tests/architecture.test.mjs",
+  "test": "node --test --test-concurrency=1 tests/platform.test.mjs tests/architecture.test.mjs tests/evolutions.test.mjs",
   "day": "node scripts/day.mjs",
   "replay": "node scripts/replay.mjs",
   "start": "node app/server.mjs"

@@ -69,6 +69,22 @@ td{padding:7px 10px 7px 0;border-bottom:1px solid var(--line);vertical-align:top
 .legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--mute)}
 .legend i{display:inline-block;width:14px;height:10px;border:1px solid var(--ink);margin-right:5px;vertical-align:-1px}
 .hide{display:none!important}
+/* ===== EVOLUTIONS 1, 3, 4 (What good looks like) ===== */
+.new{display:inline-block;background:var(--flame);color:var(--ink);font:600 10px/1 'Geist Mono',monospace;letter-spacing:.08em;text-transform:uppercase;border-radius:3px;padding:3px 6px;vertical-align:middle;margin-left:6px}
+body.hl .evo{outline:2px dashed var(--flame);outline-offset:4px}
+.goalbar{border:2px solid var(--ink);padding:12px 14px;display:flex;flex-direction:column;gap:10px;background:#fff}
+.goalbar .gh{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.gms{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
+@media (max-width:1100px){.gms{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.gm{border:1px solid var(--line);border-left:6px solid var(--g2);padding:8px 10px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.gm.ok{border-left-color:#2f7d4f}.gm.ko{border-left-color:var(--flame)}
+.gm b{font-family:'Fjalla One';font-size:24px;line-height:1.05}
+.gm .t{font-size:11px;color:var(--mute)}
+.grs{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12px;color:var(--mute)}
+.grs span.ok::before{content:'● ';color:#2f7d4f}.grs span.ko::before{content:'● ';color:var(--flame)}.grs span.na::before{content:'○ '}
+.wait-ok{color:#2f7d4f;font-weight:600}.wait-ko{color:var(--flame);font-weight:600}
+.answer{font-family:'Fjalla One';font-size:30px;line-height:1.1}
+
 </style>
 </head>
 <body>
@@ -76,8 +92,16 @@ td{padding:7px 10px 7px 0;border-bottom:1px solid var(--line);vertical-align:top
   <h1>Lyon planning</h1>
   <nav id="tabs"></nav>
   <div class="sp"></div>
+  <button class="btn ghost evo" onclick="whatsNew()">★ What's new <span class="new">3</span></button>
   <div class="row"><span class="lbl">Acting as</span><select id="actor"></select></div>
 </header>
+<div id="wn" class="hide" style="padding:16px 28px;border-bottom:1px solid var(--ink);background:var(--p3)">
+  <div class="row"><h2>What's new in this version</h2><span class="new">aligned with "What good looks like"</span><div class="sp"></div><label class="lbl"><input type="checkbox" id="hl" onchange="hl(this.checked)"> Outline the changes on screen</label><button class="btn ghost" onclick="whatsNew()">Close</button></div>
+  <table style="margin-top:8px"><tr><th>#</th><th>Change</th><th>Where to see it</th><th>Measure it serves</th></tr>
+  <tr><td class="mono">1</td><td><b>"Codra stays" banner</b>: the five measures with baseline and target, green or red, and the guardrails</td><td>Top of every tab</td><td>All five</td></tr>
+  <tr><td class="mono">3</td><td><b>Answer time on events</b>: each customer change shows if it was answered and how fast; "Answer the customer" records it; unanswered and Codra first</td><td>Events tab, right column</td><td>Median time to answer: 17.5 h → 1 h</td></tr>
+  <tr><td class="mono">4</td><td><b>Promise tab for Stéphane</b>: customer, product, tonnes, wished date → yes, or the earliest date that holds, computed by the solver on a copy of the plan</td><td>New tab "Promise"</td><td>Quoted lead time: 12.5 → 7 days</td></tr></table>
+</div>
 <main id="main"></main>
 <div id="toast" class="toast hide"></div>
 <script>
@@ -93,8 +117,19 @@ async function api(path, b) {
   const j = await r.json(); if (!r.ok) { toast(j.error || r.status, true); throw new Error(j.error); } return j;
 }
 function toast(t, err) { const el = $('#toast'); el.textContent = t; el.className = 'toast' + (err ? ' err' : ''); clearTimeout(el._t); el._t = setTimeout(() => el.classList.add('hide'), err ? 7000 : 3500); }
-const TABS = [['plan', 'Plan'], ['events', 'Events'], ['rules', 'Rules'], ['execution', 'Execution'], ['scorecard', 'Scorecard'], ['audit', 'Audit']];
-function tabs() { $('#tabs').innerHTML = TABS.map(([k, l]) => `<button class="${S.tab === k ? 'on' : ''}" onclick="go('${k}')">${l}</button>`).join(''); }
+const TABS = [['plan', 'Plan'], ['events', 'Events'], ['promise', 'Promise'], ['rules', 'Rules'], ['execution', 'Execution'], ['scorecard', 'Scorecard'], ['audit', 'Audit']];
+const NEWTABS = { promise: true, events: true };
+function tabs() { $('#tabs').innerHTML = TABS.map(([k, l]) => `<button class="${S.tab === k ? 'on' : ''} ${NEWTABS[k] ? 'evo' : ''}" onclick="go('${k}')">${l}${NEWTABS[k] ? '<span class="new">' + (k === 'promise' ? 'new' : 'updated') + '</span>' : ''}</button>`).join(''); }
+// EVOLUTION 1: the "Codra stays" banner, on every tab.
+async function goalBar() {
+  let g; try { const r = await fetch('/api/goal', { headers: { 'x-actor': S.actor } }); if (!r.ok) return ''; g = await r.json(); } catch (e) { return ''; }
+  const f = (m) => m.value == null ? '–' : m.value + m.unit;
+  return `<div class="goalbar evo"><div class="gh"><h3>Codra stays</h3><span class="new">new</span><span class="lbl">the five measures of "What good looks like" · green when the target is met</span></div>
+    <div class="gms">${g.measures.map((m) => `<div class="gm ${m.ok == null ? '' : m.ok ? 'ok' : 'ko'}" title="${esc(m.note)}"><span class="lbl">${esc(m.label)}</span><b>${f(m)}</b><span class="t">target ${m.target}${m.unit} · was ${m.baseline}${m.unit}</span><span class="t">${esc(m.note)}</span></div>`).join('')}</div>
+    <div class="grs"><span class="lbl">Guardrails</span>${g.guardrails.map((x) => `<span class="${x.ok == null ? 'na' : x.ok ? 'ok' : 'ko'}">${esc(x.label)} ${x.limit}: ${x.value ?? '–'}</span>`).join('')}</div></div>`;
+}
+function whatsNew() { $('#wn').classList.toggle('hide'); }
+function hl(on) { document.body.classList.toggle('hl', on); try { localStorage.setItem('hl', on ? '1' : ''); } catch (e) {} }
 function go(t) { S.tab = t; tabs(); render(); }
 
 function kpiStrip(k, before) {
@@ -115,7 +150,7 @@ function gantt(p) {
   }).join('') + '</div></div>').join('') + '</div>';
 }
 async function render() {
-  const m = $('#main'); const st = await api('/api/state');
+  const m = $('#main'); const st = await api('/api/state'); const bar = await goalBar();
   if (S.tab === 'plan') {
     const p = st.draft || st.published;
     m.innerHTML = `<div class="row"><h2>${st.draft ? 'Draft: ' + (st.draft.kind === 'long' ? 'daily plan' : st.draft.kind === 'short' ? 'repair after ' + st.draft.event_id : 'override') : st.published ? 'Published plan' : 'No plan'}</h2><div class="sp"></div>
@@ -136,7 +171,8 @@ async function render() {
     const [ev, inbox] = await Promise.all([api('/api/events'), api('/api/inbox')]);
     m.innerHTML = `<div class="grid2"><div style="display:flex;flex-direction:column;gap:14px"><h2>Planning mailbox, Monday 11 May</h2>${inbox.map((x) => `<div class="panel"><div class="row"><span class="lbl">${x.id}</span><div class="sp"></div><button class="btn ghost" onclick="readMsg('${x.id}')">Read with the model</button><button class="btn ghost" onclick="manual('${x.id}')">Enter by hand</button></div><div class="msg" id="m-${x.id}">${esc(x.text)}</div></div>`).join('')}</div>
       <div style="display:flex;flex-direction:column;gap:14px"><h2>Events</h2><div id="evform"></div>
-      <table><tr><th>Id</th><th>Type</th><th>What</th><th>At</th><th>Status</th><th></th></tr>${ev.slice().reverse().map((e) => `<tr><td class="mono">${e.event_id}</td><td>${e.type}${e.confidence != null ? '<div class="lbl">conf. ' + e.confidence + '</div>' : ''}</td><td class="mono">${esc(evText(e))}</td><td class="mono">${(e.at || '').slice(5)}</td><td><span class="tag ${e.status}">${e.status}</span></td><td>${e.status === 'proposed' ? `<div class="row"><button class="btn" onclick="confirmEv('${e.event_id}')">Confirm and repair</button><button class="btn ghost" onclick="whatifEv('${e.event_id}')">What if</button><button class="btn ghost" onclick="rejectEv('${e.event_id}')">Reject</button></div>` : ''}</td></tr>`).join('')}</table></div></div>`;
+      <div class="lbl evo">Customer changes not yet answered come first, Codra on top. Target: answer within 1 hour.<span class="new">updated</span></div>
+      <table><tr><th>Id</th><th>Type</th><th>What</th><th>At</th><th>Status</th><th class="evo">Customer answer <span class="new">new</span></th><th></th></tr>${ev.slice().sort((a, b) => { const k = (e) => (CUST_TYPES.includes(e.type) && e.answer_hours == null ? 0 : 2) + (/Codra/.test(custOf(e, st.state.orders)) ? 0 : 1); return k(a) - k(b) || String(b.event_id).localeCompare(String(a.event_id)); }).map((e) => `<tr><td class="mono">${e.event_id}</td><td>${e.type}${e.confidence != null ? '<div class="lbl">conf. ' + e.confidence + '</div>' : ''}</td><td class="mono">${esc(evText(e))}<div class="lbl">${esc(custOf(e, st.state.orders))}</div></td><td class="mono">${(e.at || '').slice(5)}</td><td><span class="tag ${e.status}">${e.status}</span></td><td>${!CUST_TYPES.includes(e.type) ? '<span class="lbl">not a customer request</span>' : e.answer_hours != null ? `<span class="${e.answer_hours <= 1 ? 'wait-ok' : 'wait-ko'}">answered in ${e.answer_hours} h</span><div class="lbl">at ${String(e.answered_at).slice(5)}</div>` : `<span class="wait-ko">not answered</span><div><button class="btn ghost" onclick="answerEv('${e.event_id}')">Answer the customer</button></div>`}</td><td>${e.status === 'proposed' ? `<div class="row"><button class="btn" onclick="confirmEv('${e.event_id}')">Confirm and repair</button><button class="btn ghost" onclick="whatifEv('${e.event_id}')">What if</button><button class="btn ghost" onclick="rejectEv('${e.event_id}')">Reject</button></div>` : ''}</td></tr>`).join('')}</table></div></div>`;
     S.events = ev; S.inbox = inbox;
   }
   if (S.tab === 'rules') {
@@ -173,11 +209,43 @@ async function render() {
     m.innerHTML = `<h2>Scorecard</h2><table><tr><th>Measure</th><th>Corinne's Friday plan, week 20</th><th>Published plan now</th></tr>${rows.map(([l, key, u]) => `<tr><td>${l}</td><td class="mono">${v(s.human_plan_w20, key)}${u}</td><td class="mono">${v(s.published, key)}${s.published ? u : ''}</td></tr>`).join('')}</table>
       <div class="kpis"><div class="kpi"><span class="lbl">Events applied</span><b>${s.events.applied}</b><span class="d">${s.events.proposed} waiting</span></div><div class="kpi"><span class="lbl">Active rules</span><b>${s.rules.active}</b><span class="d">${s.rules.proposed} proposed, ${s.rules.retired} retired</span></div><div class="kpi"><span class="lbl">Overrides</span><b>${s.overrides.total}</b><span class="d">${s.overrides.with_rule} turned into a rule</span></div><div class="kpi"><span class="lbl">Deviations</span><b>${s.deviations.total}</b><span class="d">${s.deviations.open} without a why</span></div></div>`;
   }
+  if (S.tab === 'promise') {
+    // EVOLUTION 4: Stéphane's promise screen.
+    const ps = await api('/api/promises'); const customers = [...new Set(st.state.orders.map((o) => o.customer))].sort(); const prods = (st.products || []).map((p) => p.product_code);
+    const last = S.lastPromise;
+    m.innerHTML = `<div class="row"><h2>Promise a date</h2><span class="new">new</span><span class="lbl">For Stéphane: an answer that holds, computed on a copy of the published plan. Nothing is changed.</span></div>
+      ${st.published ? '' : '<div class="panel">Publish a plan first (Plan tab, as Corinne): promises are computed on the published plan.</div>'}
+      <div class="grid2 evo"><div class="panel"><h3>The customer asks</h3><div class="f">
+        <label>Customer</label><select id="q-cust">${customers.map((c) => `<option ${c === 'Codra Retail' ? 'selected' : ''}>${esc(c)}</option>`).join('')}</select>
+        <label>Product</label><select id="q-prod">${prods.map((p) => `<option ${p === 'PPW-2010' ? 'selected' : ''}>${p}</option>`).join('')}</select>
+        <label>Tonnes</label><input id="q-t" type="number" min="1" value="18">
+        <label>Wished delivery</label><input id="q-wish" class="mono" value="2026-05-14 12:00">
+        <label>Asked at (plant time)</label><input id="q-at" class="mono" value="2026-05-11 11:00"></div>
+        <div class="row"><button class="btn" onclick="askPromise()">Check and answer</button><span class="lbl">Target: 7 days for Codra</span></div></div>
+        <div class="panel ${last ? '' : 'hide'}" id="q-res">${last ? promiseCard(last) : ''}</div></div>
+      <h3>Promises given</h3><table><tr><th>Id</th><th>Asked</th><th>Customer</th><th>Product</th><th>Tonnes</th><th>Wished</th><th>Promised</th><th>Lead time</th><th>As asked?</th></tr>${ps.slice().reverse().map((x) => `<tr><td class="mono">${x.id}</td><td class="mono">${x.at.slice(5)}</td><td>${esc(x.customer)}</td><td class="mono">${x.product_code}</td><td>${x.tonnes}</td><td class="mono">${x.wished.slice(5)}</td><td class="mono">${x.promised_due ? x.promised_due.slice(5) : 'none in 14 days'}</td><td class="${x.lead_days != null && x.lead_days <= 7 ? 'wait-ok' : 'wait-ko'}">${x.lead_days ?? '–'} d</td><td>${x.feasible_as_asked ? 'yes' : 'no, later date'}</td></tr>`).join('')}</table>`;
+  }
   if (S.tab === 'audit') {
     const a = await api('/api/audit');
     m.innerHTML = `<h2>Audit trail</h2><table><tr><th>When</th><th>Who</th><th>What</th><th>Details</th></tr>${a.map((x) => `<tr><td class="mono">${x.at.slice(5, 19).replace('T', ' ')}</td><td class="mono">${esc(x.actor)}</td><td>${esc(x.what)}</td><td class="mono" style="max-width:640px;word-break:break-word">${esc(JSON.stringify(x.payload).slice(0, 260))}</td></tr>`).join('')}</table>`;
   }
+  if (bar) m.insertAdjacentHTML('afterbegin', bar);
 }
+function promiseCard(x) {
+  return `<h3>Answer for ${esc(x.customer)}</h3>${x.promised_due ? `<div class="answer">${x.feasible_as_asked ? 'Yes, by ' + x.wished.slice(5) : 'Earliest: ' + x.promised_due.slice(5)}</div>
+    <div class="mono">${x.tonnes} t ${x.product_code} on ${x.line}, planned to end ${String(x.planned_end).slice(5)} · lead time <b class="${x.lead_days <= 7 ? 'wait-ok' : 'wait-ko'}">${x.lead_days} days</b> · ${x.other_orders_moved} other order(s) would move</div>
+    <div class="lbl">${x.feasible_as_asked ? 'Feasible as asked.' : 'Not feasible on the wished date; this is the first date that holds (tried ' + x.tried + ' dates).'} The plan is not changed: Sylvie confirms the order as a rush order, Corinne publishes.</div>` : '<div class="answer">No date within 14 days</div><div class="lbl">Talk to Corinne: the plan cannot hold this order in the next two weeks.</div>'}`;
+}
+async function askPromise() {
+  toast('Computing…');
+  const x = await api('/api/promise', { customer: $('#q-cust').value, product_code: $('#q-prod').value, tonnes: +$('#q-t').value, wished: $('#q-wish').value, at: $('#q-at').value });
+  S.lastPromise = x; toast(x.promised_due ? 'Answer ready in ' + x.tried + ' try(ies)' : 'No date within 14 days'); render();
+}
+// EVOLUTION 3: record when the customer got an answer.
+const CUST_TYPES = ['date_change', 'quantity_change', 'rush_order', 'cancellation'];
+function addMin(s, n) { const t = Date.parse(String(s).replace(' ', 'T') + ':00Z') + n * 60e3; return new Date(t).toISOString().slice(0, 16).replace('T', ' '); }
+async function answerEv(id) { const e = S.events.find((x) => x.event_id === id); const t = prompt('When did the customer get the answer? (plant time)', addMin(e.at, 30)); if (!t) return; const r = await api('/api/events/answer', { event_id: id, answered_at: t }); toast('Answered in ' + r.answer_hours + ' h'); render(); }
+function custOf(e, orders) { return e.customer || (orders.find((o) => o.order_id === e.order_id) || {}).customer || ''; }
 function evText(e) { return ({ quantity_change: `${e.order_id} to ${e.tonnes} t`, date_change: `${e.order_id} due ${e.due}`, rush_order: `${e.order_id} ${e.customer} ${e.product_code} ${e.tonnes} t due ${e.due}`, cancellation: `${e.order_id}`, material_late: `${e.order_id} material from ${e.available_from}`, quality_hold: `${e.order_id} re-run, due ${e.due}`, machine_down: `${e.line} ${e.from} to ${e.to}` })[e.type] || JSON.stringify(e); }
 
 async function daily() { const r = await api('/api/plan/daily', { now: $('#now').value }); toast('Daily plan drafted in ' + r.runtime_ms + ' ms'); render(); }
@@ -232,6 +300,7 @@ async function recordX() { await api('/api/execution', { order_id: $('#x-order')
   const st = await api('/api/state');
   $('#actor').innerHTML = st.actors.map((a) => `<option value="${a}" ${a === S.actor ? 'selected' : ''}>${a.replace('human:', '').replace(/^./, (c) => c.toUpperCase())}</option>`).join('');
   $('#actor').onchange = (e) => { S.actor = e.target.value; localStorage.setItem('actor', S.actor); toast('Acting as ' + S.actor); render(); };
+  try { if (localStorage.getItem('hl')) { document.body.classList.add('hl'); } } catch (e) {}
   tabs(); render();
 })();
 </script>
