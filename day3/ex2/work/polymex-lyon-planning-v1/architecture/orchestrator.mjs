@@ -159,7 +159,10 @@ export async function goalStatus({ actor = 'human:corinne' } = {}) {
   guard(actor, 'read', 'plan:published');
   const p = store.read('published'), events = store.read('events') || [], promises = store.read('promises') || [], plog = store.read('publish_log') || [];
   const answered = events.filter((e) => e.answer_hours != null).map((e) => e.answer_hours);
-  const lead = promises.map((x) => x.lead_days).filter((x) => x != null);
+  const codraP = promises.filter((x) => /Codra/.test(x.customer));
+  const lead = codraP.map((x) => (x.lead_days != null ? x.lead_days : 14)); // no date within 14 days counts as 14
+  const repairs = plog.filter((x) => x.kind === 'short').length;
+  const demoAnswers = events.filter((e) => e.answer_hours != null && e.answer_demo).length;
   const discarded = readAudit(5000).filter((l) => l.what === 'plan.draft.discarded').length;
   const moved24 = plog.filter((x) => x.kind === 'short').reduce((a, x) => a + (x.moved_24h || 0), 0);
   // Changeovers per line per 8-hour shift on the published plan (guardrail: at most 4, rule R06).
@@ -168,11 +171,11 @@ export async function goalStatus({ actor = 'human:corinne' } = {}) {
   const r1 = (x) => x == null ? null : Math.round(x * 10) / 10;
   const out = {
     measures: [
-      { id: 'otif_codra', label: 'OTIF for Codra', unit: '%', baseline: 82.5, target: 95, better: 'up', value: p ? p.kpis.codra_on_time_pct : null, note: 'planned, on the published plan' },
-      { id: 'lead_time', label: 'Quoted lead time', unit: ' d', baseline: 12.5, target: 7, better: 'down', value: lead.length ? r1(lead.reduce((a, b) => a + b, 0) / lead.length) : null, note: lead.length + ' promise(s) given in the app' },
-      { id: 'answer_time', label: 'Median time to answer a change', unit: ' h', baseline: 17.5, target: 1, better: 'down', value: r1(median(answered)), note: answered.length + ' answer(s) recorded' },
-      { id: 'moved_24h', label: 'Orders moved inside 24 h', unit: '%', baseline: 20, target: 10, better: 'down', value: p && plog.some((x) => x.kind === 'short') ? r1(100 * moved24 / p.kpis.orders) : null, note: moved24 + ' move(s) since the daily plan' },
-      { id: 'published', label: 'Plans published from the system', unit: '%', baseline: 0, target: 90, better: 'up', value: plog.length + discarded ? r1(100 * plog.length / (plog.length + discarded)) : null, note: plog.length + ' published, ' + discarded + ' discarded' },
+      { id: 'otif_codra', label: 'OTIF for Codra', unit: '%', baseline: 82.5, target: 95, better: 'up', value: p ? p.kpis.codra_on_time_pct : null, n: p ? (p.kpis.codra_orders || 1) : 0, min: 1, kind: 'planned', note: 'planned on the published plan; delivered OTIF comes from Julien' },
+      { id: 'lead_time', label: 'Quoted lead time to Codra', unit: ' d', baseline: 12.5, target: 7, better: 'down', value: lead.length ? r1(lead.reduce((a, b) => a + b, 0) / lead.length) : null, n: lead.length, min: 10, kind: 'measured', note: lead.length + ' Codra promise(s) · ' + codraP.filter((x) => !x.feasible_as_asked).length + ' not possible on the wished date' },
+      { id: 'answer_time', label: 'Median time to answer a change', unit: ' h', baseline: 17.5, target: 1, better: 'down', value: r1(median(answered)), n: answered.length, min: 20, kind: demoAnswers ? 'demo' : 'measured', note: answered.length + ' answer(s) · ' + answered.filter((h) => h > 1).length + ' over 1 h' + (demoAnswers ? ' · demo values' : '') },
+      { id: 'moved_24h', label: 'Orders moved inside 24 h', unit: '%', baseline: 20, target: 10, better: 'down', value: p && repairs ? r1(100 * moved24 / p.kpis.orders) : null, n: repairs, min: 5, kind: 'computed', note: moved24 + ' move(s) in ' + repairs + ' repair(s) since the daily plan' },
+      { id: 'published', label: 'Plans published from the system', unit: '%', baseline: 0, target: 90, better: 'up', value: plog.length + discarded ? r1(100 * plog.length / (plog.length + discarded)) : null, n: plog.length + discarded, min: 10, kind: 'measured', note: plog.length + ' published, ' + discarded + ' discarded' },
     ],
     guardrails: [
       { label: 'OTIF, all customers', limit: '≥ 84%', value: p ? p.kpis.on_time_pct + '%' : null, ok: p ? p.kpis.on_time_pct >= 84 : null },
@@ -183,7 +186,13 @@ export async function goalStatus({ actor = 'human:corinne' } = {}) {
     ],
     demo: store.read('demo'),
   };
-  for (const m of out.measures) m.ok = m.value == null ? null : (m.better === 'up' ? m.value >= m.target : m.value <= m.target);
+  for (const m of out.measures) {
+    m.meets = m.value == null ? null : (m.better === 'up' ? m.value >= m.target : m.value <= m.target);
+    m.enough = m.n >= m.min;
+    // A measure is only judged (green or red) once there are enough cases; before that it is shown, not judged.
+    m.ok = m.value == null || !m.enough ? null : m.meets;
+    m.progress = m.value == null ? null : Math.max(0, Math.min(100, Math.round(100 * (m.value - m.baseline) / (m.target - m.baseline))));
+  }
   return out;
 }
 
@@ -284,14 +293,22 @@ export async function loadDemo({ actor }) {
   await dailyRun({ now: '2026-05-11 05:30' });
   await publish({ actor, note: 'Demo: Monday daily plan' });
   const evs = fs.readFileSync(new URL('../data/replay/events_2026-05-11.jsonl', import.meta.url), 'utf8').trim().split('\n').map((l) => JSON.parse(l));
-  const answerMinutes = { E01: 35, E03: 50, E04: 25, E07: 70, E08: 15 }; // DEMO values, not measured
+  const answerMinutes = { E01: 35, E03: 210, E04: 25, E07: 960, E08: 15 }; // DEMO values, not measured: some fast, one 3.5 h, one next morning
   for (const e of evs) {
     await onEvent({ event: e, actor: 'human:sylvie' });
     await publish({ actor, note: 'Demo: repair ' + e.event_id });
-    if (answerMinutes[e.event_id]) await answerEvent({ event_id: e.event_id, answered_at: fmtTime(parseTime(e.at) + answerMinutes[e.event_id] * 60e3), actor: 'human:sylvie' });
+    if (answerMinutes[e.event_id]) { await answerEvent({ event_id: e.event_id, answered_at: fmtTime(parseTime(e.at) + answerMinutes[e.event_id] * 60e3), actor: 'human:sylvie' }); const all = store.read('events'); all.find((x) => x.event_id === e.event_id).answer_demo = true; store.write('events', all); }
   }
-  await promise({ request: { customer: 'Codra Retail', product_code: 'PPW-2010', tonnes: 18, wished: '2026-05-14 12:00', at: '2026-05-11 11:00' }, actor: 'human:stephane' });
-  store.write('demo', { loaded_at: new Date().toISOString(), note: 'Monday 11 May replayed; answer times are demo values' });
+  // Several real what-if questions, computed by the solver: some feasible as asked, some not.
+  const asks = [
+    ['Codra Retail', 'PPW-2010', 18, '2026-05-14 12:00', '2026-05-11 11:00'],
+    ['Codra Retail', 'PPC-3120', 30, '2026-05-12 12:00', '2026-05-11 12:30'],
+    ['Codra Retail', 'PPK-4010', 25, '2026-05-13 06:00', '2026-05-11 14:00'],
+    ['Duval Home', 'PPW-2030', 22, '2026-05-13 12:00', '2026-05-11 15:00'],
+    ['Codra Retail', 'PPN-1010', 40, '2026-05-15 06:00', '2026-05-11 16:45'],
+  ];
+  for (const [customer, product_code, tonnes, wished, at] of asks) await promise({ request: { customer, product_code, tonnes, wished, at }, actor: 'human:stephane' });
+  store.write('demo', { loaded_at: new Date().toISOString(), note: 'Monday 11 May replayed; answer times are demo values; promises are computed by the solver' });
   audit(actor, 'demo.loaded', {});
   return { ok: true };
 }

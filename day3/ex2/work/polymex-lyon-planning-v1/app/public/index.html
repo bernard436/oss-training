@@ -84,6 +84,9 @@ body.hl .evo{outline:2px dashed var(--flame);outline-offset:4px}
 .grs span.ok::before{content:'● ';color:#2f7d4f}.grs span.ko::before{content:'● ';color:var(--flame)}.grs span.na::before{content:'○ '}
 .wait-ok{color:#2f7d4f;font-weight:600}.wait-ko{color:var(--flame);font-weight:600}
 .answer{font-family:'Fjalla One';font-size:30px;line-height:1.1}
+.dir{font:500 10px 'Geist Mono',monospace;color:var(--mute);border:1px solid var(--g2);border-radius:3px;padding:1px 5px;white-space:nowrap}
+.bar{height:6px;background:var(--p3);border-radius:3px;overflow:hidden}.bar i{display:block;height:100%;background:#2F6690}
+.pill{font:500 11px 'Geist Mono',monospace;border-radius:3px;padding:2px 6px;align-self:flex-start}.pill.na{background:var(--p3);color:var(--soft)}.pill.demo{background:#2F6690;color:#fff}
 .frz{position:absolute;top:0;bottom:0;background:repeating-linear-gradient(135deg,rgba(47,102,144,.10) 0 6px,rgba(47,102,144,.22) 6px 8px);border-left:2px solid #2F6690;border-right:2px solid #2F6690;pointer-events:none}
 .blk.codra{box-shadow:inset 0 -6px 0 #2F6690}
 .chk td.ok{color:#2f7d4f;font-weight:600}.chk td.ko{color:var(--flame);font-weight:600}
@@ -141,9 +144,12 @@ function tabs() { const vis = VISIBLE[S.actor]; $('#tabs').innerHTML = TABS.filt
 async function goalBar() {
   let g; try { const r = await fetch('/api/goal', { headers: { 'x-actor': S.actor } }); if (!r.ok) return ''; g = await r.json(); } catch (e) { return ''; }
   const f = (m) => m.value == null ? '–' : m.value + m.unit;
-  return `<div class="goalbar evo"><div class="gh"><h3>Codra stays</h3><span class="new">new</span><span class="lbl">the five measures of "What good looks like" · green when the target is met</span>${g.demo ? '<span class="demo">demo data · Monday 11 May replayed</span>' : ''}<div class="sp"></div>${can('write:plan:published') ? '<button class="btn ghost" onclick="loadDemo()">Load Monday demo</button>' : ''}</div>
+  return `<div class="goalbar evo"><div class="gh"><h3>Codra stays</h3><span class="new">new</span><span class="lbl">the five measures of "What good looks like" · green or red only once there are enough cases</span>${g.demo ? '<span class="demo">demo data · Monday 11 May replayed</span>' : ''}<div class="sp"></div>${can('write:plan:published') ? '<button class="btn ghost" onclick="loadDemo()">Load Monday demo</button>' : ''}</div>
     ${g.measures.every((m) => m.value == null) ? '<div class="lbl">No numbers yet: they come from what people do in the app (publish a plan, answer a customer, give a promise). Click "Load Monday demo" to see them all.</div>' : ''}
-    <div class="gms">${g.measures.map((m) => `<div class="gm ${m.ok == null ? '' : m.ok ? 'ok' : 'ko'}" title="${esc(m.note)}"><span class="lbl">${esc(m.label)}</span><b>${f(m)}</b><span class="t">target ${m.target}${m.unit} · was ${m.baseline}${m.unit}</span><span class="t">${esc(m.note)}</span></div>`).join('')}</div>
+    <div class="gms">${g.measures.map((m) => `<div class="gm ${m.ok == null ? '' : m.ok ? 'ok' : 'ko'}" title="${esc(m.note)}"><div class="row" style="gap:6px"><span class="lbl">${esc(m.label)}</span><span class="dir">${m.better === 'up' ? '↑ higher is better' : '↓ lower is better'}</span></div><b>${f(m)}</b>
+      <div class="bar"><i style="width:${m.progress ?? 0}%"></i></div><span class="t">was ${m.baseline}${m.unit} → target ${m.target}${m.unit}${m.progress != null ? ' · ' + m.progress + '% of the way' : ''}</span>
+      <span class="t">${esc(m.note)}</span>
+      ${m.value == null ? '' : !m.enough ? `<span class="pill na">${m.n} of ${m.min} cases needed: not judged yet</span>` : m.kind === 'demo' ? '<span class="pill demo">demo values</span>' : m.kind === 'planned' ? '<span class="pill na">planned, not yet delivered</span>' : ''}</div>`).join('')}</div>
     <div class="grs"><span class="lbl">Guardrails</span>${g.guardrails.map((x) => `<span class="${x.ok == null ? 'na' : x.ok ? 'ok' : 'ko'}">${esc(x.label)} ${x.limit}: ${x.value ?? '–'}</span>`).join('')}</div></div>`;
 }
 function whatsNew() { $('#wn').classList.toggle('hide'); }
