@@ -1,0 +1,290 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lyon Planning, System Map</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo+Narrow:wght@500;600;700&family=Public+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: interactive map (systems | engines | our apps) with a detail panel, then gain per step, then the euro bridge */
+:root{
+  --bg:#f4f6f6; --surface:#fff; --fg:#1b2226; --muted:#5b676e; --line:#d6dddf;
+  --sys:#5b676e; --sys-soft:#eceff0; --eng:#c4561b; --eng-soft:#fbeadf; --llm:#5a5fa8; --llm-soft:#e8e9f7;
+  --app:#1b2226; --human:#b5446e; --human-soft:#f8e4ec; --ok:#2f7d4f; --ok-soft:#e3f1e8; --warn:#a33a2c; --warn-soft:#f8e6e2;
+  --display:"Archivo Narrow","Arial Narrow",system-ui,sans-serif;
+  --body:"Public Sans",system-ui,-apple-system,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root{
+  --bg:#131819; --surface:#1b2224; --fg:#e5eaeb; --muted:#99a6ab; --line:#2c3639;
+  --sys:#a8b3b8; --sys-soft:#232b2e; --eng:#f08a4b; --eng-soft:#3a2418; --llm:#9a9ff0; --llm-soft:#25263f;
+  --app:#e5eaeb; --human:#f08bb1; --human-soft:#3a2230; --ok:#6cc58f; --ok-soft:#1d3326; --warn:#ff8a7a; --warn-soft:#3a2220; color-scheme:dark}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.55 var(--body);
+  padding:32px max(16px,env(safe-area-inset-left)) 56px max(16px,env(safe-area-inset-right))}
+.wrap{max-width:1240px;margin:0 auto;display:flex;flex-direction:column;gap:48px}
+h1,h2,h3{font-family:var(--display);margin:0;line-height:1.15;text-wrap:balance}
+h1{font-size:clamp(30px,4.6vw,46px)} h2{font-size:28px;font-weight:600} h3{font-size:19px;font-weight:600}
+p{margin:0}
+section{display:flex;flex-direction:column;gap:16px}
+.eyebrow{font:600 12px/1.4 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.lede{max-width:76ch;color:var(--muted);font-size:16px}
+.small{font-size:13px;color:var(--muted);max-width:92ch}
+a{color:inherit}
+header{display:flex;flex-direction:column;gap:12px}
+
+/* map */
+.mapbox{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:16px;align-items:start}
+@media (max-width:1000px){.mapbox{grid-template-columns:1fr}}
+.map{position:relative;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px;display:grid;grid-template-columns:1fr 1fr 1.15fr;gap:56px}
+@media (max-width:760px){.map{grid-template-columns:1fr;gap:14px}.map svg{display:none}}
+.map svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}
+.col{display:flex;flex-direction:column;gap:8px;position:relative;z-index:1}
+.col h4{margin:0 0 4px;font:600 11px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.n{border-radius:6px;padding:8px 10px;font-size:12.5px;line-height:1.35;border:1.5px solid var(--c);background:var(--s);transition:opacity .2s}
+.n b{display:block;font:600 14px var(--display);color:var(--c)}
+.n.sys{--c:var(--sys);--s:var(--sys-soft)} .n.eng{--c:var(--eng);--s:var(--eng-soft)} .n.llm{--c:var(--llm);--s:var(--llm-soft)}
+.n.new{border-style:dashed}
+.n.app{--c:var(--app);--s:var(--surface);border-width:2px;cursor:pointer;display:flex;gap:10px;align-items:flex-start;text-align:left;font:inherit;color:inherit;width:100%}
+.n.app .k{flex:none;width:24px;height:24px;border-radius:50%;background:var(--fg);color:var(--bg);display:grid;place-items:center;font:700 12px var(--mono)}
+.n.app .who{font:600 11px var(--mono);color:var(--human)}
+.n.app:focus-visible{outline:3px solid var(--eng);outline-offset:2px}
+.n.app[aria-pressed="true"]{background:var(--fg);color:var(--bg)}
+.n.app[aria-pressed="true"] b{color:var(--bg)} .n.app[aria-pressed="true"] .k{background:var(--bg);color:var(--fg)}
+.n.app[aria-pressed="true"] .who{color:var(--bg)}
+.map.focus .n:not(.on){opacity:.28}
+.tag{font:600 10px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.legend{display:flex;flex-wrap:wrap;gap:8px 16px;font-size:12px;color:var(--muted)}
+.legend i{display:inline-block;width:22px;height:0;border-top:2px solid var(--muted);vertical-align:middle;margin-right:6px}
+.legend i.w{border-top:3px solid var(--eng)} .legend i.d{border-top:2px dashed var(--muted)}
+
+/* panel */
+.panel{background:var(--surface);border:2px solid var(--fg);border-radius:10px;padding:18px;display:flex;flex-direction:column;gap:12px;position:sticky;top:16px}
+@media (max-width:1000px){.panel{position:static}}
+.panel h3{font-size:26px}
+.panel .who{font:600 12px var(--mono);color:var(--human)}
+.kv{display:grid;grid-template-columns:70px 1fr;gap:8px 12px;font-size:14px;margin:0}
+.kv dt{font:600 11px/1.9 var(--mono);text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.kv dd{margin:0;min-width:0}
+.today{background:var(--warn-soft);border-radius:6px;padding:8px 12px;font-size:14px}
+.today b{color:var(--warn)}
+.gain{background:var(--ok-soft);border-radius:6px;padding:10px 12px;font-size:14px;display:flex;flex-direction:column;gap:4px}
+.gain b{color:var(--ok)}
+.gain .big{font:700 24px/1.1 var(--display);color:var(--ok)}
+.decide{background:var(--human-soft);border-radius:6px;padding:8px 12px;font-size:14px}
+.decide b{color:var(--human)}
+.chips{display:flex;flex-wrap:wrap;gap:4px}
+.chips span{font:600 11px var(--mono);border-radius:3px;padding:2px 6px;background:var(--sys-soft);color:var(--sys)}
+.chips span.w{background:var(--eng-soft);color:var(--eng)}
+
+/* tables */
+.tablewrap{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:8px}
+table{border-collapse:collapse;width:100%;font-size:14px;font-variant-numeric:tabular-nums;min-width:1040px}
+th,td{padding:10px 12px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{font:600 11px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+tr:last-child td{border-bottom:0}
+td.g{color:var(--ok);font-weight:600}
+td.t{color:var(--warn)}
+.num{font:700 15px var(--display);white-space:nowrap}
+
+/* euro bridge */
+.bridge{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:20px;display:flex;flex-direction:column;gap:14px;overflow-x:auto}
+.brow{display:grid;grid-template-columns:230px 1fr 90px;gap:12px;align-items:center;min-width:640px}
+.btrack{position:relative;height:30px}
+.bseg{position:absolute;top:0;bottom:0;border-radius:3px;background:var(--ok)}
+.bseg.tot{background:var(--fg)}
+.bv{font:700 20px var(--display);text-align:right;font-variant-numeric:tabular-nums}
+.bl b{display:block;font-weight:600}
+.bl span{font-size:12px;color:var(--muted)}
+.hours{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+@media (max-width:760px){.hours{grid-template-columns:1fr}}
+.h{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:14px;display:flex;flex-direction:column;gap:8px}
+.hbar{display:grid;grid-template-columns:70px 1fr 64px;gap:8px;align-items:center;font-size:12px}
+.hbar .tr{height:14px;background:var(--bg);border-radius:3px;position:relative}
+.hbar .tr i{position:absolute;inset:0 auto 0 0;border-radius:3px}
+.hbar b{font:700 14px var(--display);text-align:right}
+.flag{background:var(--warn-soft);border-left:4px solid var(--warn);border-radius:4px;padding:10px 14px;font-size:14px;max-width:96ch}
+footer{font:12px/1.7 var(--mono);color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <span class="eyebrow">Polymex Lyon · planning · system map · companion to /architecture</span>
+  <h1>Where each application plugs into Lyon's systems, and what it gains</h1>
+  <p class="lede">Left, the systems Lyon already runs. Middle, the engines the platform provides. Right, the six applications we build. Click an application to see what it reads, what it writes, why it exists, who uses it, who decides, and what it gains.</p>
+  <p class="small"><a href="../architecture/">← Back to the target architecture</a></p>
+</header>
+
+<section>
+  <div class="mapbox">
+    <div>
+      <div class="map" id="map">
+        <svg id="wires" aria-hidden="true"></svg>
+        <div class="col">
+          <h4>Existing systems · Lyon</h4>
+          <div class="n sys" id="sap"><b>SAP ECC</b>orders, due dates, ATP, process orders</div>
+          <div class="n sys" id="linelog"><b>LineLog</b>what ran, stops, changeovers · CSV 06:00</div>
+          <div class="n sys" id="lab"><b>Lab database</b>Access on a PC · tests, holds</div>
+          <div class="n sys" id="maint"><b>MaintPro</b>maintenance windows · API</div>
+          <div class="n sys new" id="mail"><b>Planning mailbox</b>new, shared · replaces Stéphane's own inbox</div>
+          <div class="n sys" id="excel"><b>Corinne's workbook</b>the real plan today · retired after go-live</div>
+          <div class="n sys" id="paper"><b>Notebooks, heads</b>the rules since 2009</div>
+        </div>
+        <div class="col">
+          <h4>Platform engines · configured</h4>
+          <div class="n eng" id="rules"><b>Rules engine</b>110 rules, each with an owner</div>
+          <div class="n eng" id="long"><b>Long solver</b>daily plan, 7 days, all lines</div>
+          <div class="n eng" id="fast"><b>Fast solver</b>repair after one event, in ms</div>
+          <div class="n llm" id="llm"><b>Event reader (LLM)</b>free text → one structured event</div>
+          <div class="n eng" id="store"><b>Plan store</b>published plans, events, overrides</div>
+          <div class="n eng" id="eval"><b>Plan evaluation</b>same KPIs for every plan</div>
+          <div class="n eng" id="audit"><b>Permissions &amp; audit</b>who may do what · kill switch</div>
+        </div>
+        <div class="col" id="appcol">
+          <h4>★ Our applications</h4>
+        </div>
+      </div>
+      <div class="legend" style="margin-top:10px"><span><i></i>reads</span><span><i class="w"></i>writes</span><span><i class="d"></i>uses an engine</span><span>Dashed box: new, to be created by Lyon IT</span></div>
+    </div>
+    <aside class="panel" id="panel" aria-live="polite"></aside>
+  </div>
+</section>
+
+<section>
+  <span class="eyebrow">Gain at each step</span>
+  <h2>What each step changes, for whom, and how much</h2>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Step · app</th><th>Who</th><th>Today</th><th>Tomorrow</th><th>Time gained</th><th>Measure it moves</th><th>Euro line it feeds</th></tr></thead>
+    <tbody>
+      <tr><td><b>1 · Rules capture</b></td><td>Corinne, Patrick, Amina</td><td class="t">Rules in notebooks and heads; Jean-Pierre retired in March</td><td>110 rules with a source and an owner</td><td>Enabler</td><td>Every override carries a reason</td><td>Scrap: correct changeover rules</td></tr>
+      <tr><td><b>2 · Read the plant</b> (no app)</td><td>Nadia</td><td class="t">Friday export by hand; lab and maintenance by phone</td><td>Connectors read every morning, read-only</td><td>Enabler</td><td>Plan built on today's facts</td><td>Enabler</td></tr>
+      <tr><td><b>3 · Review &amp; publish</b></td><td>Corinne</td><td class="t">Friday plan 4–5 h, 52-min replan each morning, 6 versions a day</td><td>Reviews the 05:30 plan, publishes once</td><td class="g"><span class="num">≈ 6 h / week</span> (inferred)</td><td>Plans published 0 → 90%; Corinne overtime 12.5 → ≤ 4 h</td><td>Overtime €0.45M · Scrap €0.34M</td></tr>
+      <tr><td><b>4 · Event intake</b></td><td>Corinne, Sylvie</td><td class="t">188 changes in 4 weeks by email and phone; 20% in SAP the same day</td><td>One inbox, structured events, confirm in a click</td><td class="g"><span class="num">≈ 5 h / week</span> of repairs (inferred)</td><td>Answer time 17.5 h → 1 h</td><td>Codra kept €2.24M</td></tr>
+      <tr><td><b>5 · Night view</b></td><td>Kevin</td><td class="t">18 night swaps decided alone, free text</td><td>Risky sequences and ranked swaps before the shift</td><td>Minutes per stop</td><td>Orders moved inside 24 h 20% → 10%</td><td>Codra kept €2.24M</td></tr>
+      <tr><td><b>6 · What-if</b></td><td>Stéphane</td><td class="t">Promises from yesterday's SAP plus margin</td><td>Answer that holds, in minutes</td><td>A day of waiting per request</td><td>Quoted lead time 12.5 → 7 days</td><td>Codra kept €2.24M</td></tr>
+      <tr><td><b>7 · Publish &amp; SAP write-back</b></td><td>Sylvie, Nadia</td><td class="t">26.5 h a week re-keying every version</td><td>One keying a day, then 0 with write-back</td><td class="g"><span class="num">≈ 21 h / week</span> in June, 26.5 h after write-back</td><td>Re-keying 26.5 h → 0 (guardrail)</td><td>Time for Sylvie's new role</td></tr>
+      <tr><td><b>8 · Scorecard</b></td><td>Hervé, Julien</td><td class="t">Adherence not measured since 2024</td><td>Five measures, five guardrails, weekly</td><td>—</td><td>All five measures</td><td>Makes the €3.0M signable</td></tr>
+    </tbody>
+  </table></div>
+  <p class="small">Time gained for Corinne is inferred from the shadowing of 6 May (52-min replan, 4 repairs of 12 to 26 min) and her Friday (4–5 h), extrapolated to five weekdays. Sylvie's re-keying is from her interview and kpi_weekly (26.5 h average, W15–W18).</p>
+</section>
+
+<section>
+  <span class="eyebrow">The gain in euros</span>
+  <h2>€3.0M a year, and which applications earn it</h2>
+  <div class="bridge">
+    <div class="brow"><div class="bl"><b>Codra's volume kept</b><span>5,000 t × €447 contribution · apps 4, 5, 6, 3</span></div><div class="btrack"><span class="bseg" style="left:0;width:73.9%"></span></div><span class="bv">€2.24M</span></div>
+    <div class="brow"><div class="bl"><b>Half the Friday overtime</b><span>premium €0.9M × 50% · app 3</span></div><div class="btrack"><span class="bseg" style="left:73.9%;width:14.9%"></span></div><span class="bv">€0.45M</span></div>
+    <div class="brow"><div class="bl"><b>Start-up scrap, 20% fewer changeovers</b><span>€89.2M × 4.2% × 45% × 20% · apps 1, 3</span></div><div class="btrack"><span class="bseg" style="left:88.8%;width:11.2%"></span></div><span class="bv">€0.34M</span></div>
+    <div class="brow"><div class="bl"><b>Total, conservative</b><span>contribution, never revenue</span></div><div class="btrack"><span class="bseg tot" style="left:0;width:100%"></span></div><span class="bv">€3.03M</span></div>
+  </div>
+  <p class="flag"><b>How to read it:</b> the euro lines come from the Exercise 2 scorecard and Julien's figures. The link to applications shows which ones produce each effect; it is not a split of the money between apps. Codra is kept only if all four customer-facing apps work together. Julien signs the baseline in week 1 and the gain monthly.</p>
+
+  <h3>Hours given back each week</h3>
+  <div class="hours">
+    <div class="h"><b>Corinne</b>
+      <div class="hbar"><span>Today</span><span class="tr"><i style="width:100%;background:var(--warn)"></i></span><b>≈ 15 h</b></div>
+      <div class="hbar"><span>Tomorrow</span><span class="tr"><i style="width:23%;background:var(--ok)"></i></span><b>≈ 3.5 h</b></div>
+      <p class="small">Planning work: Friday plan, morning replans, repairs. Tomorrow: 30 min review a day plus about 1 h of confirmations a week (inferred). Today = 4.5 h Friday + 4.3 h replans + 6.3 h repairs.</p></div>
+    <div class="h"><b>Sylvie</b>
+      <div class="hbar"><span>Today</span><span class="tr"><i style="width:100%;background:var(--warn)"></i></span><b>26.5 h</b></div>
+      <div class="hbar"><span>June</span><span class="tr"><i style="width:21%;background:var(--ok)"></i></span><b>≈ 5.5 h</b></div>
+      <div class="hbar"><span>September</span><span class="tr"><i style="width:0;background:var(--ok)"></i></span><b>0 h</b></div>
+      <p class="small">Re-keying into SAP. Freed time goes to her new role as keeper of events, agreed with her first.</p></div>
+    <div class="h"><b>Stéphane's customers</b>
+      <div class="hbar"><span>Today</span><span class="tr"><i style="width:100%;background:var(--warn)"></i></span><b>17.5 h</b></div>
+      <div class="hbar"><span>Tomorrow</span><span class="tr"><i style="width:6%;background:var(--ok)"></i></span><b>≤ 1 h</b></div>
+      <p class="small">Median wait for an answer to a change request.</p></div>
+  </div>
+</section>
+
+<footer>Sources: Exercise 2 "What good looks like: Codra stays"; day3/am field/01–09, data/systems-inventory.md, data/kpi_weekly (W15–W18), data/change_log_w15-w18.csv; platform/PLATFORM_CATALOGUE.md; afternoon kit platform/TOOLS.md. Polymex is a fictional company used by the FDE School.</footer>
+</div>
+
+<script>
+const APPS = [
+ {id:'a1', k:1, name:'Rules capture', who:'Corinne · Patrick · Amina', reads:['paper','excel'], writes:['rules'], uses:['rules','audit'],
+  why:'The rules that make a plan feasible live in notebooks since 2009 and in people\'s heads; SAP assumes 60 minutes for every changeover and every family on every line.',
+  what:'Write each rule with its source, owner and status; test it on a past week; activate it. Every override asks which rule is missing.',
+  decide:'The rule owner activates each rule.', today:'Jean-Pierre retired in March; his rules are on paper.',
+  gain:'Enabler', gainText:'Every override carries a reason. Correct changeover rules feed the scrap gain (€0.34M).', when:'18 May'},
+ {id:'a2', k:2, name:'Review & publish', who:'Corinne', reads:['sap','linelog','lab','maint'], writes:['store'], uses:['long','rules','eval','audit'],
+  why:'The plan is rebuilt by hand every morning and repaired all day; six versions on 6 May.',
+  what:'Shows the 05:30 plan next to yesterday\'s, the rule behind each choice, late orders and changeover minutes against her own plan; one button to publish.',
+  decide:'Corinne publishes. She knows what is not in the data.', today:'Friday plan 4–5 h, 52-min replan each morning, 12.5 h overtime a week.',
+  gain:'≈ 6 h / week', gainText:'Plans published from the system 0 → 90%. Overtime €0.45M, scrap €0.34M.', when:'Shadow 25 May · live 1 June'},
+ {id:'a3', k:3, name:'Event intake', who:'Corinne · Sylvie', reads:['mail','linelog','lab','maint'], writes:['store'], uses:['llm','fast','audit'],
+  why:'188 changes in 4 weeks arrive by email (45%) and phone (30%); only 20% reach SAP the same day.',
+  what:'One inbox for the planning mailbox, LineLog notes, lab holds and maintenance; the model proposes a structured event with its evidence; confirm or correct, then the repair is proposed.',
+  decide:'Corinne confirms the event before it touches the plan.', today:'Median 17.5 h to answer a customer change.',
+  gain:'17.5 h → 1 h', gainText:'Answer time to a change. Feeds Codra kept (€2.24M).', when:'1 June'},
+ {id:'a4', k:4, name:'Night view', who:'Kevin and the shift leaders', reads:['linelog'], writes:['store'], uses:['fast','rules'],
+  why:'At night there is no planner; 18 swaps in 4 weeks decided alone and written as free text.',
+  what:'Before the shift: the risky sequences. If a line stops: swaps ranked and checked against the rules. His choice is logged for Corinne at 07:00.',
+  decide:'Kevin chooses the swap.', today:'10 of 18 night swaps caused by missing masterbatch.',
+  gain:'20% → 10%', gainText:'Orders moved inside 24 h. Feeds Codra kept (€2.24M).', when:'Mid-June'},
+ {id:'a5', k:5, name:'What-if', who:'Stéphane', reads:['sap'], writes:[], uses:['long','rules','store'],
+  why:'Promises come from yesterday\'s SAP plus margin: 12.5 days quoted when Codra wants 7.',
+  what:'"18 t of PPW-2010 by Thursday?" Yes, or the earliest date that holds and the orders it moves, computed on a copy of the published plan.',
+  decide:'Stéphane promises. A promise is a commercial commitment.', today:'Quoted lead time 12.5 days.',
+  gain:'12.5 → 7 days', gainText:'Quoted lead time to Codra. Feeds Codra kept (€2.24M).', when:'1 June, Codra first'},
+ {id:'a6', k:6, name:'Scorecard', who:'Hervé · Julien', reads:['sap','linelog'], writes:[], uses:['eval','store'],
+  why:'Schedule adherence has not been measured since 2024; Julien has never found a project gain in his numbers.',
+  what:'The five measures and five guardrails every week, with Julien\'s definitions, and the gain tracked against the €3.0M case.',
+  decide:'Julien signs the baseline and the gain.', today:'No planning KPI since 2024.',
+  gain:'€3.0M signable', gainText:'Turns the effects of apps 1–5 into a gain finance accepts.', when:'Baseline 15 May'},
+ {id:'a7', k:7, name:'SAP write-back', who:'Sylvie · Nadia · group IT', reads:[], writes:['sap'], uses:['store','audit'],
+  why:'Each plan version is re-keyed by hand into SAP, a day late.',
+  what:'Writes the published plan into SAP process orders through the group interface, with validation and an audit trail. Off in v1.',
+  decide:'The steering committee decides go-live; Nadia holds the kill switch.', today:'26.5 h a week of re-keying.',
+  gain:'26.5 h → 0', gainText:'Sylvie\'s re-keying, a guardrail of the scorecard.', when:'Tested in August, live September'}
+];
+const NAMES={sap:'SAP',linelog:'LineLog',lab:'Lab database',maint:'MaintPro',mail:'Planning mailbox',excel:'Workbook',paper:'Notebooks',rules:'Rules engine',long:'Long solver',fast:'Fast solver',llm:'Event reader',eval:'Plan evaluation',audit:'Audit',store:'Plan store'};
+const col=document.getElementById('appcol'), map=document.getElementById('map'), svg=document.getElementById('wires'), panel=document.getElementById('panel');
+APPS.forEach(a=>{
+  const b=document.createElement('button');b.type='button';b.className='n app';b.id=a.id;b.setAttribute('aria-pressed','false');
+  b.innerHTML=`<span class="k">${a.k}</span><span><b>${a.name}</b><span class="who">${a.who}</span></span>`;
+  b.addEventListener('click',()=>select(a.id));col.appendChild(b);
+});
+let current='a2';
+function css(v){return getComputedStyle(document.documentElement).getPropertyValue(v).trim();}
+function draw(){
+  svg.innerHTML='';
+  if(getComputedStyle(svg).display==='none')return;
+  const a=APPS.find(x=>x.id===current), m=map.getBoundingClientRect(), A=document.getElementById(a.id).getBoundingClientRect();
+  const ax=A.left-m.left, ay=A.top-m.top+A.height/2;
+  const link=(id,kind)=>{
+    const r=document.getElementById(id).getBoundingClientRect(), x=r.right-m.left, y=r.top-m.top+r.height/2;
+    const p=document.createElementNS('http://www.w3.org/2000/svg','path'), cx=(x+ax)/2;
+    p.setAttribute('d',`M${x},${y} C${cx},${y} ${cx},${ay} ${ax},${ay}`);p.setAttribute('fill','none');
+    p.setAttribute('stroke',kind==='w'?css('--eng'):css('--muted'));p.setAttribute('stroke-width',kind==='w'?3:2);
+    if(kind==='u')p.setAttribute('stroke-dasharray','5 4');svg.appendChild(p);
+  };
+  a.reads.forEach(id=>link(id,'r'));a.uses.filter(id=>!a.writes.includes(id)).forEach(id=>link(id,'u'));a.writes.forEach(id=>link(id,'w'));
+}
+function select(id){
+  current=id;const a=APPS.find(x=>x.id===id);
+  document.querySelectorAll('.n').forEach(n=>n.classList.remove('on'));
+  document.querySelectorAll('.n.app').forEach(n=>n.setAttribute('aria-pressed',n.id===id?'true':'false'));
+  [id,...a.reads,...a.writes,...a.uses].forEach(x=>{const e=document.getElementById(x);if(e)e.classList.add('on');});
+  map.classList.add('focus');
+  panel.innerHTML=`<span class="eyebrow">★ App ${a.k} · ${a.when}</span><h3>${a.name}</h3><span class="who">For ${a.who}</span>
+  <p class="today"><b>Today:</b> ${a.today}</p>
+  <dl class="kv"><dt>Why</dt><dd>${a.why}</dd><dt>What</dt><dd>${a.what}</dd>
+  <dt>Reads</dt><dd class="chips">${a.reads.map(r=>`<span>${NAMES[r]}</span>`).join('')||'—'}</dd>
+  <dt>Writes</dt><dd class="chips">${a.writes.map(r=>`<span class="w">${NAMES[r]}</span>`).join('')||'Nothing'}</dd>
+  <dt>Engine</dt><dd class="chips">${a.uses.map(r=>`<span>${NAMES[r]}</span>`).join('')}</dd></dl>
+  <p class="decide"><b>A person decides:</b> ${a.decide}</p>
+  <div class="gain"><span class="eyebrow">Gain</span><span class="big">${a.gain}</span><span>${a.gainText}</span></div>`;
+  draw();
+}
+select(current);
+window.addEventListener('resize',draw);
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(draw);
+</script>
+</body>
+</html>
