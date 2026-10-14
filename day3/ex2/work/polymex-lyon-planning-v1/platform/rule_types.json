@@ -1,0 +1,153 @@
+{
+ "changeover_table": {
+  "label": "Changeover matrix by family",
+  "help": "matrix[from][to] in minutes; null means forbidden. same_family and same_family_other_color in minutes.",
+  "example": {
+   "matrix": {
+    "PPN": {
+     "PPN": 25,
+     "PPW": 30
+    }
+   },
+   "same_family": 25,
+   "same_family_other_color": 60
+  }
+ },
+ "changeover_override": {
+  "label": "One changeover time that replaces the matrix",
+  "help": "minutes; match on from_product/to_product, or from_family/to_family; optional line or lines. The most specific rule wins.",
+  "example": {
+   "from_family": "PPC",
+   "to_family": "PPN",
+   "minutes": 130
+  }
+ },
+ "forbidden_transition": {
+  "label": "A family may never follow another",
+  "help": "from_family/to_family or from_product/to_product; optional line or lines.",
+  "example": {
+   "from_family": "PPG",
+   "to_family": "PPW"
+  }
+ },
+ "line_capability": {
+  "label": "A family runs only on some lines",
+  "help": "family or product_code, and the lines that can run it.",
+  "example": {
+   "family": "PPG",
+   "lines": [
+    "M01",
+    "M02",
+    "M05"
+   ]
+  }
+ },
+ "customer_line_qualification": {
+  "label": "A customer is supplied only from some lines",
+  "help": "customer (exact SAP name), lines, optional family.",
+  "example": {
+   "customer": "Brisol Automotive",
+   "lines": [
+    "M01",
+    "M05"
+   ]
+  }
+ },
+ "shared_resource_gap": {
+  "label": "Two starts on lines sharing a resource must be apart",
+  "help": "family, lines sharing the resource, gap_minutes between two starts.",
+  "example": {
+   "family": "PA6",
+   "lines": [
+    "M03",
+    "M06"
+   ],
+   "gap_minutes": 240
+  }
+ },
+ "max_changeovers_per_shift": {
+  "label": "Maximum changeovers per line per shift",
+  "help": "max; optional line or lines, shifts (A, B, C), weekdays (0 Sunday to 6 Saturday). The lowest applicable maximum applies.",
+  "example": {
+   "max": 4
+  }
+ },
+ "transition_window": {
+  "label": "A changeover may start only in a time window",
+  "help": "from_family/to_family or products, optional line, weekdays, from and to as HH:MM. If several rules match, any of their windows is allowed.",
+  "example": {
+   "from_family": "PPK",
+   "to_family": "PPN",
+   "weekdays": [
+    6
+   ],
+   "from": "06:00",
+   "to": "14:00"
+  }
+ },
+ "blackout": {
+  "label": "A line, or a family on a line, cannot run in a window",
+  "help": "line or lines, optional family; either weekdays with from and to (HH:MM, to may be past midnight), or start and end as dates.",
+  "example": {
+   "line": "M06",
+   "family": "PA6",
+   "weekdays": [
+    0
+   ],
+   "from": "22:00",
+   "to": "06:00"
+  }
+ },
+ "rate_factor": {
+  "label": "A line runs slower or faster on some days",
+  "help": "factor applied to 2.02 t/h; optional line or lines, family or product_code, weekdays. Factors multiply.",
+  "example": {
+   "line": "M04",
+   "weekdays": [
+    6,
+    0
+   ],
+   "factor": 0.85
+  }
+ },
+ "release_lag": {
+  "label": "Time between the end of production and shipping",
+  "help": "minutes and kind (lab, transport, packing, buffer); filter by customer, product_code or family. The longest of a kind applies; kinds add up.",
+  "example": {
+   "customer": "Brisol Automotive",
+   "product_code": "PPC-3120",
+   "minutes": 360
+  }
+ },
+ "priority": {
+  "label": "Weights of customers when something must be late",
+  "help": "weights by customer name; default for the others.",
+  "example": {
+   "weights": {
+    "Codra Retail": 5,
+    "Brisol Automotive": 3
+   },
+   "default": 1
+  }
+ },
+ "freeze_window": {
+  "label": "How far ahead nothing moves",
+  "help": "minutes from now; the running order and the next ones inside the window keep their place.",
+  "example": {
+   "minutes": 240
+  }
+ },
+ "line_preference": {
+  "label": "Soft: an order prefers some lines",
+  "help": "lines and penalty (cost units; one changeover minute costs 1); filter by family, customer, product_code, min_tonnes, max_tonnes. Never forbids a line.",
+  "example": {
+   "family": "PPK",
+   "lines": [
+    "M01",
+    "M06",
+    "M07"
+   ],
+   "penalty": 40
+  }
+ }
+}

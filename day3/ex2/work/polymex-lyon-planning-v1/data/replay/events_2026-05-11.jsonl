@@ -1,0 +1,9 @@
+{"event_id":"E01","at":"2026-05-11 08:40","type":"date_change","order_id":"O59057","due":"2026-05-12 23:00"}
+{"event_id":"E02","at":"2026-05-11 09:20","type":"machine_down","line":"M02","from":"2026-05-11 10:00","to":"2026-05-11 14:00"}
+{"event_id":"E03","at":"2026-05-11 10:35","type":"quantity_change","order_id":"O59085","tonnes":19}
+{"event_id":"E04","at":"2026-05-11 11:10","type":"rush_order","order_id":"O59097","customer":"Bricoval","product_code":"PPC-3110","tonnes":12,"due":"2026-05-13 22:00"}
+{"event_id":"E05","at":"2026-05-11 13:25","type":"material_late","order_id":"O59042","available_from":"2026-05-13 16:00"}
+{"event_id":"E06","at":"2026-05-11 14:15","type":"quality_hold","order_id":"O59083","due":"2026-05-13 06:00"}
+{"event_id":"E07","at":"2026-05-11 15:50","type":"cancellation","order_id":"O59087"}
+{"event_id":"E08","at":"2026-05-11 16:30","type":"rush_order","order_id":"O59098","customer":"Codra Retail","product_code":"PPW-2010","tonnes":18,"due":"2026-05-13 15:00"}
+{"event_id":"E09","at":"2026-05-11 23:10","type":"machine_down","line":"M05","from":"2026-05-11 23:00","to":"2026-05-12 02:00"}

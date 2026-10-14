@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lyon planning · rules and execution</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fjalla+One&family=Inter:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#0D0D0D;--soft:#313233;--mute:#5E6064;--g1:#888A8C;--g2:#C6C9CC;--line:#E4E4E4;--p3:#F3F3F3;--paper:#FDFDFD;--flame:#FD594F}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.45 Inter,system-ui,sans-serif}
+a{color:inherit}a:hover{color:var(--flame)}
+h1,h2,h3{font-family:'Fjalla One',sans-serif;font-weight:400;text-transform:uppercase;margin:0;letter-spacing:.005em}
+h1{font-size:28px}h2{font-size:22px}h3{font-size:17px}
+.mono{font-family:'Geist Mono',ui-monospace,monospace;font-size:13px}
+.lbl{font-size:11px;text-transform:uppercase;letter-spacing:.12em;color:var(--mute)}
+header{display:flex;align-items:center;gap:24px;padding:14px 28px;border-bottom:1px solid var(--ink);position:sticky;top:0;background:var(--paper);z-index:5;flex-wrap:wrap}
+nav{display:flex;gap:4px;flex-wrap:wrap}
+nav button{background:none;border:0;padding:8px 14px;font:inherit;font-size:12px;text-transform:uppercase;letter-spacing:.12em;color:var(--mute);cursor:pointer;border-bottom:2px solid transparent}
+nav button.on{color:var(--ink);border-bottom-color:var(--ink)}
+.sp{flex:1}
+main{padding:24px 28px 80px;display:flex;flex-direction:column;gap:22px;max-width:1500px}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.btn{border:1px solid var(--ink);background:var(--ink);color:var(--paper);border-radius:999px;padding:8px 18px;font:inherit;font-size:13px;cursor:pointer;transition:background .18s,color .18s}
+.btn:hover{background:var(--flame);color:var(--ink);border-color:var(--flame)}
+.btn.ghost{background:transparent;color:var(--ink)}
+.btn.ghost:hover{background:var(--p3);color:var(--ink);border-color:var(--ink)}
+.btn:active{transform:translateY(1px)}
+select,input,textarea{font:inherit;font-size:14px;border:1px solid var(--g2);background:#fff;padding:7px 9px;border-radius:2px;color:var(--ink)}
+textarea{width:100%;min-height:70px;resize:vertical}
+textarea.code{font-family:'Geist Mono',monospace;font-size:12px;min-height:110px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1px;background:var(--line);border:1px solid var(--line)}
+.kpi{background:var(--paper);padding:12px 14px;display:flex;flex-direction:column;gap:4px}
+.kpi b{font-family:'Fjalla One';font-weight:400;font-size:28px;line-height:1}
+.kpi .d{font-size:12px;color:var(--mute)}
+.gantt{border:1px solid var(--line);overflow-x:auto}
+.gl{display:grid;grid-template-columns:56px minmax(900px,1fr);border-bottom:1px solid var(--line)}
+.gl:last-child{border-bottom:0}
+.gn{font-family:'Fjalla One';font-size:16px;padding:10px;border-right:1px solid var(--line);display:flex;align-items:center}
+.gt{position:relative;height:46px}
+.gday{position:absolute;top:0;bottom:0;border-left:1px solid var(--line)}
+.gdl{position:absolute;top:2px;left:4px;font-size:10px;color:var(--g1);text-transform:uppercase;letter-spacing:.1em}
+.blk{position:absolute;top:14px;height:26px;border:1px solid var(--ink);font-size:10px;line-height:24px;padding:0 3px;overflow:hidden;white-space:nowrap;cursor:pointer}
+.blk:hover{outline:2px solid var(--flame);z-index:2}
+.co{position:absolute;top:22px;height:10px;background:repeating-linear-gradient(45deg,var(--g2) 0 2px,transparent 2px 5px)}
+.viol{outline:2px solid var(--flame)}
+.late::after{content:'';position:absolute;right:0;top:0;width:6px;height:6px;background:var(--flame)}
+table{border-collapse:collapse;width:100%}
+th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--mute);font-weight:500;padding:6px 10px 6px 0;border-bottom:1px solid var(--ink);vertical-align:bottom}
+td{padding:7px 10px 7px 0;border-bottom:1px solid var(--line);vertical-align:top;font-size:14px}
+.tag{display:inline-block;border:1px solid var(--ink);border-radius:999px;padding:1px 9px;font-size:11px;text-transform:uppercase;letter-spacing:.08em}
+.tag.active{background:var(--ink);color:var(--paper)}
+.tag.proposed{border-style:dashed}
+.tag.retired{color:var(--g1);border-color:var(--g2)}
+.tag.applied{background:var(--ink);color:var(--paper)}
+.mark{display:inline-block;width:8px;height:8px;background:var(--flame);margin-right:6px}
+.grid2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:28px}
+@media (max-width:1000px){.grid2{grid-template-columns:1fr}}
+.panel{border:1px solid var(--line);padding:16px 18px;display:flex;flex-direction:column;gap:12px;background:#fff}
+.panel.ink{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.f{display:grid;grid-template-columns:140px minmax(0,1fr);gap:8px 12px;align-items:center}
+.f label{font-size:12px;color:var(--mute)}
+.why{display:grid;grid-template-columns:70px minmax(0,1fr);gap:8px;align-items:center}
+.why span{font-family:'Fjalla One';font-size:15px}
+.msg{white-space:pre-wrap;font-size:13px;background:var(--p3);padding:10px 12px;border-left:0}
+.toast{position:fixed;bottom:18px;right:18px;background:var(--ink);color:var(--paper);padding:10px 16px;font-size:13px;max-width:520px;z-index:10}
+.toast.err{background:var(--flame);color:var(--ink)}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--mute)}
+.legend i{display:inline-block;width:14px;height:10px;border:1px solid var(--ink);margin-right:5px;vertical-align:-1px}
+.hide{display:none!important}
+</style>
+</head>
+<body>
+<header>
+  <h1>Lyon planning</h1>
+  <nav id="tabs"></nav>
+  <div class="sp"></div>
+  <div class="row"><span class="lbl">Acting as</span><select id="actor"></select></div>
+</header>
+<main id="main"></main>
+<div id="toast" class="toast hide"></div>
+<script>
+const $ = (s, el = document) => el.querySelector(s);
+const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const S = { tab: 'plan', actor: localStorage.getItem('actor') || 'human:corinne', types: {}, capture: null };
+const FAM = { PPN: ['#FFFFFF', 'natural'], PPW: ['#F3F3F3', 'white'], PPC: ['#C6C9CC', 'colored'], PPK: ['#0D0D0D', 'black'], PPG: ['#5E6064', 'glass-filled'], PA6: ['#888A8C', 'PA6'] };
+const T0 = Date.parse('2026-05-11T06:00:00Z'), SPAN = 168 * 3600e3;
+const pt = (s) => typeof s === 'number' ? s : Date.parse(String(s).replace(' ', 'T') + ':00Z');
+const fmt = (t) => new Date(t).toISOString().slice(5, 16).replace('T', ' ');
+async function api(path, b) {
+  const r = await fetch(path, { method: b ? 'POST' : 'GET', headers: { 'content-type': 'application/json', 'x-actor': S.actor }, body: b ? JSON.stringify(b) : undefined });
+  const j = await r.json(); if (!r.ok) { toast(j.error || r.status, true); throw new Error(j.error); } return j;
+}
+function toast(t, err) { const el = $('#toast'); el.textContent = t; el.className = 'toast' + (err ? ' err' : ''); clearTimeout(el._t); el._t = setTimeout(() => el.classList.add('hide'), err ? 7000 : 3500); }
+const TABS = [['plan', 'Plan'], ['events', 'Events'], ['rules', 'Rules'], ['execution', 'Execution'], ['scorecard', 'Scorecard'], ['audit', 'Audit']];
+function tabs() { $('#tabs').innerHTML = TABS.map(([k, l]) => `<button class="${S.tab === k ? 'on' : ''}" onclick="go('${k}')">${l}</button>`).join(''); }
+function go(t) { S.tab = t; tabs(); render(); }
+
+function kpiStrip(k, before) {
+  if (!k) return '<div class="lbl">No plan yet</div>';
+  const d = (a, b, unit, better) => before && b != null ? `<span class="d">${a > b ? '+' : ''}${(a - b).toFixed(1)}${unit} vs before</span>` : '';
+  const items = [['On time', k.on_time_pct + '%', d(k.on_time_pct, before?.on_time_pct, ' pts')], ['Codra on time', (k.codra_on_time_pct ?? '–') + '%', d(k.codra_on_time_pct, before?.codra_on_time_pct, ' pts')], ['Changeover hours', k.changeover_hours, d(k.changeover_hours, before?.changeover_hours, ' h')], ['Changeovers', k.changeovers, ''], ['Late orders', k.late.length, ''], ['Rule violations', k.violations, '']];
+  return '<div class="kpis">' + items.map(([l, v, x]) => `<div class="kpi"><span class="lbl">${l}</span><b>${v}</b>${x}</div>`).join('') + '</div>';
+}
+function gantt(p) {
+  const days = [...Array(7).keys()].map((i) => `<div class="gday" style="left:${(i * 24 * 3600e3 / SPAN * 100).toFixed(2)}%"><span class="gdl">${['Mon 11', 'Tue 12', 'Wed 13', 'Thu 14', 'Fri 15', 'Sat 16', 'Sun 17'][i]}</span></div>`).join('');
+  const viol = new Set((p.violations || []).map((v) => v.order_id));
+  const late = new Set((p.kpis.late || []).map((x) => x.order_id));
+  return '<div class="gantt">' + Object.entries(p.timed).map(([line, rows]) => `<div class="gl"><div class="gn">${line}</div><div class="gt">${days}` + rows.map((r) => {
+    const x = (t) => Math.max(0, Math.min(100, (t - T0) / SPAN * 100));
+    const f = r.product_code.slice(0, 3); const [bg] = FAM[f] || ['#fff']; const dark = f === 'PPK' || f === 'PPG';
+    const co = r.co_minutes ? `<div class="co" style="left:${x(r.co_start)}%;width:${(x(r.start) - x(r.co_start)).toFixed(2)}%" title="Changeover ${r.co_minutes} min (${r.co_rule || ''})"></div>` : '';
+    return co + `<div class="blk ${viol.has(r.order_id) ? 'viol' : ''} ${late.has(r.order_id) ? 'late' : ''}" style="left:${x(r.start)}%;width:${Math.max(0.3, x(r.end) - x(r.start)).toFixed(2)}%;background:${bg};color:${dark ? '#FDFDFD' : '#0D0D0D'}" title="${r.order_id} ${esc(r.customer)} ${r.product_code} ${r.tonnes} t · ${fmt(r.start)} to ${fmt(r.end)} · due ${r.due}" onclick="pick('${r.order_id}')">${r.order_id.slice(-3)} ${esc(r.customer.split(' ')[0])}</div>`;
+  }).join('') + '</div></div>').join('') + '</div>';
+}
+async function render() {
+  const m = $('#main'); const st = await api('/api/state');
+  if (S.tab === 'plan') {
+    const p = st.draft || st.published;
+    m.innerHTML = `<div class="row"><h2>${st.draft ? 'Draft: ' + (st.draft.kind === 'long' ? 'daily plan' : st.draft.kind === 'short' ? 'repair after ' + st.draft.event_id : 'override') : st.published ? 'Published plan' : 'No plan'}</h2><div class="sp"></div>
+      <input id="now" class="mono" value="${st.published ? '2026-05-12 05:30' : '2026-05-11 05:30'}" style="width:150px" title="Run time of the daily plan">
+      <button class="btn ghost" onclick="daily()">Run the daily plan</button>
+      ${st.draft ? '<button class="btn ghost" onclick="discard()">Discard draft</button><button class="btn" onclick="publish()">Publish</button>' : ''}
+      <button class="btn ghost" onclick="explain()">Explain</button></div>
+      ${p ? kpiStrip(p.kpis, st.draft && st.draft.before) : ''}
+      <div id="exp" class="msg hide"></div>
+      ${p ? gantt(p) : '<div class="panel">Run the daily plan to start. It sequences every open order of week 20 on M01 to M07 under the active rules.</div>'}
+      <div class="legend">${Object.entries(FAM).map(([k, [c, n]]) => `<span><i style="background:${c}"></i>${n}</span>`).join('')}<span><i style="background:repeating-linear-gradient(45deg,#C6C9CC 0 2px,transparent 2px 5px);border-color:#C6C9CC"></i>changeover</span><span><span class="mark"></span>late or rule violated</span></div>
+      <div id="pick"></div>
+      ${st.draft && st.draft.moves && st.draft.moves.length ? '<h3>What moved</h3><table><tr><th>Order</th><th>Kind</th><th>From</th><th>To</th></tr>' + st.draft.moves.filter((x) => x.kind !== 'time').map((x) => `<tr><td class="mono">${x.order_id}</td><td>${x.kind}</td><td class="mono">${x.from ? x.from.line + ' ' + x.from.start.slice(5) : '–'}</td><td class="mono">${x.to ? x.to.line + ' ' + (x.to.start ? x.to.start.slice(5) : 'pos ' + x.to.position) : 'removed'}</td></tr>`).join('') + '</table>' : ''}
+      ${p && p.violations.length ? '<h3>Rule violations</h3><table><tr><th>Rule</th><th>Order</th><th>Line</th><th>What</th></tr>' + p.violations.map((v) => `<tr><td class="mono">${v.rule}</td><td class="mono">${v.order_id || ''}</td><td>${v.line || ''}</td><td>${esc(v.what)}</td></tr>`).join('') + '</table>' : ''}`;
+    S.plan = p; S.state = st.state;
+  }
+  if (S.tab === 'events') {
+    const [ev, inbox] = await Promise.all([api('/api/events'), api('/api/inbox')]);
+    m.innerHTML = `<div class="grid2"><div style="display:flex;flex-direction:column;gap:14px"><h2>Planning mailbox, Monday 11 May</h2>${inbox.map((x) => `<div class="panel"><div class="row"><span class="lbl">${x.id}</span><div class="sp"></div><button class="btn ghost" onclick="readMsg('${x.id}')">Read with the model</button><button class="btn ghost" onclick="manual('${x.id}')">Enter by hand</button></div><div class="msg" id="m-${x.id}">${esc(x.text)}</div></div>`).join('')}</div>
+      <div style="display:flex;flex-direction:column;gap:14px"><h2>Events</h2><div id="evform"></div>
+      <table><tr><th>Id</th><th>Type</th><th>What</th><th>At</th><th>Status</th><th></th></tr>${ev.slice().reverse().map((e) => `<tr><td class="mono">${e.event_id}</td><td>${e.type}${e.confidence != null ? '<div class="lbl">conf. ' + e.confidence + '</div>' : ''}</td><td class="mono">${esc(evText(e))}</td><td class="mono">${(e.at || '').slice(5)}</td><td><span class="tag ${e.status}">${e.status}</span></td><td>${e.status === 'proposed' ? `<div class="row"><button class="btn" onclick="confirmEv('${e.event_id}')">Confirm and repair</button><button class="btn ghost" onclick="whatifEv('${e.event_id}')">What if</button><button class="btn ghost" onclick="rejectEv('${e.event_id}')">Reject</button></div>` : ''}</td></tr>`).join('')}</table></div></div>`;
+    S.events = ev; S.inbox = inbox;
+  }
+  if (S.tab === 'rules') {
+    const [rules, types, ov, ex] = await Promise.all([api('/api/rules'), api('/api/rule-types'), api('/api/overrides'), api('/api/execution')]); S.types = types; S.rules = rules;
+    const openOv = ov.filter((o) => o.status === 'open'), openEx = ex.filter((x) => x.status === 'open');
+    const cats = [...new Set(rules.map((r) => r.category || 'Captured'))]; const q = (S.rq || '').toLowerCase();
+    const shown = rules.filter((r) => (!S.rc || (r.category || 'Captured') === S.rc) && (!S.rs || r.status === S.rs) && (!q || (r.id + ' ' + r.statement + ' ' + r.source + ' ' + r.owner).toLowerCase().includes(q)));
+    m.innerHTML = `<div class="row"><h2>Planning rules</h2><span class="mono">${rules.filter((r) => r.status === 'active').length} active · ${rules.filter((r) => r.status === 'proposed').length} proposed · ${rules.filter((r) => r.status === 'retired').length} retired</span><div class="sp"></div><button class="btn" onclick="newRule()">Capture a rule</button></div>
+      <div class="row"><input placeholder="Search id, words, source, owner" value="${esc(S.rq || '')}" onchange="S.rq=this.value;render()" style="min-width:280px"><select onchange="S.rc=this.value;render()"><option value="">All categories</option>${cats.map((c) => `<option ${S.rc === c ? 'selected' : ''}>${esc(c)}</option>`).join('')}</select><select onchange="S.rs=this.value;render()"><option value="">All statuses</option>${['active', 'proposed', 'retired'].map((s) => `<option ${S.rs === s ? 'selected' : ''}>${s}</option>`).join('')}</select><span class="lbl">${shown.length} shown</span></div>
+      ${openOv.length || openEx.length ? '<div class="panel ink"><h3>Disagreements waiting for a why</h3>' + [...openOv.map((o) => `<div class="row"><span class="mark"></span><span class="mono">${o.id}</span> Corinne overrode ${o.order_id} to ${o.line} position ${o.position}: “${esc(o.reason)}”<div class="sp"></div><button class="btn ghost" style="color:#FDFDFD;border-color:#FDFDFD" onclick="newRule('${o.id}')">Ask why</button></div>`), ...openEx.map((x) => `<div class="row"><span class="mark"></span><span class="mono">${x.id}</span> ${x.order_id}: ${esc(x.what_happened)} (${x.classification})<div class="sp"></div><button class="btn ghost" style="color:#FDFDFD;border-color:#FDFDFD" onclick="newRule('${x.id}')">Ask why</button></div>`)].join('') + '</div>' : ''}
+      <div id="rform"></div>
+      <table><tr><th>Id</th><th>Rule</th><th>Type and parameters</th><th>Source</th><th>Owner</th><th>Status</th><th></th></tr>${shown.map((r) => `<tr><td class="mono">${r.id}</td><td>${esc(r.statement)}${r.discovery ? '<div class="lbl" style="margin-top:4px">Found by five whys · ' + esc(r.discovery.root || '') + '</div>' : ''}</td><td class="mono" style="max-width:320px">${r.type}<br>${esc(r.type === 'changeover_table' ? 'matrix 6 x 6' : JSON.stringify(r.params))}</td><td style="max-width:240px">${esc(r.source)}</td><td>${esc(r.owner)}</td><td><span class="tag ${r.status}">${r.status}</span>${r.validated_by ? '<div class="lbl">' + esc(r.validated_by) + ' ' + (r.validated_on || '') + '</div>' : ''}</td><td><div class="row">${r.status === 'proposed' ? `<button class="btn" onclick="setRule('${r.id}','active')">Validate</button>` : ''}${r.status === 'active' ? `<button class="btn ghost" onclick="setRule('${r.id}','retired')">Retire</button>` : ''}</div></td></tr>`).join('')}</table>`;
+  }
+  if (S.tab === 'execution') {
+    const ex = await api('/api/execution'); const p = st.published;
+    const ids = p ? Object.values(p.timed).flat().map((r) => r.order_id) : [];
+    m.innerHTML = `<div class="grid2"><div class="panel"><h2>Record what really happened</h2>
+      <div class="f"><label>Order</label><select id="x-order">${ids.map((i) => `<option>${i}</option>`).join('')}</select>
+      <label>Actual line</label><select id="x-line">${['M01', 'M02', 'M03', 'M04', 'M05', 'M06', 'M07'].map((l) => `<option>${l}</option>`).join('')}</select>
+      <label>Actual start</label><input id="x-start" class="mono" placeholder="2026-05-12 14:00">
+      <label>Actual end</label><input id="x-end" class="mono" placeholder="2026-05-12 22:30">
+      <label>What happened</label><input id="x-what" placeholder="Ran on M04 instead of M01; changeover took 3 h">
+      <label>Why, first answer</label><input id="x-why" placeholder="As told by the shift leader">
+      <label>Classification</label><select id="x-class"><option>rule missing</option><option>rule wrong</option><option>data wrong</option><option>one-off</option><option>human preference</option></select>
+      <label>Told by</label><input id="x-by" placeholder="Kevin, night shift"></div>
+      <div class="row"><button class="btn" onclick="recordX()">Record the deviation</button></div></div>
+      <div style="display:flex;flex-direction:column;gap:12px"><h2>Deviations</h2><table><tr><th>Id</th><th>Order</th><th>What happened</th><th>Class</th><th>Status</th></tr>${ex.slice().reverse().map((x) => `<tr><td class="mono">${x.id}</td><td class="mono">${x.order_id}</td><td>${esc(x.what_happened)}<div class="lbl">${esc(x.why || '')}</div></td><td>${esc(x.classification)}</td><td>${esc(x.status)}</td></tr>`).join('')}</table></div></div>`;
+    if (S.pickOrder) $('#x-order').value = S.pickOrder;
+  }
+  if (S.tab === 'scorecard') {
+    const s = await api('/api/scorecard');
+    const rows = [['On time, all orders', 'on_time_pct', '%'], ['On time, Codra', 'codra_on_time_pct', '%'], ['Changeover hours', 'changeover_hours', ' h'], ['Changeovers', 'changeovers', ''], ['Late orders', 'late', ''], ['Rule violations', 'violations', '']];
+    const v = (k, key) => k ? (key === 'late' ? k.late.length : k[key]) : '–';
+    m.innerHTML = `<h2>Scorecard</h2><table><tr><th>Measure</th><th>Corinne's Friday plan, week 20</th><th>Published plan now</th></tr>${rows.map(([l, key, u]) => `<tr><td>${l}</td><td class="mono">${v(s.human_plan_w20, key)}${u}</td><td class="mono">${v(s.published, key)}${s.published ? u : ''}</td></tr>`).join('')}</table>
+      <div class="kpis"><div class="kpi"><span class="lbl">Events applied</span><b>${s.events.applied}</b><span class="d">${s.events.proposed} waiting</span></div><div class="kpi"><span class="lbl">Active rules</span><b>${s.rules.active}</b><span class="d">${s.rules.proposed} proposed, ${s.rules.retired} retired</span></div><div class="kpi"><span class="lbl">Overrides</span><b>${s.overrides.total}</b><span class="d">${s.overrides.with_rule} turned into a rule</span></div><div class="kpi"><span class="lbl">Deviations</span><b>${s.deviations.total}</b><span class="d">${s.deviations.open} without a why</span></div></div>`;
+  }
+  if (S.tab === 'audit') {
+    const a = await api('/api/audit');
+    m.innerHTML = `<h2>Audit trail</h2><table><tr><th>When</th><th>Who</th><th>What</th><th>Details</th></tr>${a.map((x) => `<tr><td class="mono">${x.at.slice(5, 19).replace('T', ' ')}</td><td class="mono">${esc(x.actor)}</td><td>${esc(x.what)}</td><td class="mono" style="max-width:640px;word-break:break-word">${esc(JSON.stringify(x.payload).slice(0, 260))}</td></tr>`).join('')}</table>`;
+  }
+}
+function evText(e) { return ({ quantity_change: `${e.order_id} to ${e.tonnes} t`, date_change: `${e.order_id} due ${e.due}`, rush_order: `${e.order_id} ${e.customer} ${e.product_code} ${e.tonnes} t due ${e.due}`, cancellation: `${e.order_id}`, material_late: `${e.order_id} material from ${e.available_from}`, quality_hold: `${e.order_id} re-run, due ${e.due}`, machine_down: `${e.line} ${e.from} to ${e.to}` })[e.type] || JSON.stringify(e); }
+
+async function daily() { const r = await api('/api/plan/daily', { now: $('#now').value }); toast('Daily plan drafted in ' + r.runtime_ms + ' ms'); render(); }
+async function publish() { await api('/api/plan/publish', {}); toast('Published'); render(); }
+async function discard() { const reason = prompt('Why do you discard this draft? Your answer becomes a lead for a rule.'); if (reason == null) return; await api('/api/plan/discard', { reason }); render(); }
+async function explain() { const r = await api('/api/plan/explain'); const el = $('#exp'); el.textContent = r.text + (r.by === 'template' ? '\n(template: ' + (r.note || '') + ')' : ''); el.classList.remove('hide'); }
+function pick(id) {
+  S.pickOrder = id; const r = Object.values(S.plan.timed).flat().find((x) => x.order_id === id); const o = S.state.orders.find((x) => x.order_id === id) || {};
+  $('#pick').innerHTML = `<div class="panel"><div class="row"><h3>${id} · ${esc(r.customer)} · ${r.product_code} · ${r.tonnes} t</h3><div class="sp"></div><span class="mono">${r.line} · ${fmt(r.start)} to ${fmt(r.end)} · due ${o.due}${o.available_from ? ' · material from ' + o.available_from : ''}</span></div>
+    <div class="row"><span class="lbl">Override</span><select id="o-line">${['M01', 'M02', 'M03', 'M04', 'M05', 'M06', 'M07'].map((l) => `<option ${l === r.line ? 'selected' : ''}>${l}</option>`).join('')}</select><input id="o-pos" type="number" min="1" value="1" style="width:70px" title="Position on the line"><input id="o-why" placeholder="Why? (required)" style="flex:1;min-width:260px"><button class="btn" onclick="override('${id}')">Move it</button><button class="btn ghost" onclick="go('execution')">Record what really happened</button></div></div>`;
+}
+async function override(id) { await api('/api/plan/override', { order_id: id, line: $('#o-line').value, position: $('#o-pos').value, reason: $('#o-why').value }); toast('Override recorded. Find the rule behind it in Rules.'); render(); }
+async function readMsg(id) { const x = S.inbox.find((i) => i.id === id); toast('Reading…'); await api('/api/events/read', { text: x.text, source: id }); render(); }
+const EVF = { quantity_change: ['order_id', 'tonnes'], date_change: ['order_id', 'due'], rush_order: ['order_id', 'customer', 'product_code', 'tonnes', 'due'], cancellation: ['order_id'], material_late: ['order_id', 'available_from'], quality_hold: ['order_id', 'due'], machine_down: ['line', 'from', 'to'] };
+function manual(id) {
+  S.raw = id ? S.inbox.find((i) => i.id === id).text : '';
+  $('#evform').innerHTML = `<div class="panel"><h3>Enter an event by hand</h3><div class="f"><label>Type</label><select id="e-type" onchange="evFields()">${Object.keys(EVF).map((t) => `<option>${t}</option>`).join('')}</select><label>At</label><input id="e-at" class="mono" value="2026-05-11 09:00"></div><div class="f" id="e-fields"></div><div class="row"><button class="btn" onclick="saveManual()">Propose</button></div></div>`; evFields();
+}
+function evFields() { $('#e-fields').innerHTML = EVF[$('#e-type').value].map((k) => `<label>${k}</label><input id="e-${k}" class="mono">`).join(''); }
+async function saveManual() { const t = $('#e-type').value; const e = { type: t, at: $('#e-at').value }; for (const k of EVF[t]) { const v = $('#e-' + k).value; e[k] = k === 'tonnes' ? +v : v; } await api('/api/events/manual', { event: e, raw: S.raw }); render(); }
+async function confirmEv(id) { const e = S.events.find((x) => x.event_id === id); const at = prompt('Time the event is applied (plant time)', e.at || '2026-05-11 09:00'); if (!at) return; const r = await api('/api/events/confirm', { event: { ...e, at } }); toast('Repair drafted in ' + r.runtime_ms + ' ms, ' + r.moves.filter((m) => m.kind !== 'time').length + ' orders change line or sequence'); go('plan'); }
+async function whatifEv(id) { const e = S.events.find((x) => x.event_id === id); const r = await api('/api/whatif', { event: { ...e, at: e.at || '2026-05-11 09:00' } }); toast(r.order ? `If confirmed: ${r.order.order_id} on ${r.order.line}, ends ${r.order.end}, due ${r.order.due}. ${r.feasible ? 'Feasible.' : 'Not feasible as asked.'} ${r.moves.filter((m) => m.kind !== 'time').length} other orders move.` : 'No order to place.'); }
+async function rejectEv(id) { const reason = prompt('Why reject it?'); if (reason == null) return; await api('/api/events/reject', { event_id: id, reason }); render(); }
+
+function newRule(link) {
+  S.capture = link || null;
+  const ov = link ? `<div class="msg">Trigger: ${esc(link)}. Ask Corinne why, five times, until the answer is a fact about the plant that would hold next week.</div>` : '';
+  $('#rform').innerHTML = `<div class="grid2"><div class="panel"><h3>Five whys</h3>${ov}
+    <div class="why"><span>Seen</span><input id="w0" placeholder="The plan put O59052 on M04 at the weekend; Corinne moved it"></div>
+    ${[1, 2, 3, 4, 5].map((i) => `<div class="why"><span>Why ${i}</span><input id="w${i}"></div>`).join('')}
+    <div class="why"><span>Root</span><input id="wroot" placeholder="The fact about the plant"></div></div>
+    <div class="panel"><h3>The rule</h3><div class="f"><label>Statement</label><input id="r-stmt" placeholder="In the words Corinne would use">
+    <label>Type</label><select id="r-type" onchange="ruleTpl()">${Object.entries(S.types).map(([k, t]) => `<option value="${k}">${k}: ${esc(t.label)}</option>`).join('')}</select>
+    <label>Parameters</label><textarea id="r-params" class="code"></textarea>
+    <label>Source</label><input id="r-src" placeholder="Corinne, live session, 13 May 2026, 16:05">
+    <label>Owner</label><input id="r-owner" value="Corinne"></div>
+    <div class="lbl" id="r-help"></div>
+    <div class="row"><button class="btn" onclick="saveRule()">Propose the rule</button><span class="lbl">Corinne validates; then it is active in both optimizers.</span></div></div></div>`;
+  ruleTpl();
+}
+function ruleTpl() { const t = S.types[$('#r-type').value]; $('#r-params').value = JSON.stringify(t.example, null, 1); $('#r-help').textContent = t.help; }
+async function saveRule() {
+  let params; try { params = JSON.parse($('#r-params').value); } catch (e) { return toast('Parameters are not valid JSON', true); }
+  const whys = [1, 2, 3, 4, 5].map((i) => $('#w' + i).value).filter(Boolean);
+  await api('/api/rules', { type: $('#r-type').value, statement: $('#r-stmt').value, params, source: $('#r-src').value, owner: $('#r-owner').value, discovery: { seen: $('#w0').value, whys, root: $('#wroot').value }, links: S.capture ? [S.capture] : [] });
+  toast('Rule proposed'); render();
+}
+async function setRule(id, status) { await api('/api/rules/status', { id, status }); toast(id + ' ' + status + (status === 'active' ? '. Run the daily plan or the next repair to apply it.' : '')); render(); }
+async function recordX() { await api('/api/execution', { order_id: $('#x-order').value, actual_line: $('#x-line').value, actual_start: $('#x-start').value, actual_end: $('#x-end').value, what_happened: $('#x-what').value, why: $('#x-why').value, classification: $('#x-class').value, told_by: $('#x-by').value }); toast('Recorded. Ask why in Rules.'); render(); }
+
+(async () => {
+  const st = await api('/api/state');
+  $('#actor').innerHTML = st.actors.map((a) => `<option value="${a}" ${a === S.actor ? 'selected' : ''}>${a.replace('human:', '').replace(/^./, (c) => c.toUpperCase())}</option>`).join('');
+  $('#actor').onchange = (e) => { S.actor = e.target.value; localStorage.setItem('actor', S.actor); toast('Acting as ' + S.actor); render(); };
+  tabs(); render();
+})();
+</script>
+</body>
+</html>

@@ -232,7 +232,7 @@ footer{font:12px/1.7 var(--mono);color:var(--muted)}
       <li><b>Half the Friday overtime: €0.45M</b> · overtime premium €0.9M × 50%</li>
       <li><b>Start-up scrap, 20% fewer changeovers: €0.34M</b> · materials €89.2M × 4.2% × 45% × 20%</li>
       <li>Total about <b>€3.0M a year</b>, contribution per tonne, never revenue</li></ul>
-      <p class="small">Entitlement from the long solver on week 20: −42% changeover hours with six more points of planned on-time. Not a target: it assumes a week without a single event.</p></div>
+      <p class="small">Entitlement measured by our own run of the long solver on week 20 (Exercise 3): <b>−40% changeover hours</b> (89.2 h → 53.9 h), on-time 91.7% → 96.9%, against Corinne's Friday plan. Not a target: it assumes a week without a single event; Monday's nine events took on-time from 97.9% to 85.7% in the replay.</p></div>
   </div>
 </section>
 
@@ -311,7 +311,7 @@ footer{font:12px/1.7 var(--mono);color:var(--muted)}
     <article class="step"><div class="stephead"><span class="num">3</span><div><h3>Daily rolling plan</h3><span class="when">05:30 every day · horizon 7 days</span><span class="chip solver">Long solver · optimisation</span></div></div>
       <p class="choice"><b>Why this type:</b> sequencing 7 lines under 110 rules is combinatorial; a solver finds a feasible, low-changeover plan in seconds. A language model cannot guarantee feasibility.</p>
       <div class="decide"><i class="gate"></i><span><b>Corinne reviews and publishes.</b> She knows what is not in the data and stays accountable for the plan.</span></div>
-      <div class="build"><span class="wb">★ We build</span><ul><li>Orchestrator: the 05:30 run, roll-forward, gates</li><li>Review &amp; publish screen: today vs yesterday, the rule behind each choice</li></ul></div><dl class="rows"><dt>Replaces</dt><dd>Friday plan (4–5 h) and the 07:30 replan (52 min a day)</dd><dt>Moves</dt><dd>Plans published from the system 0 → 90%; changeover hours (entitlement −42%)</dd></dl></article>
+      <div class="build"><span class="wb">★ We build</span><ul><li>Orchestrator: the 05:30 run, roll-forward, gates</li><li>Review &amp; publish screen: today vs yesterday, the rule behind each choice</li></ul></div><dl class="rows"><dt>Replaces</dt><dd>Friday plan (4–5 h) and the 07:30 replan (52 min a day)</dd><dt>Moves</dt><dd>Plans published from the system 0 → 90%; changeover hours (entitlement −40%)</dd></dl></article>
 
     <article class="step"><div class="stephead"><span class="num">4</span><div><h3>Take in an event</h3><span class="when">Each email, call, LineLog note, lab hold</span><span class="chip llm">Language model · extraction</span></div></div>
       <p class="choice"><b>Why this type:</b> changes arrive as free text; a small model turns each one into a structured event with its evidence. Emails are untrusted input, so the model gets no write rights.</p>

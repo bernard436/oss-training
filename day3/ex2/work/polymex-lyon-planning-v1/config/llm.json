@@ -1,0 +1,10 @@
+{
+ "default_model": "claude-sonnet-4-5",
+ "models": {
+  "event_reader": "claude-haiku-4-5",
+  "explainer": "claude-sonnet-4-5"
+ },
+ "max_tokens": 1024,
+ "endpoint": "https://api.anthropic.com/v1/messages",
+ "note": "Use the model names provisioned by the organizers on Day 1. In production at Polymex, Nadia requires an EU endpoint and an approved tool."
+}

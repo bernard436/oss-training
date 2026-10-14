@@ -1,0 +1,12 @@
+{
+ "long": {
+  "run_at": "05:30",
+  "horizon_days": 7,
+  "time_budget_ms": 4000
+ },
+ "short": {
+  "horizon_hours": 48,
+  "time_budget_ms": 800,
+  "note": "The freeze comes from rule R08 (freeze_window)."
+ }
+}

@@ -1,0 +1,16 @@
+{
+ "name": "polymex-lyon-planning-v1",
+ "version": "1.0.0",
+ "private": true,
+ "type": "module",
+ "engines": {
+  "node": ">=20"
+ },
+ "scripts": {
+  "reset": "node -e \"import('./platform/store.mjs').then((s) => s.reset())\"",
+  "test": "node --test tests/platform.test.mjs tests/architecture.test.mjs",
+  "day": "node scripts/day.mjs",
+  "replay": "node scripts/replay.mjs",
+  "start": "node app/server.mjs"
+ }
+}

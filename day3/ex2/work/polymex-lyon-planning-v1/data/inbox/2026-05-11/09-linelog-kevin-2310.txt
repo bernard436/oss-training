@@ -1,0 +1,2 @@
+LineLog, M05, shift C, Monday 23:10, comment by Kevin
+strand breaks M05 since 23:00, die cleaning, back ~02:00. next order waits.

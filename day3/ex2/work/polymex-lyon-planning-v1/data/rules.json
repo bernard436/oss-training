@@ -1,0 +1,2018 @@
+[
+ {
+  "id": "R01",
+  "category": "Changeover",
+  "type": "changeover_table",
+  "statement": "Changeover minutes from one family to another. Same family 25, same family other color 60, same product 0. Empty means forbidden.",
+  "params": {
+   "matrix": {
+    "PPN": {
+     "PPN": 25,
+     "PPW": 30,
+     "PPC": 35,
+     "PPK": 30,
+     "PPG": 45,
+     "PA6": 150
+    },
+    "PPW": {
+     "PPN": 75,
+     "PPW": 25,
+     "PPC": 40,
+     "PPK": 30,
+     "PPG": 45,
+     "PA6": 150
+    },
+    "PPC": {
+     "PPN": 110,
+     "PPW": 90,
+     "PPC": 60,
+     "PPK": 35,
+     "PPG": 60,
+     "PA6": 150
+    },
+    "PPK": {
+     "PPN": 240,
+     "PPW": 180,
+     "PPC": 120,
+     "PPK": 25,
+     "PPG": 60,
+     "PA6": 150
+    },
+    "PPG": {
+     "PPN": 90,
+     "PPW": null,
+     "PPC": 100,
+     "PPK": 90,
+     "PPG": 25,
+     "PA6": null
+    },
+    "PA6": {
+     "PPN": 150,
+     "PPW": 150,
+     "PPC": 150,
+     "PPK": 150,
+     "PPG": null,
+     "PA6": 25
+    }
+   },
+   "same_family": 25,
+   "same_family_other_color": 60
+  },
+  "source": "Corinne's whiteboard, photo of 30 April 2026; Jean-Pierre N1 p.40",
+  "owner": "Corinne",
+  "status": "active",
+  "validated_by": "Corinne",
+  "validated_on": "2026-05-06"
+ },
+ {
+  "id": "R02",
+  "category": "Forbidden transition",
+  "type": "forbidden_transition",
+  "statement": "Never white straight after glass-filled: streaks for hours",
+  "params": {
+   "from_family": "PPG",
+   "to_family": "PPW"
+  },
+  "source": "Jean-Pierre N2 p.31; Corinne, 4 May",
+  "owner": "Corinne",
+  "status": "active",
+  "validated_by": "Corinne",
+  "validated_on": "2026-05-06"
+ },
+ {
+  "id": "R03",
+  "category": "Line capability",
+  "type": "line_capability",
+  "statement": "Glass-filled only on M01, M02, M05: hardened screws since 2013",
+  "params": {
+   "family": "PPG",
+   "lines": [
+    "M01",
+    "M02",
+    "M05"
+   ]
+  },
+  "source": "Jean-Pierre N2 p.7",
+  "owner": "Patrick",
+  "status": "active",
+  "validated_by": "Corinne",
+  "validated_on": "2026-05-06"
+ },
+ {
+  "id": "R04",
+  "category": "Line capability",
+  "type": "line_capability",
+  "statement": "PA6 only on M03 and M06: the dryer is connected there",
+  "params": {
+   "family": "PA6",
+   "lines": [
+    "M03",
+    "M06"
+   ]
+  },
+  "source": "Jean-Pierre N3 p.18",
+  "owner": "Patrick",
+  "status": "active",
+  "validated_by": "Corinne",
+  "validated_on": "2026-05-06"
+ },
+ {
+  "id": "R05",
+  "category": "Shared resource",
+  "type": "shared_resource_gap",
+  "statement": "Two PA6 starts on M03 and M06 at least four hours apart: one dryer",
+  "params": {
+   "family": "PA6",
+   "lines": [
+    "M03",
+    "M06"
+   ],
+   "gap_minutes": 240
+  },
+  "source": "Jean-Pierre N3 p.18; Corinne, 4 May",
+  "owner": "Corinne",
+  "status": "active",
+  "validated_by": "Corinne",
+  "validated_on": "2026-05-06"
+ },
+ {
+  "id": "R06",
+  "category": "Changeovers per shift",
+  "type": "max_changeovers_per_shift",
+  "statement": "At most four changeovers per line per shift",
+  "params": {
+   "max": 4
+  },
+  "source": "Corinne, 4 May. Notebook N3 p.52 says three; Corinne says four since 2025",
+  "owner": "Corinne",
+  "status": "active",
+  "validated_by": "Corinne",
+  "validated_on": "2026-05-06"
+ },
+ {
+  "id": "R07",
+  "category": "Changeover window",
+  "type": "transition_window",
+  "statement": "Black to natural needs a screw pull: Saturday 06:00 to 14:00 only, maintenance present",
+  "params": {
+   "from_family": "PPK",
+   "to_family": "PPN",
+   "weekdays": [
+    6
+   ],
+   "from": "06:00",
+   "to": "14:00"
+  },
+  "source": "Jean-Pierre N1 p.12; Patrick, 6 May",
+  "owner": "Patrick",
+  "status": "active",
+  "validated_by": "Corinne",
+  "validated_on": "2026-05-06"
+ },
+ {
+  "id": "R08",
+  "category": "Freeze and priority",
+  "type": "freeze_window",
+  "statement": "Never touch the running order and the next one: about four hours",
+  "params": {
+   "minutes": 240
+  },
+  "source": "Corinne, process walk 5 May",
+  "owner": "Corinne",
+  "status": "active",
+  "validated_by": "Corinne",
+  "validated_on": "2026-05-06"
+ },
+ {
+  "id": "R09",
+  "category": "Freeze and priority",
+  "type": "priority",
+  "statement": "Codra first since February, Brisol second (contract penalties), then the others",
+  "params": {
+   "weights": {
+    "Codra Retail": 5,
+    "Brisol Automotive": 3
+   },
+   "default": 1
+  },
+  "source": "Corinne, process walk 5 May; decision by Hervé, February 2026",
+  "owner": "Hervé",
+  "status": "active",
+  "validated_by": "Corinne",
+  "validated_on": "2026-05-06"
+ },
+ {
+  "id": "R10",
+  "category": "Changeover",
+  "type": "changeover_override",
+  "statement": "Blue to red: 45 minutes, light to dark",
+  "params": {
+   "from_product": "PPC-3110",
+   "to_product": "PPC-3120",
+   "minutes": 45
+  },
+  "source": "Corinne, rules workshop, 6 May 2026; Jean-Pierre N2 p.12",
+  "owner": "Corinne",
+  "status": "active",
+  "validated_by": "Corinne",
+  "validated_on": "2026-05-06"
+ },
+ {
+  "id": "R11",
+  "category": "Changeover",
+  "type": "changeover_override",
+  "statement": "Red to blue: 75 minutes, purge until no pink",
+  "params": {
+   "from_product": "PPC-3120",
+   "to_product": "PPC-3110",
+   "minutes": 75
+  },
+  "source": "Corinne, rules workshop, 6 May 2026; Jean-Pierre N2 p.12",
+  "owner": "Corinne",
+  "status": "active",
+  "validated_by": "Corinne",
+  "validated_on": "2026-05-06"
+ },
+ {
+  "id": "R12",
+  "category": "Changeover",
+  "type": "changeover_override",
+  "statement": "Blue to green: 50 minutes",
+  "params": {
+   "from_product": "PPC-3110",
+   "to_product": "PPC-3140",
+   "minutes": 50
+  },
+  "source": "Corinne, rules workshop, 6 May 2026",
+  "owner": "Corinne",
+  "status": "active",
+  "validated_by": "Corinne",
+  "validated_on": "2026-05-06"
+ },
+ {
+  "id": "R13",
+  "category": "Changeover",
+  "type": "changeover_override",
+  "statement": "Green to blue: 70 minutes",
+  "params": {
+   "from_product": "PPC-3140",
+   "to_product": "PPC-3110",
+   "minutes": 70
+  },
+  "source": "Corinne, rules workshop, 6 May 2026",
+  "owner": "Corinne",
+  "status": "active",
+  "validated_by": "Corinne",
+  "validated_on": "2026-05-06"
+ },
+ {
+  "id": "R14",
+  "category": "Changeover",
+  "type": "changeover_override",
+  "statement": "Red to green: 80 minutes, red shows in green for an hour",
+  "params": {
+   "from_product": "PPC-3120",
+   "to_product": "PPC-3140",
+   "minutes": 80
+  },
+  "source": "Corinne, rules workshop, 6 May 2026; Amina, color claims 2025",
+  "owner": "Corinne",
+  "status": "active",
+  "validated_by": "Corinne",
+  "validated_on": "2026-05-06"
+ },
+ {
+  "id": "R15",
+  "category": "Changeover",
+  "type": "changeover_override",
+  "statement": "Green to red: 55 minutes",
+  "params": {
+   "from_product": "PPC-3140",
+   "to_product": "PPC-3120",
+   "minutes": 55
+  },
+  "source": "Corinne, rules workshop, 6 May 2026",
+  "owner": "Corinne",
+  "status": "active",
+  "validated_by": "Corinne",
+  "validated_on": "2026-05-06"
+ },
+ {
+  "id": "R16",
+  "category": "Changeover",
+  "type": "changeover_override",
+  "statement": "Natural 1010 to natural 1020: 15 minutes, grade change only",
+  "params": {
+   "from_product": "PPN-1010",
+   "to_product": "PPN-1020",
+   "minutes": 15
+  },
+  "source": "Corinne, rules workshop, 6 May 2026",
+  "owner": "Corinne",
+  "status": "active",
+  "validated_by": "Corinne",
+  "validated_on": "2026-05-06"
+ },
+ {
+  "id": "R17",
+  "category": "Changeover",
+  "type": "changeover_override",
+  "statement": "Natural 1020 to natural 1010: 20 minutes",
+  "params": {
+   "from_product": "PPN-1020",
+   "to_product": "PPN-1010",
+   "minutes": 20
+  },
+  "source": "Corinne, rules workshop, 6 May 2026",
+  "owner": "Corinne",
+  "status": "active",
+  "validated_by": "Corinne",
+  "validated_on": "2026-05-06"
+ },
+ {
+  "id": "R18",
+  "category": "Changeover",
+  "type": "changeover_override",
+  "statement": "White 2010 to high-gloss white 2030: 20 minutes",
+  "params": {
+   "from_product": "PPW-2010",
+   "to_product": "PPW-2030",
+   "minutes": 20
+  },
+  "source": "Corinne, rules workshop, 6 May 2026",
+  "owner": "Corinne",
+  "status": "active",
+  "validated_by": "Corinne",
+  "validated_on": "2026-05-06"
+ },
+ {
+  "id": "R19",
+  "category": "Changeover",
+  "type": "changeover_override",
+  "statement": "High-gloss white 2030 to white 2010: 35 minutes, melt filter change",
+  "params": {
+   "from_product": "PPW-2030",
+   "to_product": "PPW-2010",
+   "minutes": 35
+  },
+  "source": "Corinne, rules workshop, 6 May 2026; Patrick, 6 May",
+  "owner": "Patrick",
+  "status": "active",
+  "validated_by": "Corinne",
+  "validated_on": "2026-05-06"
+ },
+ {
+  "id": "R20",
+  "category": "Changeover",
+  "type": "changeover_override",
+  "statement": "Black 4010 to conductive black 4040: 20 minutes",
+  "params": {
+   "from_product": "PPK-4010",
+   "to_product": "PPK-4040",
+   "minutes": 20
+  },
+  "source": "Corinne, rules workshop, 6 May 2026",
+  "owner": "Corinne",
+  "status": "active",
+  "validated_by": "Corinne",
+  "validated_on": "2026-05-06"
+ },
+ {
+  "id": "R21",
+  "category": "Changeover",
+  "type": "changeover_override",
+  "statement": "Conductive black 4040 to black 4010: 40 minutes, carbon residue",
+  "params": {
+   "from_product": "PPK-4040",
+   "to_product": "PPK-4010",
+   "minutes": 40
+  },
+  "source": "Corinne, rules workshop, 6 May 2026; Amina",
+  "owner": "Corinne",
+  "status": "active",
+  "validated_by": "Corinne",
+  "validated_on": "2026-05-06"
+ },
+ {
+  "id": "R22",
+  "category": "Changeover",
+  "type": "changeover_override",
+  "statement": "Black glass 5030 to natural glass 5031: 120 minutes",
+  "params": {
+   "from_product": "PPG-5030",
+   "to_product": "PPG-5031",
+   "minutes": 120
+  },
+  "source": "Jean-Pierre N2 p.9",
+  "owner": "Corinne",
+  "status": "active",
+  "validated_by": "Corinne",
+  "validated_on": "2026-05-06"
+ },
+ {
+  "id": "R23",
+  "category": "Changeover",
+  "type": "changeover_override",
+  "statement": "Natural glass 5031 to black glass 5030: 35 minutes",
+  "params": {
+   "from_product": "PPG-5031",
+   "to_product": "PPG-5030",
+   "minutes": 35
+  },
+  "source": "Jean-Pierre N2 p.9",
+  "owner": "Corinne",
+  "status": "active",
+  "validated_by": "Corinne",
+  "validated_on": "2026-05-06"
+ },
+ {
+  "id": "R24",
+  "category": "Changeover",
+  "type": "changeover_override",
+  "statement": "Black PA6 to natural PA6: 120 minutes",
+  "params": {
+   "from_product": "PA6-6040",
+   "to_product": "PA6-6010",
+   "minutes": 120
+  },
+  "source": "Jean-Pierre N3 p.20",
+  "owner": "Corinne",
+  "status": "active",
+  "validated_by": "Corinne",
+  "validated_on": "2026-05-06"
+ },
+ {
+  "id": "R25",
+  "category": "Changeover",
+  "type": "changeover_override",
+  "statement": "Natural PA6 to black PA6: 30 minutes",
+  "params": {
+   "from_product": "PA6-6010",
+   "to_product": "PA6-6040",
+   "minutes": 30
+  },
+  "source": "Jean-Pierre N3 p.20",
+  "owner": "Corinne",
+  "status": "active",
+  "validated_by": "Corinne",
+  "validated_on": "2026-05-06"
+ },
+ {
+  "id": "R26",
+  "category": "Changeover",
+  "type": "changeover_override",
+  "statement": "On M07, white to colored: 25 minutes, quick-change die",
+  "params": {
+   "line": "M07",
+   "from_family": "PPW",
+   "to_family": "PPC",
+   "minutes": 25
+  },
+  "source": "Corinne, rules workshop, 6 May 2026; Bruno, automation",
+  "owner": "Corinne",
+  "status": "active",
+  "validated_by": "Corinne",
+  "validated_on": "2026-05-06"
+ },
+ {
+  "id": "R27",
+  "category": "Changeover",
+  "type": "changeover_override",
+  "statement": "On M07, natural to white: 20 minutes, quick-change die",
+  "params": {
+   "line": "M07",
+   "from_family": "PPN",
+   "to_family": "PPW",
+   "minutes": 20
+  },
+  "source": "Corinne, rules workshop, 6 May 2026",
+  "owner": "Corinne",
+  "status": "active",
+  "validated_by": "Corinne",
+  "validated_on": "2026-05-06"
+ },
+ {
+  "id": "R28",
+  "category": "Changeover",
+  "type": "changeover_override",
+  "statement": "On M04, black to colored: 150 minutes, the worn screw holds black",
+  "params": {
+   "line": "M04",
+   "from_family": "PPK",
+   "to_family": "PPC",
+   "minutes": 150
+  },
+  "source": "Patrick, 6 May",
+  "owner": "Patrick",
+  "status": "active",
+  "validated_by": "Corinne",
+  "validated_on": "2026-05-06"
+ },
+ {
+  "id": "R29",
+  "category": "Changeover",
+  "type": "changeover_override",
+  "statement": "On M01, glass-filled to natural: 75 minutes, vented barrel cleans faster",
+  "params": {
+   "line": "M01",
+   "from_family": "PPG",
+   "to_family": "PPN",
+   "minutes": 75
+  },
+  "source": "Patrick, 6 May",
+  "owner": "Patrick",
+  "status": "active",
+  "validated_by": "Corinne",
+  "validated_on": "2026-05-06"
+ },
+ {
+  "id": "R30",
+  "category": "Changeover",
+  "type": "changeover_override",
+  "statement": "On M03, PA6 to black: 120 minutes, purge with black PP",
+  "params": {
+   "line": "M03",
+   "from_family": "PA6",
+   "to_family": "PPK",
+   "minutes": 120
+  },
+  "source": "Jean-Pierre N4 p.3",
+  "owner": "Corinne",
+  "status": "active",
+  "validated_by": "Corinne",
+  "validated_on": "2026-05-06"
+ },
+ {
+  "id": "R31",
+  "category": "Forbidden transition",
+  "type": "forbidden_transition",
+  "statement": "Never food-contact natural straight after conductive black",
+  "params": {
+   "from_product": "PPK-4040",
+   "to_product": "PPN-1020"
+  },
+  "source": "Amina, food-contact procedure QP-12",
+  "owner": "Amina",
+  "status": "active",
+  "validated_by": "Corinne",
+  "validated_on": "2026-05-06"
+ },
+ {
+  "id": "R32",
+  "category": "Forbidden transition",
+  "type": "forbidden_transition",
+  "statement": "On M02, never natural straight after glass-filled: streaks",
+  "params": {
+   "line": "M02",
+   "from_family": "PPG",
+   "to_family": "PPN"
+  },
+  "source": "Jean-Pierre N2 p.33",
+  "owner": "Corinne",
+  "status": "active",
+  "validated_by": "Corinne",
+  "validated_on": "2026-05-06"
+ },
+ {
+  "id": "R33",
+  "category": "Forbidden transition",
+  "type": "forbidden_transition",
+  "statement": "Never food-contact natural straight after black PA6",
+  "params": {
+   "from_product": "PA6-6040",
+   "to_product": "PPN-1020"
+  },
+  "source": "Amina, QP-12",
+  "owner": "Amina",
+  "status": "active",
+  "validated_by": "Corinne",
+  "validated_on": "2026-05-06"
+ },
+ {
+  "id": "R34",
+  "category": "Forbidden transition",
+  "type": "forbidden_transition",
+  "statement": "On M04, never white straight after black: black specks from the worn screw",
+  "params": {
+   "line": "M04",
+   "from_family": "PPK",
+   "to_family": "PPW"
+  },
+  "source": "Patrick, 6 May",
+  "owner": "Patrick",
+  "status": "active",
+  "validated_by": "Corinne",
+  "validated_on": "2026-05-06"
+ },
+ {
+  "id": "R35",
+  "category": "Forbidden transition",
+  "type": "forbidden_transition",
+  "statement": "Never high-gloss white straight after red: pink tint",
+  "params": {
+   "from_product": "PPC-3120",
+   "to_product": "PPW-2030"
+  },
+  "source": "Amina, Duval claim Q1 2026",
+  "owner": "Amina",
+  "status": "active",
+  "validated_by": "Corinne",
+  "validated_on": "2026-05-06"
+ },
+ {
+  "id": "R36",
+  "category": "Line capability",
+  "type": "line_capability",
+  "statement": "Food-contact natural 1020 only on BRC-certified lines M02, M03, M05, M07",
+  "params": {
+   "product_code": "PPN-1020",
+   "lines": [
+    "M02",
+    "M03",
+    "M05",
+    "M07"
+   ]
+  },
+  "source": "BRC certificate 2025; Amina",
+  "owner": "Amina",
+  "status": "active",
+  "validated_by": "Corinne",
+  "validated_on": "2026-05-06"
+ },
+ {
+  "id": "R37",
+  "category": "Line capability",
+  "type": "line_capability",
+  "statement": "High-gloss white 2030 only on lines with the 40 µm melt filter: M01, M03, M05, M07",
+  "params": {
+   "product_code": "PPW-2030",
+   "lines": [
+    "M01",
+    "M03",
+    "M05",
+    "M07"
+   ]
+  },
+  "source": "Patrick, 6 May",
+  "owner": "Patrick",
+  "status": "active",
+  "validated_by": "Corinne",
+  "validated_on": "2026-05-06"
+ },
+ {
+  "id": "R38",
+  "category": "Line capability",
+  "type": "line_capability",
+  "statement": "Conductive black 4040 never on M07: no carbon feeder",
+  "params": {
+   "product_code": "PPK-4040",
+   "lines": [
+    "M01",
+    "M02",
+    "M03",
+    "M04",
+    "M05",
+    "M06"
+   ]
+  },
+  "source": "Bruno, automation",
+  "owner": "Patrick",
+  "status": "active",
+  "validated_by": "Corinne",
+  "validated_on": "2026-05-06"
+ },
+ {
+  "id": "R39",
+  "category": "Line capability",
+  "type": "line_capability",
+  "statement": "Green 3140 only on lines with a gravimetric feeder: M01, M02, M04, M05, M07",
+  "params": {
+   "product_code": "PPC-3140",
+   "lines": [
+    "M01",
+    "M02",
+    "M04",
+    "M05",
+    "M07"
+   ]
+  },
+  "source": "Bruno, automation",
+  "owner": "Patrick",
+  "status": "active",
+  "validated_by": "Corinne",
+  "validated_on": "2026-05-06"
+ },
+ {
+  "id": "R40",
+  "category": "Line capability",
+  "type": "line_capability",
+  "statement": "Natural glass 5031 only on M01 and M05",
+  "params": {
+   "product_code": "PPG-5031",
+   "lines": [
+    "M01",
+    "M05"
+   ]
+  },
+  "source": "Jean-Pierre N2 p.9",
+  "owner": "Corinne",
+  "status": "active",
+  "validated_by": "Corinne",
+  "validated_on": "2026-05-06"
+ },
+ {
+  "id": "R41",
+  "category": "Line capability",
+  "type": "line_capability",
+  "statement": "Standard white 2010 never on M06: PA6 residue yellows it",
+  "params": {
+   "product_code": "PPW-2010",
+   "lines": [
+    "M01",
+    "M02",
+    "M03",
+    "M04",
+    "M05",
+    "M07"
+   ]
+  },
+  "source": "Amina, 2024 claim",
+  "owner": "Amina",
+  "status": "active",
+  "validated_by": "Corinne",
+  "validated_on": "2026-05-06"
+ },
+ {
+  "id": "R42",
+  "category": "Customer qualification",
+  "type": "customer_line_qualification",
+  "statement": "Codra is supplied only from lines in its 2025 audit: M01, M02, M03, M05, M07",
+  "params": {
+   "customer": "Codra Retail",
+   "lines": [
+    "M01",
+    "M02",
+    "M03",
+    "M05",
+    "M07"
+   ]
+  },
+  "source": "Codra supplier audit, November 2025; Stéphane",
+  "owner": "Stéphane",
+  "status": "active",
+  "validated_by": "Corinne",
+  "validated_on": "2026-05-06"
+ },
+ {
+  "id": "R43",
+  "category": "Customer qualification",
+  "type": "customer_line_qualification",
+  "statement": "Duval never from M04: the Q1 color claim was traced to M04",
+  "params": {
+   "customer": "Duval Home",
+   "lines": [
+    "M01",
+    "M02",
+    "M03",
+    "M05",
+    "M06",
+    "M07"
+   ]
+  },
+  "source": "Amina, 8D report Duval Q1 2026",
+  "owner": "Amina",
+  "status": "active",
+  "validated_by": "Corinne",
+  "validated_on": "2026-05-06"
+ },
+ {
+  "id": "R44",
+  "category": "Customer qualification",
+  "type": "customer_line_qualification",
+  "statement": "Kerno only from the lines in its UL file: M03, M06",
+  "params": {
+   "customer": "Kerno Electrics",
+   "lines": [
+    "M03",
+    "M06"
+   ]
+  },
+  "source": "UL file E-48211",
+  "owner": "Amina",
+  "status": "active",
+  "validated_by": "Corinne",
+  "validated_on": "2026-05-06"
+ },
+ {
+  "id": "R45",
+  "category": "Customer qualification",
+  "type": "customer_line_qualification",
+  "statement": "Estrel pipe grades only from lines with melt-pressure monitoring: M01, M02, M05, M06",
+  "params": {
+   "customer": "Estrel Pipes",
+   "lines": [
+    "M01",
+    "M02",
+    "M05",
+    "M06"
+   ]
+  },
+  "source": "Estrel specification EP-7; Bruno",
+  "owner": "Amina",
+  "status": "active",
+  "validated_by": "Corinne",
+  "validated_on": "2026-05-06"
+ },
+ {
+  "id": "R46",
+  "category": "Shared resource",
+  "type": "shared_resource_gap",
+  "statement": "Color dosing station shared by M01 and M02: two color starts at least 60 minutes apart",
+  "params": {
+   "family": "PPC",
+   "lines": [
+    "M01",
+    "M02"
+   ],
+   "gap_minutes": 60
+  },
+  "source": "Didier, 6 May",
+  "owner": "Didier",
+  "status": "active",
+  "validated_by": "Corinne",
+  "validated_on": "2026-05-06"
+ },
+ {
+  "id": "R47",
+  "category": "Shared resource",
+  "type": "shared_resource_gap",
+  "statement": "Glass fibre silo feeds M01, M02, M05: two glass starts at least 120 minutes apart",
+  "params": {
+   "family": "PPG",
+   "lines": [
+    "M01",
+    "M02",
+    "M05"
+   ],
+   "gap_minutes": 120
+  },
+  "source": "Patrick, 6 May",
+  "owner": "Patrick",
+  "status": "active",
+  "validated_by": "Corinne",
+  "validated_on": "2026-05-06"
+ },
+ {
+  "id": "R48",
+  "category": "Shared resource",
+  "type": "shared_resource_gap",
+  "statement": "Black hopper shared by M06 and M07: two black starts at least 45 minutes apart",
+  "params": {
+   "family": "PPK",
+   "lines": [
+    "M06",
+    "M07"
+   ],
+   "gap_minutes": 45
+  },
+  "source": "Kevin, 6 May",
+  "owner": "Didier",
+  "status": "active",
+  "validated_by": "Corinne",
+  "validated_on": "2026-05-06"
+ },
+ {
+  "id": "R49",
+  "category": "Changeovers per shift",
+  "type": "max_changeovers_per_shift",
+  "statement": "Night shift: at most three changeovers per line",
+  "params": {
+   "max": 3,
+   "shifts": [
+    "C"
+   ]
+  },
+  "source": "Kevin, 6 May; Didier",
+  "owner": "Didier",
+  "status": "active",
+  "validated_by": "Corinne",
+  "validated_on": "2026-05-06"
+ },
+ {
+  "id": "R50",
+  "category": "Changeovers per shift",
+  "type": "max_changeovers_per_shift",
+  "statement": "Saturday and Sunday: at most three changeovers per line, reduced crew",
+  "params": {
+   "max": 3,
+   "weekdays": [
+    6,
+    0
+   ]
+  },
+  "source": "Didier, 6 May",
+  "owner": "Didier",
+  "status": "active",
+  "validated_by": "Corinne",
+  "validated_on": "2026-05-06"
+ },
+ {
+  "id": "R51",
+  "category": "Changeovers per shift",
+  "type": "max_changeovers_per_shift",
+  "statement": "M04: at most two changeovers per shift, every purge needs a check",
+  "params": {
+   "max": 2,
+   "line": "M04"
+  },
+  "source": "Patrick, 6 May",
+  "owner": "Patrick",
+  "status": "active",
+  "validated_by": "Corinne",
+  "validated_on": "2026-05-06"
+ },
+ {
+  "id": "R52",
+  "category": "Changeover window",
+  "type": "transition_window",
+  "statement": "PA6 to PPN: polymer change on weekdays 06:00 to 14:00 only, process engineer present",
+  "params": {
+   "from_family": "PA6",
+   "to_family": "PPN",
+   "weekdays": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "from": "06:00",
+   "to": "14:00"
+  },
+  "source": "Jean-Pierre N4 p.3; Didier",
+  "owner": "Didier",
+  "status": "active",
+  "validated_by": "Corinne",
+  "validated_on": "2026-05-06"
+ },
+ {
+  "id": "R53",
+  "category": "Changeover window",
+  "type": "transition_window",
+  "statement": "PA6 to PPW: polymer change on weekdays 06:00 to 14:00 only, process engineer present",
+  "params": {
+   "from_family": "PA6",
+   "to_family": "PPW",
+   "weekdays": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "from": "06:00",
+   "to": "14:00"
+  },
+  "source": "Jean-Pierre N4 p.3; Didier",
+  "owner": "Didier",
+  "status": "active",
+  "validated_by": "Corinne",
+  "validated_on": "2026-05-06"
+ },
+ {
+  "id": "R54",
+  "category": "Changeover window",
+  "type": "transition_window",
+  "statement": "PA6 to PPC: polymer change on weekdays 06:00 to 14:00 only, process engineer present",
+  "params": {
+   "from_family": "PA6",
+   "to_family": "PPC",
+   "weekdays": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "from": "06:00",
+   "to": "14:00"
+  },
+  "source": "Jean-Pierre N4 p.3; Didier",
+  "owner": "Didier",
+  "status": "active",
+  "validated_by": "Corinne",
+  "validated_on": "2026-05-06"
+ },
+ {
+  "id": "R55",
+  "category": "Changeover window",
+  "type": "transition_window",
+  "statement": "PA6 to PPK: polymer change on weekdays 06:00 to 14:00 only, process engineer present",
+  "params": {
+   "from_family": "PA6",
+   "to_family": "PPK",
+   "weekdays": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "from": "06:00",
+   "to": "14:00"
+  },
+  "source": "Jean-Pierre N4 p.3; Didier",
+  "owner": "Didier",
+  "status": "active",
+  "validated_by": "Corinne",
+  "validated_on": "2026-05-06"
+ },
+ {
+  "id": "R56",
+  "category": "Changeover window",
+  "type": "transition_window",
+  "statement": "PPN to PA6: polymer change on weekdays 06:00 to 14:00 only, process engineer present",
+  "params": {
+   "from_family": "PPN",
+   "to_family": "PA6",
+   "weekdays": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "from": "06:00",
+   "to": "14:00"
+  },
+  "source": "Jean-Pierre N4 p.3; Didier",
+  "owner": "Didier",
+  "status": "active",
+  "validated_by": "Corinne",
+  "validated_on": "2026-05-06"
+ },
+ {
+  "id": "R57",
+  "category": "Changeover window",
+  "type": "transition_window",
+  "statement": "PPW to PA6: polymer change on weekdays 06:00 to 14:00 only, process engineer present",
+  "params": {
+   "from_family": "PPW",
+   "to_family": "PA6",
+   "weekdays": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "from": "06:00",
+   "to": "14:00"
+  },
+  "source": "Jean-Pierre N4 p.3; Didier",
+  "owner": "Didier",
+  "status": "active",
+  "validated_by": "Corinne",
+  "validated_on": "2026-05-06"
+ },
+ {
+  "id": "R58",
+  "category": "Changeover window",
+  "type": "transition_window",
+  "statement": "PPC to PA6: polymer change on weekdays 06:00 to 14:00 only, process engineer present",
+  "params": {
+   "from_family": "PPC",
+   "to_family": "PA6",
+   "weekdays": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "from": "06:00",
+   "to": "14:00"
+  },
+  "source": "Jean-Pierre N4 p.3; Didier",
+  "owner": "Didier",
+  "status": "active",
+  "validated_by": "Corinne",
+  "validated_on": "2026-05-06"
+ },
+ {
+  "id": "R59",
+  "category": "Changeover window",
+  "type": "transition_window",
+  "statement": "PPK to PA6: polymer change on weekdays 06:00 to 14:00 only, process engineer present",
+  "params": {
+   "from_family": "PPK",
+   "to_family": "PA6",
+   "weekdays": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "from": "06:00",
+   "to": "14:00"
+  },
+  "source": "Jean-Pierre N4 p.3; Didier",
+  "owner": "Didier",
+  "status": "active",
+  "validated_by": "Corinne",
+  "validated_on": "2026-05-06"
+ },
+ {
+  "id": "R60",
+  "category": "Changeover window",
+  "type": "transition_window",
+  "statement": "Glass-filled to natural: on day shifts only, 06:00 to 22:00, the purge is inspected",
+  "params": {
+   "from_family": "PPG",
+   "to_family": "PPN",
+   "from": "06:00",
+   "to": "22:00"
+  },
+  "source": "Jean-Pierre N2 p.33",
+  "owner": "Corinne",
+  "status": "active",
+  "validated_by": "Corinne",
+  "validated_on": "2026-05-06"
+ },
+ {
+  "id": "R61",
+  "category": "Changeover window",
+  "type": "transition_window",
+  "statement": "Black to white: Saturday 06:00 to 14:00, maintenance present",
+  "params": {
+   "from_family": "PPK",
+   "to_family": "PPW",
+   "weekdays": [
+    6
+   ],
+   "from": "06:00",
+   "to": "14:00"
+  },
+  "source": "Patrick, 6 May",
+  "owner": "Patrick",
+  "status": "active",
+  "validated_by": "Corinne",
+  "validated_on": "2026-05-06"
+ },
+ {
+  "id": "R62",
+  "category": "Changeover window",
+  "type": "transition_window",
+  "statement": "Black to white: also Wednesday 06:00 to 10:00, when maintenance is in for the weekly round",
+  "params": {
+   "from_family": "PPK",
+   "to_family": "PPW",
+   "weekdays": [
+    3
+   ],
+   "from": "06:00",
+   "to": "10:00"
+  },
+  "source": "Patrick, 6 May",
+  "owner": "Patrick",
+  "status": "active",
+  "validated_by": "Corinne",
+  "validated_on": "2026-05-06"
+ },
+ {
+  "id": "R63",
+  "category": "Line availability",
+  "type": "blackout",
+  "statement": "Preventive maintenance on M01 every Tuesday 06:00 to 09:00",
+  "params": {
+   "line": "M01",
+   "weekdays": [
+    2
+   ],
+   "from": "06:00",
+   "to": "09:00"
+  },
+  "source": "MaintPro preventive plan 2026; Patrick",
+  "owner": "Patrick",
+  "status": "active",
+  "validated_by": "Corinne",
+  "validated_on": "2026-05-06"
+ },
+ {
+  "id": "R64",
+  "category": "Line availability",
+  "type": "blackout",
+  "statement": "Preventive maintenance on M02 every Wednesday 06:00 to 12:00",
+  "params": {
+   "line": "M02",
+   "weekdays": [
+    3
+   ],
+   "from": "06:00",
+   "to": "12:00"
+  },
+  "source": "MaintPro preventive plan 2026; Patrick",
+  "owner": "Patrick",
+  "status": "active",
+  "validated_by": "Corinne",
+  "validated_on": "2026-05-06"
+ },
+ {
+  "id": "R65",
+  "category": "Line availability",
+  "type": "blackout",
+  "statement": "Preventive maintenance on M03 every Thursday 14:00 to 17:00",
+  "params": {
+   "line": "M03",
+   "weekdays": [
+    4
+   ],
+   "from": "14:00",
+   "to": "17:00"
+  },
+  "source": "MaintPro preventive plan 2026; Patrick",
+  "owner": "Patrick",
+  "status": "active",
+  "validated_by": "Corinne",
+  "validated_on": "2026-05-06"
+ },
+ {
+  "id": "R66",
+  "category": "Line availability",
+  "type": "blackout",
+  "statement": "Preventive maintenance on M04 every Monday 06:00 to 08:00",
+  "params": {
+   "line": "M04",
+   "weekdays": [
+    1
+   ],
+   "from": "06:00",
+   "to": "08:00"
+  },
+  "source": "MaintPro preventive plan 2026; Patrick",
+  "owner": "Patrick",
+  "status": "active",
+  "validated_by": "Corinne",
+  "validated_on": "2026-05-06"
+ },
+ {
+  "id": "R67",
+  "category": "Line availability",
+  "type": "blackout",
+  "statement": "Preventive maintenance on M05 every Tuesday 14:00 to 17:00",
+  "params": {
+   "line": "M05",
+   "weekdays": [
+    2
+   ],
+   "from": "14:00",
+   "to": "17:00"
+  },
+  "source": "MaintPro preventive plan 2026; Patrick",
+  "owner": "Patrick",
+  "status": "active",
+  "validated_by": "Corinne",
+  "validated_on": "2026-05-06"
+ },
+ {
+  "id": "R68",
+  "category": "Line availability",
+  "type": "blackout",
+  "statement": "Preventive maintenance on M06 every Thursday 14:00 to 18:00",
+  "params": {
+   "line": "M06",
+   "weekdays": [
+    4
+   ],
+   "from": "14:00",
+   "to": "18:00"
+  },
+  "source": "MaintPro preventive plan 2026; Patrick",
+  "owner": "Patrick",
+  "status": "active",
+  "validated_by": "Corinne",
+  "validated_on": "2026-05-06"
+ },
+ {
+  "id": "R69",
+  "category": "Line availability",
+  "type": "blackout",
+  "statement": "Preventive maintenance on M07 every Friday 06:00 to 08:00",
+  "params": {
+   "line": "M07",
+   "weekdays": [
+    5
+   ],
+   "from": "06:00",
+   "to": "08:00"
+  },
+  "source": "MaintPro preventive plan 2026; Patrick",
+  "owner": "Patrick",
+  "status": "active",
+  "validated_by": "Corinne",
+  "validated_on": "2026-05-06"
+ },
+ {
+  "id": "R70",
+  "category": "Line availability",
+  "type": "blackout",
+  "statement": "Dryer regeneration on Sunday 06:00 to 10:00: no PA6 on M03 or M06",
+  "params": {
+   "lines": [
+    "M03",
+    "M06"
+   ],
+   "family": "PA6",
+   "weekdays": [
+    0
+   ],
+   "from": "06:00",
+   "to": "10:00"
+  },
+  "source": "Patrick; Jean-Pierre N3 p.18",
+  "owner": "Patrick",
+  "status": "active",
+  "validated_by": "Corinne",
+  "validated_on": "2026-05-06"
+ },
+ {
+  "id": "R71",
+  "category": "Line availability",
+  "type": "blackout",
+  "statement": "Ascension, Thursday 14 May 2026: M07 not staffed",
+  "params": {
+   "line": "M07",
+   "start": "2026-05-14 06:00",
+   "end": "2026-05-15 06:00"
+  },
+  "source": "HR holiday staffing plan 2026",
+  "owner": "Didier",
+  "status": "active",
+  "validated_by": "Corinne",
+  "validated_on": "2026-05-06"
+ },
+ {
+  "id": "R72",
+  "category": "Line availability",
+  "type": "blackout",
+  "statement": "Ascension, Thursday 14 May 2026: M04 not staffed on shifts A and B",
+  "params": {
+   "line": "M04",
+   "start": "2026-05-14 06:00",
+   "end": "2026-05-14 22:00"
+  },
+  "source": "HR holiday staffing plan 2026",
+  "owner": "Didier",
+  "status": "active",
+  "validated_by": "Corinne",
+  "validated_on": "2026-05-06"
+ },
+ {
+  "id": "R73",
+  "category": "Line availability",
+  "type": "blackout",
+  "statement": "Whit Monday, 25 May 2026: M04 and M07 not staffed",
+  "params": {
+   "lines": [
+    "M04",
+    "M07"
+   ],
+   "start": "2026-05-25 06:00",
+   "end": "2026-05-26 06:00"
+  },
+  "source": "HR holiday staffing plan 2026",
+  "owner": "Didier",
+  "status": "active",
+  "validated_by": "Corinne",
+  "validated_on": "2026-05-06"
+ },
+ {
+  "id": "R74",
+  "category": "Line availability",
+  "type": "blackout",
+  "statement": "Summer shutdown, 3 to 21 August 2026: all lines",
+  "params": {
+   "lines": [
+    "M01",
+    "M02",
+    "M03",
+    "M04",
+    "M05",
+    "M06",
+    "M07"
+   ],
+   "start": "2026-08-03 06:00",
+   "end": "2026-08-24 06:00"
+  },
+  "source": "Hervé, 2026 calendar",
+  "owner": "Hervé",
+  "status": "active",
+  "validated_by": "Corinne",
+  "validated_on": "2026-05-06"
+ },
+ {
+  "id": "R75",
+  "category": "Line availability",
+  "type": "blackout",
+  "statement": "M02 feeder calibration every Friday 14:00 to 15:00",
+  "params": {
+   "line": "M02",
+   "weekdays": [
+    5
+   ],
+   "from": "14:00",
+   "to": "15:00"
+  },
+  "source": "MaintPro; Patrick",
+  "owner": "Patrick",
+  "status": "active",
+  "validated_by": "Corinne",
+  "validated_on": "2026-05-06"
+ },
+ {
+  "id": "R76",
+  "category": "Run rate",
+  "type": "rate_factor",
+  "statement": "Glass-filled runs at 85% of the standard rate: fibre feeding",
+  "params": {
+   "family": "PPG",
+   "factor": 0.85
+  },
+  "source": "LineLog 2025, glass runs; Julien",
+  "owner": "Corinne",
+  "status": "active",
+  "validated_by": "Corinne",
+  "validated_on": "2026-05-06"
+ },
+ {
+  "id": "R77",
+  "category": "Run rate",
+  "type": "rate_factor",
+  "statement": "PA6 runs at 90%: the dryer limits throughput",
+  "params": {
+   "family": "PA6",
+   "factor": 0.9
+  },
+  "source": "LineLog 2025; Patrick",
+  "owner": "Patrick",
+  "status": "active",
+  "validated_by": "Corinne",
+  "validated_on": "2026-05-06"
+ },
+ {
+  "id": "R78",
+  "category": "Run rate",
+  "type": "rate_factor",
+  "statement": "M07 runs at 92% on every product: smaller extruder",
+  "params": {
+   "line": "M07",
+   "factor": 0.92
+  },
+  "source": "Machine data sheet M07; LineLog 2025",
+  "owner": "Patrick",
+  "status": "active",
+  "validated_by": "Corinne",
+  "validated_on": "2026-05-06"
+ },
+ {
+  "id": "R79",
+  "category": "Run rate",
+  "type": "rate_factor",
+  "statement": "On M02, glass-filled runs a further 10% slower: gearbox derating",
+  "params": {
+   "line": "M02",
+   "family": "PPG",
+   "factor": 0.9
+  },
+  "source": "Patrick, 6 May; MaintPro WO 2291",
+  "owner": "Patrick",
+  "status": "active",
+  "validated_by": "Corinne",
+  "validated_on": "2026-05-06"
+ },
+ {
+  "id": "R80",
+  "category": "Run rate",
+  "type": "rate_factor",
+  "statement": "High-gloss white runs at 90%: melt filter",
+  "params": {
+   "product_code": "PPW-2030",
+   "factor": 0.9
+  },
+  "source": "LineLog 2025",
+  "owner": "Corinne",
+  "status": "active",
+  "validated_by": "Corinne",
+  "validated_on": "2026-05-06"
+ },
+ {
+  "id": "R81",
+  "category": "Run rate",
+  "type": "rate_factor",
+  "statement": "Conductive black runs at 92%",
+  "params": {
+   "product_code": "PPK-4040",
+   "factor": 0.92
+  },
+  "source": "LineLog 2025",
+  "owner": "Corinne",
+  "status": "active",
+  "validated_by": "Corinne",
+  "validated_on": "2026-05-06"
+ },
+ {
+  "id": "R82",
+  "category": "Release and transport",
+  "type": "release_lag",
+  "statement": "Every lot waits two hours for lab release",
+  "params": {
+   "kind": "lab",
+   "minutes": 120
+  },
+  "source": "Amina, lab procedure QP-03",
+  "owner": "Amina",
+  "status": "active",
+  "validated_by": "Corinne",
+  "validated_on": "2026-05-06"
+ },
+ {
+  "id": "R83",
+  "category": "Release and transport",
+  "type": "release_lag",
+  "statement": "PA6 lots wait four hours: moisture test",
+  "params": {
+   "kind": "lab",
+   "family": "PA6",
+   "minutes": 240
+  },
+  "source": "Amina, QP-03",
+  "owner": "Amina",
+  "status": "active",
+  "validated_by": "Corinne",
+  "validated_on": "2026-05-06"
+ },
+ {
+  "id": "R84",
+  "category": "Release and transport",
+  "type": "release_lag",
+  "statement": "Food-contact natural waits three hours: migration check",
+  "params": {
+   "kind": "lab",
+   "product_code": "PPN-1020",
+   "minutes": 180
+  },
+  "source": "Amina, QP-12",
+  "owner": "Amina",
+  "status": "active",
+  "validated_by": "Corinne",
+  "validated_on": "2026-05-06"
+ },
+ {
+  "id": "R85",
+  "category": "Release and transport",
+  "type": "release_lag",
+  "statement": "Glass-filled waits 150 minutes: ash test for glass content",
+  "params": {
+   "kind": "lab",
+   "family": "PPG",
+   "minutes": 150
+  },
+  "source": "Amina, QP-03",
+  "owner": "Amina",
+  "status": "active",
+  "validated_by": "Corinne",
+  "validated_on": "2026-05-06"
+ },
+ {
+  "id": "R86",
+  "category": "Release and transport",
+  "type": "release_lag",
+  "statement": "Transport to Codra Retail (Codra DC, Corbas): 6 hours before the promise date",
+  "params": {
+   "kind": "transport",
+   "customer": "Codra Retail",
+   "minutes": 360
+  },
+  "source": "Logistics, carrier lead times 2026",
+  "owner": "Stéphane",
+  "status": "active",
+  "validated_by": "Corinne",
+  "validated_on": "2026-05-06"
+ },
+ {
+  "id": "R87",
+  "category": "Release and transport",
+  "type": "release_lag",
+  "statement": "Transport to Duval Home (Orléans): 8 hours before the promise date",
+  "params": {
+   "kind": "transport",
+   "customer": "Duval Home",
+   "minutes": 480
+  },
+  "source": "Logistics, carrier lead times 2026",
+  "owner": "Stéphane",
+  "status": "active",
+  "validated_by": "Corinne",
+  "validated_on": "2026-05-06"
+ },
+ {
+  "id": "R88",
+  "category": "Release and transport",
+  "type": "release_lag",
+  "statement": "Transport to Bricoval (Lille): 10 hours before the promise date",
+  "params": {
+   "kind": "transport",
+   "customer": "Bricoval",
+   "minutes": 600
+  },
+  "source": "Logistics, carrier lead times 2026",
+  "owner": "Stéphane",
+  "status": "active",
+  "validated_by": "Corinne",
+  "validated_on": "2026-05-06"
+ },
+ {
+  "id": "R89",
+  "category": "Release and transport",
+  "type": "release_lag",
+  "statement": "Transport to Brisol Automotive (Montbéliard): 6 hours before the promise date",
+  "params": {
+   "kind": "transport",
+   "customer": "Brisol Automotive",
+   "minutes": 360
+  },
+  "source": "Logistics, carrier lead times 2026",
+  "owner": "Stéphane",
+  "status": "active",
+  "validated_by": "Corinne",
+  "validated_on": "2026-05-06"
+ },
+ {
+  "id": "R90",
+  "category": "Release and transport",
+  "type": "release_lag",
+  "statement": "Transport to Alvena Packaging (Lyon): 3 hours before the promise date",
+  "params": {
+   "kind": "transport",
+   "customer": "Alvena Packaging",
+   "minutes": 180
+  },
+  "source": "Logistics, carrier lead times 2026",
+  "owner": "Stéphane",
+  "status": "active",
+  "validated_by": "Corinne",
+  "validated_on": "2026-05-06"
+ },
+ {
+  "id": "R91",
+  "category": "Release and transport",
+  "type": "release_lag",
+  "statement": "Transport to Estrel Pipes (Toulouse): 9 hours before the promise date",
+  "params": {
+   "kind": "transport",
+   "customer": "Estrel Pipes",
+   "minutes": 540
+  },
+  "source": "Logistics, carrier lead times 2026",
+  "owner": "Stéphane",
+  "status": "active",
+  "validated_by": "Corinne",
+  "validated_on": "2026-05-06"
+ },
+ {
+  "id": "R92",
+  "category": "Release and transport",
+  "type": "release_lag",
+  "statement": "Transport to Kerno Electrics (Grenoble): 3 hours before the promise date",
+  "params": {
+   "kind": "transport",
+   "customer": "Kerno Electrics",
+   "minutes": 180
+  },
+  "source": "Logistics, carrier lead times 2026",
+  "owner": "Stéphane",
+  "status": "active",
+  "validated_by": "Corinne",
+  "validated_on": "2026-05-06"
+ },
+ {
+  "id": "R93",
+  "category": "Release and transport",
+  "type": "release_lag",
+  "statement": "Packing in big bags: one hour after release",
+  "params": {
+   "kind": "packing",
+   "minutes": 60
+  },
+  "source": "Didier, packing hall",
+  "owner": "Didier",
+  "status": "active",
+  "validated_by": "Corinne",
+  "validated_on": "2026-05-06"
+ },
+ {
+  "id": "R94",
+  "category": "Line preference",
+  "type": "line_preference",
+  "statement": "Orders of 30 t and more prefer M01, M02, M05: highest throughput, fewer stops",
+  "params": {
+   "min_tonnes": 30,
+   "lines": [
+    "M01",
+    "M02",
+    "M05"
+   ],
+   "penalty": 60
+  },
+  "source": "Corinne, rules workshop, 6 May 2026",
+  "owner": "Corinne",
+  "status": "active",
+  "validated_by": "Corinne",
+  "validated_on": "2026-05-06"
+ },
+ {
+  "id": "R95",
+  "category": "Line preference",
+  "type": "line_preference",
+  "statement": "Retail lots of 12 t and less prefer M07: quick-change die",
+  "params": {
+   "max_tonnes": 12,
+   "lines": [
+    "M07"
+   ],
+   "penalty": 40
+  },
+  "source": "Corinne, rules workshop, 6 May 2026",
+  "owner": "Corinne",
+  "status": "active",
+  "validated_by": "Corinne",
+  "validated_on": "2026-05-06"
+ },
+ {
+  "id": "R96",
+  "category": "Line preference",
+  "type": "line_preference",
+  "statement": "PA6 prefers M06: newer dryer connection",
+  "params": {
+   "family": "PA6",
+   "lines": [
+    "M06"
+   ],
+   "penalty": 30
+  },
+  "source": "Corinne, rules workshop, 6 May 2026",
+  "owner": "Corinne",
+  "status": "active",
+  "validated_by": "Corinne",
+  "validated_on": "2026-05-06"
+ },
+ {
+  "id": "R97",
+  "category": "Line preference",
+  "type": "line_preference",
+  "statement": "Black prefers M01, M06, M07: keep black away from the light-color lines",
+  "params": {
+   "family": "PPK",
+   "lines": [
+    "M01",
+    "M06",
+    "M07"
+   ],
+   "penalty": 40
+  },
+  "source": "Corinne, rules workshop, 6 May 2026; Jean-Pierre N1 p.3",
+  "owner": "Corinne",
+  "status": "active",
+  "validated_by": "Corinne",
+  "validated_on": "2026-05-06"
+ },
+ {
+  "id": "R98",
+  "category": "Line preference",
+  "type": "line_preference",
+  "statement": "Natural prefers M02 and M03",
+  "params": {
+   "family": "PPN",
+   "lines": [
+    "M02",
+    "M03"
+   ],
+   "penalty": 30
+  },
+  "source": "Corinne, rules workshop, 6 May 2026",
+  "owner": "Corinne",
+  "status": "active",
+  "validated_by": "Corinne",
+  "validated_on": "2026-05-06"
+ },
+ {
+  "id": "R99",
+  "category": "Line preference",
+  "type": "line_preference",
+  "statement": "Codra prefers M05 and M07, its audit reference lines",
+  "params": {
+   "customer": "Codra Retail",
+   "lines": [
+    "M05",
+    "M07"
+   ],
+   "penalty": 30
+  },
+  "source": "Stéphane, 5 May",
+  "owner": "Stéphane",
+  "status": "active",
+  "validated_by": "Corinne",
+  "validated_on": "2026-05-06"
+ },
+ {
+  "id": "R100",
+  "category": "Line preference",
+  "type": "line_preference",
+  "statement": "Glass for Brisol prefers M05",
+  "params": {
+   "customer": "Brisol Automotive",
+   "family": "PPG",
+   "lines": [
+    "M05"
+   ],
+   "penalty": 30
+  },
+  "source": "Corinne, rules workshop, 6 May 2026",
+  "owner": "Corinne",
+  "status": "active",
+  "validated_by": "Corinne",
+  "validated_on": "2026-05-06"
+ },
+ {
+  "id": "R101",
+  "category": "Line preference",
+  "type": "line_preference",
+  "statement": "White prefers M03 and M07",
+  "params": {
+   "family": "PPW",
+   "lines": [
+    "M03",
+    "M07"
+   ],
+   "penalty": 20
+  },
+  "source": "Corinne, rules workshop, 6 May 2026",
+  "owner": "Corinne",
+  "status": "active",
+  "validated_by": "Corinne",
+  "validated_on": "2026-05-06"
+ },
+ {
+  "id": "R102",
+  "category": "Freeze and priority",
+  "type": "freeze_window",
+  "statement": "Freeze extends to eight hours on Friday nights",
+  "params": {
+   "minutes": 480
+  },
+  "source": "Kevin, 6 May: proposed",
+  "owner": "Corinne",
+  "status": "proposed",
+  "validated_by": "",
+  "validated_on": ""
+ },
+ {
+  "id": "R103",
+  "category": "Changeover",
+  "type": "changeover_table",
+  "statement": "ERP standard: 60 minutes for every changeover",
+  "params": {
+   "note": "flat 60 minutes, SAP routings 2011"
+  },
+  "source": "SAP routings, 2011",
+  "owner": "Group IT",
+  "status": "retired",
+  "validated_by": "",
+  "validated_on": "",
+  "retired_on": "2026-05-06",
+  "retired_because": "Replaced by R01 and the product overrides"
+ },
+ {
+  "id": "R104",
+  "category": "Changeovers per shift",
+  "type": "max_changeovers_per_shift",
+  "statement": "At most three changeovers per line per shift",
+  "params": {
+   "max": 3
+  },
+  "source": "Jean-Pierre N3 p.52, 2021",
+  "owner": "Corinne",
+  "status": "retired",
+  "validated_by": "",
+  "validated_on": "",
+  "retired_on": "2025-03-01",
+  "retired_because": "Corinne: \"4 now\", with the retail orders; replaced by R06"
+ },
+ {
+  "id": "R105",
+  "category": "Line capability",
+  "type": "line_capability",
+  "statement": "Glass-filled allowed on M04",
+  "params": {
+   "family": "PPG",
+   "lines": [
+    "M01",
+    "M02",
+    "M04",
+    "M05"
+   ]
+  },
+  "source": "Before 2012",
+  "owner": "Patrick",
+  "status": "retired",
+  "validated_by": "",
+  "validated_on": "",
+  "retired_on": "2012-06-01",
+  "retired_because": "The 2012 screw damage; replaced by R03"
+ },
+ {
+  "id": "R106",
+  "category": "Freeze and priority",
+  "type": "freeze_window",
+  "statement": "The plan is frozen for the whole week, Monday 06:00 to Monday 06:00",
+  "params": {
+   "minutes": 10080
+  },
+  "source": "PRO-PLN-004, 2021",
+  "owner": "Didier",
+  "status": "retired",
+  "validated_by": "",
+  "validated_on": "",
+  "retired_on": "2026-05-06",
+  "retired_because": "Not applied since 2024 (Didier); replaced by R08"
+ },
+ {
+  "id": "R107",
+  "category": "Freeze and priority",
+  "type": "priority",
+  "statement": "Lumen first among retail customers",
+  "params": {
+   "weights": {
+    "Lumen": 4
+   },
+   "default": 1
+  },
+  "source": "Corinne, 2024",
+  "owner": "Hervé",
+  "status": "retired",
+  "validated_by": "",
+  "validated_on": "",
+  "retired_on": "2025-08-01",
+  "retired_because": "Lumen moved to a competitor in summer 2025"
+ },
+ {
+  "id": "R108",
+  "category": "Release and transport",
+  "type": "release_lag",
+  "statement": "Codra orders finish at least 12 hours before the promise date",
+  "params": {
+   "kind": "buffer",
+   "customer": "Codra Retail",
+   "minutes": 720
+  },
+  "source": "Hervé, 6 May: proposed, not validated by Corinne",
+  "owner": "Hervé",
+  "status": "proposed",
+  "validated_by": "",
+  "validated_on": ""
+ },
+ {
+  "id": "R109",
+  "category": "Line preference",
+  "type": "line_preference",
+  "statement": "Duval prefers M03 for color stability",
+  "params": {
+   "customer": "Duval Home",
+   "lines": [
+    "M03"
+   ],
+   "penalty": 40
+  },
+  "source": "Amina, 6 May: proposed",
+  "owner": "Amina",
+  "status": "proposed",
+  "validated_by": "",
+  "validated_on": ""
+ },
+ {
+  "id": "R110",
+  "category": "Run rate",
+  "type": "rate_factor",
+  "statement": "M05 at 95% in July and August: heat",
+  "params": {
+   "line": "M05",
+   "factor": 0.95
+  },
+  "source": "Patrick, 6 May: proposed, needs a date window",
+  "owner": "Patrick",
+  "status": "proposed",
+  "validated_by": "",
+  "validated_on": ""
+ }
+]

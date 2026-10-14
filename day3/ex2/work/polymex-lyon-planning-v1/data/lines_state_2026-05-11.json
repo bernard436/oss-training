@@ -1,0 +1,30 @@
+{
+ "M01": {
+  "initial_product": "PPK-4010",
+  "available_at": "2026-05-11 09:30"
+ },
+ "M02": {
+  "initial_product": "PPN-1010",
+  "available_at": "2026-05-11 06:00"
+ },
+ "M03": {
+  "initial_product": "PPW-2030",
+  "available_at": "2026-05-11 11:00"
+ },
+ "M04": {
+  "initial_product": "PPC-3120",
+  "available_at": "2026-05-11 07:15"
+ },
+ "M05": {
+  "initial_product": "PPN-1020",
+  "available_at": "2026-05-11 08:00"
+ },
+ "M06": {
+  "initial_product": "PA6-6010",
+  "available_at": "2026-05-11 06:00"
+ },
+ "M07": {
+  "initial_product": "PPW-2010",
+  "available_at": "2026-05-11 10:20"
+ }
+}

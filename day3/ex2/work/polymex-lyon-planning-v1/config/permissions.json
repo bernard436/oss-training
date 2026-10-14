@@ -1,0 +1,124 @@
+{
+ "_read_me": "Give every actor the least grants it needs. A grant is \"action:resource\", for example \"write:plan:published\". \"read:*\" reads everything. See _catalog. The tests in tests/architecture.test.mjs check the gates.",
+ "_catalog": {
+  "actions": [
+   "read",
+   "write",
+   "call"
+  ],
+  "resources": [
+   "plan:draft",
+   "plan:published",
+   "event:proposed",
+   "event:confirmed",
+   "rule:proposed",
+   "rule:validated",
+   "execution",
+   "whatif",
+   "sap:process_orders",
+   "llm:event_reader",
+   "llm:explainer",
+   "tool:submit_event",
+   "tool:write_explanation",
+   "audit"
+  ]
+ },
+ "kill_switch": {
+  "engaged": false,
+  "owner": "Nadia"
+ },
+ "gates": {
+  "publish": {
+   "approvers": [
+    "human:corinne"
+   ]
+  },
+  "rule_activation": {
+   "approvers": [
+    "human:corinne"
+   ]
+  }
+ },
+ "actors": {
+  "human:corinne": {
+   "why": "Planner. Publishes plans, validates rules, overrides, can stand in for Sylvie on events.",
+   "grants": [
+    "read:*",
+    "write:plan:published",
+    "write:event:confirmed",
+    "write:event:proposed",
+    "write:rule:proposed",
+    "write:rule:validated",
+    "call:whatif"
+   ]
+  },
+  "human:sylvie": {
+   "why": "Event desk. Proposes and confirms events (she checks the facts), proposes rules, uses what-if.",
+   "grants": [
+    "read:*",
+    "write:event:proposed",
+    "write:event:confirmed",
+    "write:rule:proposed",
+    "call:whatif"
+   ]
+  },
+  "human:stephane": {
+   "why": "Key accounts. Asks what-if questions; never confirms his own requests.",
+   "grants": [
+    "read:plan:published",
+    "call:whatif"
+   ]
+  },
+  "human:kevin": {
+   "why": "Night shift leader. Records deviations, proposes rules, uses what-if before a swap.",
+   "grants": [
+    "read:plan:published",
+    "write:execution",
+    "write:rule:proposed",
+    "call:whatif"
+   ]
+  },
+  "human:nadia": {
+   "why": "IT. Reads the audit trail; holds the kill switch and enables SAP write-back in this file.",
+   "grants": [
+    "read:audit"
+   ]
+  },
+  "agent:event-reader": {
+   "why": "Reads a message into a proposed event. Cannot confirm, cannot publish.",
+   "grants": [
+    "call:llm:event_reader",
+    "call:tool:submit_event",
+    "write:event:proposed"
+   ]
+  },
+  "agent:explainer": {
+   "why": "Writes a short explanation of a plan. Reads plans, writes nothing.",
+   "grants": [
+    "call:llm:explainer",
+    "call:tool:write_explanation",
+    "read:plan:draft",
+    "read:plan:published"
+   ]
+  },
+  "service:long-solver": {
+   "why": "Daily run. Writes a draft, never a published plan.",
+   "grants": [
+    "write:plan:draft"
+   ]
+  },
+  "service:fast-solver": {
+   "why": "Repair after a confirmed event. Writes a draft only.",
+   "grants": [
+    "write:plan:draft"
+   ]
+  },
+  "service:sap-writeback": {
+   "why": "Writes the published plan into SAP process orders. Off until Nadia enables it.",
+   "enabled": false,
+   "grants": [
+    "write:sap:process_orders"
+   ]
+  }
+ }
+}
