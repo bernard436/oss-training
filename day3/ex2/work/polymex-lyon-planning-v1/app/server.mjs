@@ -106,6 +106,7 @@ const routes = {
   'GET /api/discovery': (b, actor) => D.listDiscovery({ actor }),
   'POST /api/discovery/import': (b, actor) => D.importCsv({ actor, csv: b.csv, kind: b.kind, file: b.file }),
   'POST /api/discovery/decide': (b, actor) => D.decideFinding({ actor, id: b.id, decision: b.decision, note: b.note }),
+  'POST /api/discovery/replanned': (b, actor) => D.markReplanned({ actor }),
   'POST /api/discovery/purge': (b, actor) => D.purgeRaw({ actor, kind: b.kind }),
   'POST /api/reset': (b, actor) => { guard(actor, 'write', 'plan:published'); store.reset(); audit(actor, 'reset', {}); return { ok: true }; },
 };

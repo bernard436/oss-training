@@ -216,18 +216,21 @@ export async function promise({ request, actor }) {
   if (!customer || !product_code || !(tonnes > 0) || !wished || !at) throw err(400, 'Customer, product, tonnes, wished date and request time are needed.');
   const promises = store.read('promises') || [];
   const id = 'Q' + String(promises.length + 1).padStart(3, '0');
+  // Material delay measured by the discovery app (validated by Corinne): the order cannot start before the material is there.
+  const delay = (store.read('products') || []).find((x) => x.product_code === product_code)?.material_delay_days || 0;
+  const available_from = delay ? fmtTime(parseTime(at) + delay * 24 * 3600e3) : '';
   let tried = 0, found = null, firstTry = null;
   // Try the wished date, then one day later each time, up to 14 days: the earliest due date the plan can hold.
   for (let d = 0; d <= 14 && !found; d++) {
     const due = fmtTime(parseTime(wished) + d * 24 * 3600e3);
-    const { res } = repair({ type: 'rush_order', order_id: id, customer, product_code, tonnes: +tonnes, due, at });
+    const { res } = repair({ type: 'rush_order', order_id: id, customer, product_code, tonnes: +tonnes, due, at, available_from });
     const row = toRows(res).find((r) => r.order_id === id);
     const ok = !!row && !(res.kpis.late || []).some((l) => l.order_id === id);
     tried++;
     if (d === 0) firstTry = { feasible: ok };
     if (ok) found = { due, line: row.line, end: row.end, moves: res.moves.filter((m) => m.kind !== 'time').length };
   }
-  const p = { id, at, by: actor, customer, product_code, tonnes: +tonnes, wished, feasible_as_asked: firstTry.feasible, promised_due: found ? found.due : null, line: found ? found.line : null, planned_end: found ? found.end : null, other_orders_moved: found ? found.moves : null, lead_days: found ? Math.round((parseTime(found.due) - parseTime(at)) / 864e4) / 10 : null, tried };
+  const p = { id, at, by: actor, material_delay_days: delay, customer, product_code, tonnes: +tonnes, wished, feasible_as_asked: firstTry.feasible, promised_due: found ? found.due : null, line: found ? found.line : null, planned_end: found ? found.end : null, other_orders_moved: found ? found.moves : null, lead_days: found ? Math.round((parseTime(found.due) - parseTime(at)) / 864e4) / 10 : null, tried };
   promises.push(p); store.write('promises', promises);
   audit(actor, 'promise.answered', { id, customer, feasible_as_asked: p.feasible_as_asked, promised_due: p.promised_due, lead_days: p.lead_days });
   return p;
