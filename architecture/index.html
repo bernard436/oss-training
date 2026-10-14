@@ -136,6 +136,25 @@ td b.big{font:700 18px var(--display)}
 .app .who{font:600 12px var(--mono);color:var(--human)}
 .app p{font-size:14px}
 .app .ph2{font:11px var(--mono);color:var(--muted)}
+
+/* apps showcase */
+.showcase{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+@media (max-width:860px){.showcase{grid-template-columns:1fr}}
+.appc{min-width:0;background:var(--surface);border:2px solid var(--fg);border-radius:10px;padding:18px;display:flex;flex-direction:column;gap:12px}
+.apptop{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-start;gap:10px}
+.apptop h3{font-size:24px}
+.appn{font:700 13px var(--mono);color:var(--muted)}
+.users{font:600 12px var(--mono);color:var(--human)}
+.today{background:var(--warn-soft);border-radius:6px;padding:8px 12px;font-size:14px}
+.today b{color:var(--warn)}
+.does{margin:0;padding-left:18px;font-size:14px;display:flex;flex-direction:column;gap:4px}
+.appfoot{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;border-top:1px solid var(--line);padding-top:10px;font-size:13px}
+.appfoot div{display:flex;flex-direction:column;gap:2px;min-width:0}
+.appfoot span{font:600 10px var(--mono);letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+.appfoot b.m{color:var(--ok)}
+.due{font:700 12px var(--mono);background:var(--fg);color:var(--bg);border-radius:3px;padding:3px 8px;max-width:48%;text-align:right}
+.ph .apps-in{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}
+.ph .apps-in i{font:600 10px var(--mono);font-style:normal;background:var(--fg);color:var(--bg);border-radius:3px;padding:2px 6px}
 .close{background:var(--human-soft);border-radius:8px;padding:18px 20px;display:flex;flex-direction:column;gap:8px}
 footer{font:12px/1.7 var(--mono);color:var(--muted)}
 </style>
@@ -146,13 +165,45 @@ footer{font:12px/1.7 var(--mono);color:var(--muted)}
 <header>
   <span class="eyebrow">Polymex Lyon · planning · target architecture · proposal for discussion</span>
   <h1>Planning Lyon tomorrow: one choice per step, and where a person decides</h1>
-  <p class="thesis">A daily plan computed by a solver from the plant's own rules, repaired in seconds when something changes, with every decision taken by the person who is accountable for it today.</p>
+  <p class="thesis">Six applications we build for Lyon, on top of the plant's systems and the platform's engines. A daily plan computed by a solver from the plant's own rules, repaired in seconds when something changes, with every decision taken by the person who is accountable for it today.</p>
   <div class="targets">
     <div class="tg"><span class="from">OTIF for Codra · W15–W18: 82.5%</span><b>95%</b><span>every week from 1 June, twelve weeks running</span></div>
     <div class="tg"><span class="from">Quoted lead time to Codra · 12.5 days</span><b>7 days</b><span>from 1 June</span></div>
     <div class="tg"><span class="from">Median time to answer a change · 17.5 h</span><b>1 hour</b><span>in working hours, and the answer holds</span></div>
   </div>
 </header>
+
+<section>
+  <span class="eyebrow">★ What we propose to build</span>
+  <h2>Six applications, one for each person who decides</h2>
+  <p class="lede">The engines exist on the platform. What Lyon gets from us is six applications that put them in the hands of the people who plan, run, sell and measure. Each one replaces a manual loop we measured, and each one keeps a person in charge of the decision.</p>
+  <div class="showcase">
+<article class="appc"><div class="apptop"><div><span class="appn">APP 1</span><h3>Rules capture</h3><span class="users">For Corinne · Patrick · Amina</span></div><span class="due">18 May</span></div>
+<p class="today"><b>Today:</b> The rules live in notebooks since 2009 and in people's heads; SAP thinks every changeover is 60 min.</p>
+<ul class="does"><li>Write a rule with its source, owner and status (110 to start)</li><li>Test it on a past week before activating it</li><li>Every override asks: which rule is missing?</li></ul>
+<div class="appfoot"><div><span>Engine behind</span>Rules engine</div><div><span>A person decides</span><b style="color:var(--human)">Owner activates the rule</b></div><div><span>Moves</span><b class="m">Every override carries a reason</b></div><div><span>Built by</span>★ us, for Lyon</div></div></article>
+<article class="appc"><div class="apptop"><div><span class="appn">APP 2</span><h3>Review &amp; publish</h3><span class="users">For Corinne</span></div><span class="due">Shadow 25 May · live 1 June</span></div>
+<p class="today"><b>Today:</b> 6 versions a day; Friday plan 4–5 h, 52-min replan every morning, 12.5 h overtime a week.</p>
+<ul class="does"><li>The 05:30 plan next to yesterday's, line by line</li><li>For each choice, the rule behind it</li><li>Late orders and changeover minutes compared with her own plan</li><li>One button to publish</li></ul>
+<div class="appfoot"><div><span>Engine behind</span>Long solver + plan evaluation</div><div><span>A person decides</span><b style="color:var(--human)">Corinne publishes</b></div><div><span>Moves</span><b class="m">Plans published from the system 0 → 90%</b></div><div><span>Built by</span>★ us, for Lyon</div></div></article>
+<article class="appc"><div class="apptop"><div><span class="appn">APP 3</span><h3>Event intake</h3><span class="users">For Corinne · Sylvie</span></div><span class="due">1 June</span></div>
+<p class="today"><b>Today:</b> 188 changes in 4 weeks by email (45%) and phone (30%); only 20% reach SAP the same day.</p>
+<ul class="does"><li>One inbox: planning mailbox, LineLog notes, lab holds, MaintPro</li><li>The model proposes a structured event with its evidence</li><li>Confirm or correct, then the repair is proposed</li></ul>
+<div class="appfoot"><div><span>Engine behind</span>Event reader (LLM) + fast solver</div><div><span>A person decides</span><b style="color:var(--human)">Corinne confirms</b></div><div><span>Moves</span><b class="m">Answer time 17.5 h → 1 h</b></div><div><span>Built by</span>★ us, for Lyon</div></div></article>
+<article class="appc"><div class="apptop"><div><span class="appn">APP 4</span><h3>Night view</h3><span class="users">For Kevin and the shift leaders</span></div><span class="due">Mid-June</span></div>
+<p class="today"><b>Today:</b> 18 night swaps in 4 weeks, decided alone, written as free text in LineLog.</p>
+<ul class="does"><li>Before the shift: the risky sequences of the night</li><li>If a line stops: swaps ranked and checked against the rules</li><li>His choice is logged and read by Corinne at 07:00</li></ul>
+<div class="appfoot"><div><span>Engine behind</span>Fast solver</div><div><span>A person decides</span><b style="color:var(--human)">Kevin chooses</b></div><div><span>Moves</span><b class="m">Orders moved inside 24 h 20% → 10%</b></div><div><span>Built by</span>★ us, for Lyon</div></div></article>
+<article class="appc"><div class="apptop"><div><span class="appn">APP 5</span><h3>What-if</h3><span class="users">For Stéphane</span></div><span class="due">1 June · Codra first</span></div>
+<p class="today"><b>Today:</b> Promises from yesterday's SAP plus margin: 12.5 days quoted, Codra wants 7.</p>
+<ul class="does"><li>"18 t of PPW-2010 by Thursday?"</li><li>Yes, or the earliest date that holds, and which orders it moves</li><li>Answer in minutes, on a copy of the published plan</li></ul>
+<div class="appfoot"><div><span>Engine behind</span>Solver on a copy of the plan</div><div><span>A person decides</span><b style="color:var(--human)">Stéphane promises</b></div><div><span>Moves</span><b class="m">Quoted lead time 12.5 → 7 days</b></div><div><span>Built by</span>★ us, for Lyon</div></div></article>
+<article class="appc"><div class="apptop"><div><span class="appn">APP 6</span><h3>Scorecard</h3><span class="users">For Hervé · Julien</span></div><span class="due">Baseline 15 May</span></div>
+<p class="today"><b>Today:</b> Schedule adherence not measured since 2024; Julien has never found a project gain in his numbers.</p>
+<ul class="does"><li>The five measures and five guardrails, weekly</li><li>Julien's definitions, recomputable without us</li><li>Gain in euros tracked against the €3.0M case</li></ul>
+<div class="appfoot"><div><span>Engine behind</span>Plan evaluation</div><div><span>A person decides</span><b style="color:var(--human)">Julien signs</b></div><div><span>Moves</span><b class="m">All five WGLL measures</b></div><div><span>Built by</span>★ us, for Lyon</div></div></article>
+  </div>
+</section>
 
 <section>
   <span class="eyebrow">What good looks like · Exercise 2</span>
@@ -235,18 +286,9 @@ footer{font:12px/1.7 var(--mono);color:var(--muted)}
       <li><b>The Lyon rule book:</b> 110 rules, each with a source and an owner</li>
       <li><b>The ontology mapping:</b> SAP, LineLog and lab fields → orders, lines, products, events</li>
       <li><b>The orchestrator:</b> the daily loop, the event loop, the what-if loop, and their human gates</li>
-      <li><b>Six apps</b> for the people who decide (below)</li>
+      <li><b>Six applications</b> for the people who decide (top of the page)</li>
       <li><b>The lab connector</b> to Access, and the <b>SAP write-back</b> with group IT</li>
       <li><b>The tests:</b> real emails for the event reader, replayed weeks for the solver</li></ul></div>
-  </div>
-  <h3>Six apps, one per person who decides</h3>
-  <div class="apps">
-    <div class="app"><span class="who">Corinne</span><h3>Review &amp; publish</h3><p>The 05:30 plan next to yesterday's, the rule behind each choice, one button to publish.</p><span class="ph2">Phase 2–3 · step 3</span></div>
-    <div class="app"><span class="who">Corinne, Sylvie</span><h3>Event intake</h3><p>Every email, call, LineLog note and lab hold as a structured event; confirm or correct.</p><span class="ph2">Phase 3 · step 4</span></div>
-    <div class="app"><span class="who">Kevin</span><h3>Night view</h3><p>Before the shift: the risky sequences and, if a line stops, the ranked swaps.</p><span class="ph2">Phase 3 · step 5</span></div>
-    <div class="app"><span class="who">Stéphane</span><h3>What-if</h3><p>"18 t of PPW-2010 by Thursday?" Yes, or the earliest date that holds, in minutes.</p><span class="ph2">Phase 3 · step 6</span></div>
-    <div class="app"><span class="who">Corinne, Patrick, Amina</span><h3>Rules capture</h3><p>Write, explain and activate a rule; every override asks "which rule is missing?"</p><span class="ph2">Phase 1 · step 1</span></div>
-    <div class="app"><span class="who">Hervé, Julien</span><h3>Scorecard</h3><p>OTIF for Codra, lead time, answer time, orders moved, plans published, and the five guardrails.</p><span class="ph2">Phase 0 → · step 8</span></div>
   </div>
 </section>
 
@@ -328,12 +370,12 @@ footer{font:12px/1.7 var(--mono);color:var(--muted)}
   <h2>Rolling it out, and setting up the new organisation</h2>
   <p class="flag"><b>Calendar risk, for Hervé now:</b> the scorecard asks for 95% every week <b>from 1 June</b>, twelve weeks running. That leaves three weeks to frame, capture the rules and shadow, so the shadow phase is cut to one week and backed by replaying weeks 15 to 18. The plant also stops from 3 to 21 August, inside the twelve weeks. Option to discuss: ask Codra to count deliveries outside the shutdown.</p>
   <div class="tlwrap"><div class="timeline">
-    <div class="ph p0" style="flex:1"><span>11–15 May</span><b>0 · Frame</b><p>Charter, five named roles, baseline signed by Julien</p></div>
-    <div class="ph p1" style="flex:1"><span>18–22 May</span><b>1 · Rules and data</b><p>110 rules with owners, read-only connectors</p></div>
-    <div class="ph p2" style="flex:1"><span>25–29 May</span><b>2 · Shadow</b><p>Next to Corinne, plus replay of W15–W18</p></div>
-    <div class="ph p3" style="flex:5"><span>1 June → 31 July</span><b>3 · Publish with Corinne</b><p>Publish from the system, events, repairs, what-if on Codra; 90% published by end of June</p></div>
-    <div class="ph off" style="flex:2"><span>3–21 Aug</span><b>Shutdown</b><p>SAP write-back tests, training</p></div>
-    <div class="ph p4" style="flex:3"><span>September →</span><b>4 · Anchor</b><p>Gain signed, handover, next problem</p></div>
+    <div class="ph p0" style="flex:1"><span>11–15 May</span><b>0 · Frame</b><p>Charter, five named roles, baseline signed by Julien</p><span class="apps-in"><i>Scorecard</i></span></div>
+    <div class="ph p1" style="flex:1"><span>18–22 May</span><b>1 · Rules and data</b><p>110 rules with owners, read-only connectors</p><span class="apps-in"><i>Rules capture</i></span></div>
+    <div class="ph p2" style="flex:1"><span>25–29 May</span><b>2 · Shadow</b><p>Next to Corinne, plus replay of W15–W18</p><span class="apps-in"><i>Review &amp; publish (shadow)</i></span></div>
+    <div class="ph p3" style="flex:5"><span>1 June → 31 July</span><b>3 · Publish with Corinne</b><p>Publish from the system, events, repairs, what-if on Codra; 90% published by end of June</p><span class="apps-in"><i>Review &amp; publish</i><i>Event intake</i><i>What-if</i><i>Night view</i></span></div>
+    <div class="ph off" style="flex:2"><span>3–21 Aug</span><b>Shutdown</b><p>SAP write-back tests, training</p><span class="apps-in"><i>SAP write-back</i></span></div>
+    <div class="ph p4" style="flex:3"><span>September →</span><b>4 · Anchor</b><p>Gain signed, handover, next problem</p><span class="apps-in"><i>What-if, all customers</i></span></div>
   </div></div>
   <div class="tablewrap"><table class="phases">
     <thead><tr><th>Phase</th><th>A person decides</th><th>Exit criterion</th><th>Stop criterion</th></tr></thead>
