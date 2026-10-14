@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<title>Lyon Planner</title>
+<link href="https://fonts.googleapis.com/css2?family=Fjalla+One&amp;family=Inter:wght@400;500;600&amp;family=Geist+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<script src="./engine.js"></script>
+<script src="./data.js"></script>
+<script src="./core.js"></script>
+<style>
+html,body{margin:0;background:#FDFDFD;color:#0D0D0D;font-family:Inter,'Helvetica Neue',sans-serif}
+a{color:#0D0D0D}a:hover{color:#FD594F}
+input,select,textarea,button{font-family:inherit;font-size:14px}
+*{box-sizing:border-box}
+</style>
+</helmet>
+<div style="display:grid;grid-template-columns:232px minmax(0,1fr);min-height:100vh">
+  <div style="background:#0D0D0D;color:#FDFDFD;display:flex;flex-direction:column;position:sticky;top:0;height:100vh">
+    <div style="padding:22px 22px 18px;display:flex;flex-direction:column;gap:6px;border-bottom:1px solid #313233">
+      <div style="display:flex;align-items:center;gap:10px"><span style="width:12px;height:12px;background:#FD594F"></span><span style="font-family:'Fjalla One',sans-serif;font-size:24px;text-transform:uppercase;line-height:1">Lyon Planner</span></div>
+      <span style="font-family:Archivo,Inter,sans-serif;font-size:10px;text-transform:uppercase;letter-spacing:0.14em;color:#888A8C">Polymex · Saint-Fons · week 20</span>
+    </div>
+    <div style="display:flex;flex-direction:column;padding:14px 10px;gap:2px;flex:1">
+      <sc-for list="{{ nav }}" as="n" hint-placeholder-count="6">
+        <button onClick="{{ n.go }}" style="display:flex;align-items:center;justify-content:space-between;gap:8px;border:0;background:{{ n.bg }};color:{{ n.color }};padding:10px 12px;text-align:left;cursor:pointer;font-family:Archivo,Inter,sans-serif;font-size:12px;text-transform:uppercase;letter-spacing:0.14em;border-left:3px solid {{ n.mark }}" style-hover="background:#313233">
+          <span>{{ n.label }}</span><span style="font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:0;color:#888A8C">{{ n.count }}</span>
+        </button>
+      </sc-for>
+    </div>
+    <div style="padding:16px 18px;border-top:1px solid #313233;display:flex;flex-direction:column;gap:8px">
+      <span style="font-family:Archivo,Inter,sans-serif;font-size:10px;text-transform:uppercase;letter-spacing:0.14em;color:#888A8C">Acting as</span>
+      <select value="{{ actor }}" onChange="{{ onActor }}" style="background:#0D0D0D;color:#FDFDFD;border:1px solid #5E6064;padding:7px 8px;border-radius:2px">
+        <sc-for list="{{ actors }}" as="a" hint-placeholder-count="5"><option value="{{ a.id }}">{{ a.label }}</option></sc-for>
+      </select>
+      <span style="font-size:11px;line-height:1.4;color:#888A8C">{{ actorGrants }}</span>
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:4px">
+        <span style="font-family:'Geist Mono',monospace;font-size:11px;color:{{ modeColor }}">{{ modeLabel }}</span>
+        <button onClick="{{ onReset }}" style="border:1px solid #5E6064;background:transparent;color:#C6C9CC;border-radius:999px;padding:3px 10px;font-size:11px;cursor:pointer">Reset</button>
+      </div>
+    </div>
+  </div>
+
+  <div style="display:flex;flex-direction:column;min-width:0">
+    <div style="display:flex;align-items:center;gap:16px;padding:16px 28px;border-bottom:1px solid #0D0D0D;flex-wrap:wrap;position:sticky;top:0;background:#FDFDFD;z-index:3">
+      <span style="font-family:'Fjalla One',sans-serif;font-size:30px;text-transform:uppercase;line-height:1">{{ pageTitle }}</span>
+      <span style="font-size:14px;color:#5E6064;flex:1;min-width:240px">{{ pageSub }}</span>
+      <sc-if value="{{ killswitch }}" hint-placeholder-val="{{ false }}"><span style="background:#FD594F;color:#0D0D0D;border-radius:999px;padding:4px 12px;font-size:12px;font-family:Archivo,Inter,sans-serif;text-transform:uppercase;letter-spacing:0.1em">Kill switch engaged</span></sc-if>
+      <span style="font-family:'Geist Mono',monospace;font-size:12px;color:#5E6064">Plant clock {{ clock }}</span>
+    </div>
+
+    <div style="padding:24px 28px 80px;display:flex;flex-direction:column;gap:22px;min-width:0">
+
+    <sc-if value="{{ isOnto }}" hint-placeholder-val="{{ true }}">
+      <div style="display:flex;flex-wrap:wrap;gap:22px;align-items:flex-start">
+        <div style="flex:999 1 720px;min-width:0;border:1px solid #EEEEEE;overflow:auto;background:#fff">
+          <div style="position:relative;width:{{ ontoW }}px;height:{{ ontoH }}px">
+            <div style="position:absolute;left:0;top:0;width:1728px;height:1180px;transform:scale({{ ontoScale }});transform-origin:0 0">
+              {{ ontoSvg }}
+              <sc-for list="{{ ontoNodes }}" as="o" hint-placeholder-count="25">
+                <div onClick="{{ o.select }}" style="position:absolute;left:{{ o.left }}px;top:{{ o.top }}px;width:236px;height:78px;background:{{ o.bg }};color:{{ o.color }};border:{{ o.border }};outline:{{ o.outline }};outline-offset:4px;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:4px;text-align:center;cursor:pointer;opacity:{{ o.opacity }}">
+                  <span style="font-family:'Fjalla One',sans-serif;font-size:26px;line-height:1;text-transform:uppercase">{{ o.id }}</span>
+                  <span style="font-family:'Geist Mono',monospace;font-size:13px;color:{{ o.subColor }}">{{ o.sub }}</span>
+                </div>
+              </sc-for>
+              <sc-for list="{{ ontoLabels }}" as="l" hint-placeholder-count="39">
+                <div style="position:absolute;left:{{ l.left }}px;top:{{ l.top }}px;width:{{ l.width }}px;height:22px;display:flex;align-items:center;justify-content:center;background:#FDFDFD;font-family:'Geist Mono',monospace;font-size:15px;color:{{ l.color }};white-space:nowrap;pointer-events:none">{{ l.text }}</div>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+        <div style="flex:1 1 320px;min-width:0;border:1px solid #0D0D0D;padding:18px 20px;display:flex;flex-direction:column;gap:12px">
+          <span style="font-family:Archivo,Inter,sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:0.14em;color:#5E6064">{{ ontoSel.kindLabel }}</span>
+          <span style="font-family:'Fjalla One',sans-serif;font-size:34px;text-transform:uppercase;line-height:1">{{ ontoSel.id }}</span>
+          <span style="font-size:15px;line-height:1.45">{{ ontoSel.def }}</span>
+          <div style="display:flex;flex-direction:column;gap:4px"><span style="font-family:Archivo,Inter,sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:0.12em;color:#5E6064">Attributes</span><span style="font-family:'Geist Mono',monospace;font-size:13px;line-height:1.5">{{ ontoSel.attrs }}</span></div>
+          <div style="display:flex;flex-direction:column;gap:4px"><span style="font-family:Archivo,Inter,sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:0.12em;color:#5E6064">In this plant now</span><span style="font-size:15px;font-weight:600">{{ ontoSel.live }}</span></div>
+          <div style="display:flex;flex-direction:column;gap:6px"><span style="font-family:Archivo,Inter,sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:0.12em;color:#5E6064">Links</span>
+            <sc-for list="{{ ontoSel.links }}" as="k" hint-placeholder-count="4"><span style="font-size:14px;line-height:1.4">{{ k }}</span></sc-for>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:6px"><span style="font-family:Archivo,Inter,sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:0.12em;color:#5E6064">Rules that constrain it · {{ ontoSel.ruleCount }}</span>
+            <sc-for list="{{ ontoSel.rules }}" as="r" hint-placeholder-count="4"><button onClick="{{ r.open }}" style="text-align:left;border:0;border-top:1px solid #EEEEEE;background:none;padding:6px 0;cursor:pointer;font-size:13px;line-height:1.4"><span style="font-family:'Geist Mono',monospace;font-size:12px;margin-right:8px">{{ r.id }}</span>{{ r.statement }}</button></sc-for>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isRules }}" hint-placeholder-val="{{ false }}">
+      <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+        <input value="{{ f.rq }}" onChange="{{ h.rq }}" placeholder="Search id, words, source, owner" style="border:1px solid #C6C9CC;padding:8px 10px;border-radius:2px;flex:1 1 280px">
+        <select value="{{ f.rc }}" onChange="{{ h.rc }}" style="border:1px solid #C6C9CC;padding:8px 10px;border-radius:2px"><sc-for list="{{ ruleCats }}" as="c" hint-placeholder-count="6"><option value="{{ c.value }}">{{ c.label }}</option></sc-for></select>
+        <select value="{{ f.rs }}" onChange="{{ h.rs }}" style="border:1px solid #C6C9CC;padding:8px 10px;border-radius:2px"><option value="">All statuses</option><option value="active">Active</option><option value="proposed">Proposed</option><option value="retired">Retired</option></select>
+        <span style="font-family:'Geist Mono',monospace;font-size:12px;color:#5E6064">{{ ruleCount }}</span>
+        <button onClick="{{ newRule }}" style="border:1px solid #0D0D0D;background:#0D0D0D;color:#FDFDFD;border-radius:999px;padding:8px 18px;cursor:pointer" style-hover="background:#FD594F;border-color:#FD594F;color:#0D0D0D">New rule</button>
+      </div>
+      <sc-if value="{{ showRuleForm }}" hint-placeholder-val="{{ false }}">
+        <div style="border:1px solid #0D0D0D;background:#fff;padding:18px 20px;display:grid;grid-template-columns:110px minmax(0,1fr);gap:10px 14px;align-items:center">
+          <span style="font-size:12px;color:#5E6064">Statement</span><input value="{{ f.nr_statement }}" onChange="{{ h.nr_statement }}" placeholder="In the words of the person who knows" style="border:1px solid #C6C9CC;padding:8px 10px;border-radius:2px">
+          <span style="font-size:12px;color:#5E6064">Type</span><select value="{{ f.nr_type }}" onChange="{{ onRuleType }}" style="border:1px solid #C6C9CC;padding:8px 10px;border-radius:2px"><sc-for list="{{ ruleTypes }}" as="t" hint-placeholder-count="13"><option value="{{ t.value }}">{{ t.label }}</option></sc-for></select>
+          <span style="font-size:12px;color:#5E6064">Parameters</span><textarea value="{{ f.nr_params }}" onChange="{{ h.nr_params }}" style="font-family:'Geist Mono',monospace;font-size:12px;border:1px solid #C6C9CC;padding:8px 10px;border-radius:2px;min-height:64px"></textarea>
+          <span style="font-size:12px;color:#5E6064">Owner</span><input value="{{ f.nr_owner }}" onChange="{{ h.nr_owner }}" style="border:1px solid #C6C9CC;padding:8px 10px;border-radius:2px">
+          <span style="font-size:12px;color:#5E6064">Source</span><input value="{{ f.nr_source }}" onChange="{{ h.nr_source }}" placeholder="Who said it, when" style="border:1px solid #C6C9CC;padding:8px 10px;border-radius:2px">
+          <span></span><div style="display:flex;gap:10px;align-items:center"><button onClick="{{ addRule }}" style="border:1px solid #0D0D0D;background:#0D0D0D;color:#FDFDFD;border-radius:999px;padding:8px 18px;cursor:pointer">Propose</button><span style="font-size:12px;color:#5E6064">{{ typeHelp }}</span></div>
+        </div>
+      </sc-if>
+      <div style="overflow-x:auto">
+        <div style="min-width:900px;display:grid;grid-template-columns:62px minmax(0,1.6fr) minmax(0,0.8fr) minmax(0,1fr) 110px 120px;gap:12px;padding-bottom:8px;border-bottom:1px solid #0D0D0D;font-family:Archivo,Inter,sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:0.12em;color:#5E6064"><span>Id</span><span>Rule</span><span>Type</span><span>Source</span><span>Owner</span><span>Status</span></div>
+        <sc-for list="{{ ruleRows }}" as="r" hint-placeholder-count="12">
+          <div style="min-width:900px;display:grid;grid-template-columns:62px minmax(0,1.6fr) minmax(0,0.8fr) minmax(0,1fr) 110px 120px;gap:12px;padding:10px 0;border-bottom:1px solid #EEEEEE;align-items:start;background:{{ r.bg }}">
+            <span style="font-family:'Geist Mono',monospace;font-size:13px">{{ r.id }}</span>
+            <div style="display:flex;flex-direction:column;gap:4px"><span style="font-size:14px;line-height:1.4">{{ r.statement }}</span><span style="font-family:'Geist Mono',monospace;font-size:11px;color:#5E6064;word-break:break-word">{{ r.params }}</span></div>
+            <div style="display:flex;flex-direction:column;gap:3px"><span style="font-family:'Geist Mono',monospace;font-size:12px;overflow-wrap:anywhere">{{ r.type }}</span><span style="font-size:11px;color:#5E6064">{{ r.category }}</span></div>
+            <span style="font-size:12px;line-height:1.4;color:#313233">{{ r.source }}</span>
+            <span style="font-size:13px">{{ r.owner }}</span>
+            <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-start">
+              <span style="border:1px {{ r.pillStyle }} {{ r.pillBorder }};background:{{ r.pillBg }};color:{{ r.pillText }};border-radius:999px;padding:2px 10px;font-family:Archivo,Inter,sans-serif;font-size:10px;text-transform:uppercase;letter-spacing:0.1em">{{ r.status }}</span>
+              <sc-if value="{{ r.canValidate }}" hint-placeholder-val="{{ false }}"><button onClick="{{ r.validate }}" style="border:1px solid #0D0D0D;background:#0D0D0D;color:#FDFDFD;border-radius:999px;padding:3px 12px;font-size:12px;cursor:pointer">Validate</button></sc-if>
+              <sc-if value="{{ r.canRetire }}" hint-placeholder-val="{{ false }}"><button onClick="{{ r.retire }}" style="border:1px solid #0D0D0D;background:transparent;border-radius:999px;padding:3px 12px;font-size:12px;cursor:pointer">Retire</button></sc-if>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isPlan }}" hint-placeholder-val="{{ false }}">
+      <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+        <span style="font-family:'Fjalla One',sans-serif;font-size:22px;text-transform:uppercase">{{ planTitle }}</span>
+        <div style="flex:1"></div>
+        <input value="{{ f.now }}" onChange="{{ h.now }}" style="font-family:'Geist Mono',monospace;border:1px solid #C6C9CC;padding:7px 9px;border-radius:2px;width:150px">
+        <button onClick="{{ runDaily }}" style="border:1px solid #0D0D0D;background:transparent;border-radius:999px;padding:7px 16px;cursor:pointer" style-hover="background:#F3F3F3">Run the daily plan</button>
+        <sc-if value="{{ hasDraft }}" hint-placeholder-val="{{ false }}"><button onClick="{{ discard }}" style="border:1px solid #0D0D0D;background:transparent;border-radius:999px;padding:7px 16px;cursor:pointer">Discard</button></sc-if>
+        <sc-if value="{{ hasDraft }}" hint-placeholder-val="{{ false }}"><button onClick="{{ publish }}" style="border:1px solid #0D0D0D;background:#0D0D0D;color:#FDFDFD;border-radius:999px;padding:7px 16px;cursor:pointer" style-hover="background:#FD594F;border-color:#FD594F;color:#0D0D0D">Publish</button></sc-if>
+      </div>
+      <sc-if value="{{ hasPlan }}" hint-placeholder-val="{{ true }}">
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:0;border-top:1px solid #EEEEEE;border-left:1px solid #EEEEEE">
+          <sc-for list="{{ kpis }}" as="k" hint-placeholder-count="6">
+            <div style="background:#FDFDFD;padding:12px 14px;display:flex;flex-direction:column;gap:4px;border-right:1px solid #EEEEEE;border-bottom:1px solid #EEEEEE"><span style="font-family:Archivo,Inter,sans-serif;font-size:10px;text-transform:uppercase;letter-spacing:0.12em;color:#5E6064">{{ k.label }}</span><span style="font-family:'Fjalla One',sans-serif;font-size:28px;line-height:1">{{ k.value }}</span><span style="font-size:11px;color:#5E6064">{{ k.delta }}</span></div>
+          </sc-for>
+        </div>
+        <div style="border:1px solid #EEEEEE;overflow-x:auto;background:#fff">
+          <div style="min-width:980px">
+            <div style="display:grid;grid-template-columns:52px minmax(0,1fr);border-bottom:1px solid #0D0D0D"><span></span><div style="position:relative;height:24px"><sc-for list="{{ dayHeads }}" as="d" hint-placeholder-count="7"><span style="position:absolute;left:{{ d.left }}%;top:4px;padding-left:4px;font-family:Archivo,Inter,sans-serif;font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:#5E6064">{{ d.label }}</span></sc-for></div></div>
+            <sc-for list="{{ gantt }}" as="g" hint-placeholder-count="7">
+              <div style="display:grid;grid-template-columns:52px minmax(0,1fr);border-bottom:1px solid #EEEEEE">
+                <span style="font-family:'Fjalla One',sans-serif;font-size:16px;padding:12px 8px;border-right:1px solid #EEEEEE">{{ g.line }}</span>
+                <div style="position:relative;height:44px">
+                  <sc-for list="{{ dayHeads }}" as="d" hint-placeholder-count="7"><span style="position:absolute;left:{{ d.left }}%;top:0;bottom:0;border-left:1px solid #EEEEEE"></span></sc-for>
+                  <sc-for list="{{ g.cos }}" as="c" hint-placeholder-count="3"><span style="position:absolute;left:{{ c.left }}%;width:{{ c.width }}%;top:19px;height:8px;background:#C6C9CC"></span></sc-for>
+                  <sc-for list="{{ g.blocks }}" as="b" hint-placeholder-count="6">
+                    <div onClick="{{ b.pick }}" title="{{ b.title }}" style="position:absolute;left:{{ b.left }}%;width:{{ b.width }}%;top:10px;height:26px;background:{{ b.bg }};color:{{ b.color }};border:1px solid #0D0D0D;outline:{{ b.outline }};font-size:10px;line-height:24px;padding:0 3px;overflow:hidden;white-space:nowrap;cursor:pointer">{{ b.label }}</div>
+                  </sc-for>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+        <div style="display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:#5E6064">
+          <sc-for list="{{ legend }}" as="l" hint-placeholder-count="6"><span style="display:flex;align-items:center;gap:6px"><span style="width:16px;height:11px;border:1px solid #0D0D0D;background:{{ l.bg }}"></span>{{ l.label }}</span></sc-for>
+          <span style="display:flex;align-items:center;gap:6px"><span style="width:16px;height:6px;background:#C6C9CC"></span>changeover</span>
+          <span style="display:flex;align-items:center;gap:6px"><span style="width:16px;height:11px;border:2px solid #FD594F"></span>late, moved or violating a rule</span>
+        </div>
+      </sc-if>
+      <sc-if value="{{ noPlan }}" hint-placeholder-val="{{ false }}"><div style="border:1px solid #0D0D0D;padding:22px;font-size:16px;line-height:1.5">No plan yet. Run the daily plan: the long solver sequences the 96 open orders of week 20 on M01 to M07 under the active rules. As Corinne, publish it; then apply Monday's events one by one.</div></sc-if>
+
+      <sc-if value="{{ hasPick }}" hint-placeholder-val="{{ false }}">
+        <div style="border:1px solid #0D0D0D;background:#fff;padding:16px 18px;display:flex;flex-direction:column;gap:10px">
+          <div style="display:flex;gap:14px;flex-wrap:wrap;align-items:baseline"><span style="font-family:'Fjalla One',sans-serif;font-size:22px;text-transform:uppercase">{{ pick.title }}</span><span style="font-family:'Geist Mono',monospace;font-size:13px;color:#313233">{{ pick.detail }}</span></div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+            <span style="font-family:Archivo,Inter,sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:0.12em;color:#5E6064">Override</span>
+            <select value="{{ f.ov_line }}" onChange="{{ h.ov_line }}" style="border:1px solid #C6C9CC;padding:7px;border-radius:2px"><option>M01</option><option>M02</option><option>M03</option><option>M04</option><option>M05</option><option>M06</option><option>M07</option></select>
+            <input value="{{ f.ov_pos }}" onChange="{{ h.ov_pos }}" placeholder="Position" style="border:1px solid #C6C9CC;padding:7px;border-radius:2px;width:90px">
+            <input value="{{ f.ov_reason }}" onChange="{{ h.ov_reason }}" placeholder="Why? Required" style="border:1px solid #C6C9CC;padding:7px 9px;border-radius:2px;flex:1 1 240px">
+            <button onClick="{{ override }}" style="border:1px solid #0D0D0D;background:#0D0D0D;color:#FDFDFD;border-radius:999px;padding:7px 16px;cursor:pointer">Move it</button>
+            <button onClick="{{ toDeviation }}" style="border:1px solid #0D0D0D;background:transparent;border-radius:999px;padding:7px 16px;cursor:pointer">Record what really ran</button>
+          </div>
+        </div>
+      </sc-if>
+
+      <div style="display:flex;flex-wrap:wrap;gap:22px;align-items:flex-start">
+        <div style="flex:1 1 520px;min-width:0;display:flex;flex-direction:column;gap:8px">
+          <span style="font-family:'Fjalla One',sans-serif;font-size:20px;text-transform:uppercase;padding-bottom:6px;border-bottom:1px solid #0D0D0D">Monday's events · {{ eventCount }}</span>
+          <sc-for list="{{ events }}" as="e" hint-placeholder-count="9">
+            <div style="display:grid;grid-template-columns:44px minmax(0,1fr) auto;gap:12px;padding:10px 0;border-bottom:1px solid #EEEEEE;align-items:start;opacity:{{ e.opacity }}">
+              <span style="font-family:'Geist Mono',monospace;font-size:12px">{{ e.id }}</span>
+              <div style="display:flex;flex-direction:column;gap:3px"><span style="font-size:14px;line-height:1.4">{{ e.raw }}</span><span style="font-family:'Geist Mono',monospace;font-size:11px;color:#5E6064">{{ e.meta }}</span></div>
+              <div style="display:flex;gap:6px;align-items:center">
+                <sc-if value="{{ e.open }}" hint-placeholder-val="{{ true }}"><button onClick="{{ e.whatif }}" style="border:1px solid #0D0D0D;background:transparent;border-radius:999px;padding:4px 10px;font-size:12px;cursor:pointer">What if</button></sc-if>
+                <sc-if value="{{ e.open }}" hint-placeholder-val="{{ true }}"><button onClick="{{ e.apply }}" style="border:1px solid #0D0D0D;background:#0D0D0D;color:#FDFDFD;border-radius:999px;padding:4px 10px;font-size:12px;cursor:pointer">Apply</button></sc-if>
+                <sc-if value="{{ e.done }}" hint-placeholder-val="{{ false }}"><span style="font-size:11px;font-family:Archivo,Inter,sans-serif;text-transform:uppercase;letter-spacing:0.1em">applied</span></sc-if>
+              </div>
+            </div>
+          </sc-for>
+          <sc-if value="{{ whatIfText }}" hint-placeholder-val="{{ false }}"><div style="background:#0D0D0D;color:#FDFDFD;padding:12px 14px;font-size:14px;line-height:1.45">{{ whatIfText }}</div></sc-if>
+        </div>
+        <div style="flex:1 1 360px;min-width:0;display:flex;flex-direction:column;gap:8px">
+          <span style="font-family:'Fjalla One',sans-serif;font-size:20px;text-transform:uppercase;padding-bottom:6px;border-bottom:1px solid #0D0D0D">What moved · {{ moveCount }}</span>
+          <sc-for list="{{ moves }}" as="m" hint-placeholder-count="4"><div style="display:grid;grid-template-columns:70px 80px minmax(0,1fr);gap:8px;font-family:'Geist Mono',monospace;font-size:12px;padding:5px 0;border-bottom:1px solid #EEEEEE"><span>{{ m.id }}</span><span style="color:#5E6064">{{ m.kind }}</span><span>{{ m.text }}</span></div></sc-for>
+          <span style="font-family:'Fjalla One',sans-serif;font-size:20px;text-transform:uppercase;padding:12px 0 6px;border-bottom:1px solid #0D0D0D">Rule violations · {{ violCount }}</span>
+          <sc-for list="{{ viols }}" as="v" hint-placeholder-count="1"><div style="display:grid;grid-template-columns:60px minmax(0,1fr);gap:8px;font-size:13px;padding:5px 0;border-bottom:1px solid #EEEEEE"><span style="font-family:'Geist Mono',monospace;color:#FD594F">{{ v.rule }}</span><span>{{ v.what }}</span></div></sc-for>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isSources }}" hint-placeholder-val="{{ false }}">
+      <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;background:#F3F3F3;padding:14px 16px">
+        <span style="font-size:14px;line-height:1.45;flex:1 1 400px">Every fact comes from one system with one owner. Reads are on; the write-back to SAP stays off until Nadia enables it. Only Nadia can toggle a source or engage the kill switch.</span>
+        <button onClick="{{ killswitchToggle }}" style="border:1px solid #FD594F;background:{{ ksBg }};color:#0D0D0D;border-radius:999px;padding:7px 16px;cursor:pointer">{{ ksLabel }}</button>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:16px">
+        <sc-for list="{{ sources }}" as="s" hint-placeholder-count="7">
+          <div style="border:{{ s.border }};background:#fff;padding:16px 18px;display:flex;flex-direction:column;gap:10px">
+            <div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start"><span style="font-family:'Fjalla One',sans-serif;font-size:20px;text-transform:uppercase;line-height:1.1">{{ s.name }}</span><span style="background:{{ s.pillBg }};color:{{ s.pillText }};border:1px solid #0D0D0D;border-radius:999px;padding:2px 10px;font-family:Archivo,Inter,sans-serif;font-size:10px;text-transform:uppercase;letter-spacing:0.1em;white-space:nowrap">{{ s.state }}</span></div>
+            <span style="font-size:14px;line-height:1.4">{{ s.what }}</span>
+            <div style="display:grid;grid-template-columns:90px minmax(0,1fr);gap:4px 10px;font-size:12px"><span style="color:#5E6064">Direction</span><span>{{ s.mode }}</span><span style="color:#5E6064">Refresh</span><span>{{ s.refresh }}</span><span style="color:#5E6064">Owner</span><span>{{ s.owner }}</span><span style="color:#5E6064">Connector</span><span>{{ s.connector }}</span><span style="color:#5E6064">Records</span><span style="font-family:'Geist Mono',monospace">{{ s.count }}</span></div>
+            <div style="background:#F3F3F3;padding:8px 10px;font-family:'Geist Mono',monospace;font-size:11px;line-height:1.55;white-space:pre-wrap;color:#313233">{{ s.sample }}</div>
+            <button onClick="{{ s.toggle }}" style="align-self:flex-start;border:1px solid #0D0D0D;background:transparent;border-radius:999px;padding:4px 12px;font-size:12px;cursor:pointer">{{ s.toggleLabel }}</button>
+          </div>
+        </sc-for>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isFeedback }}" hint-placeholder-val="{{ false }}">
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:0;border-top:1px solid #EEEEEE;border-left:1px solid #EEEEEE">
+        <sc-for list="{{ loop }}" as="k" hint-placeholder-count="5"><div style="background:#FDFDFD;border-right:1px solid #EEEEEE;border-bottom:1px solid #EEEEEE;padding:12px 14px;display:flex;flex-direction:column;gap:4px"><span style="font-family:Archivo,Inter,sans-serif;font-size:10px;text-transform:uppercase;letter-spacing:0.12em;color:#5E6064">{{ k.label }}</span><span style="font-family:'Fjalla One',sans-serif;font-size:28px;line-height:1">{{ k.value }}</span></div></sc-for>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:22px;align-items:flex-start">
+        <div style="flex:1 1 460px;min-width:0;display:flex;flex-direction:column;gap:8px">
+          <span style="font-family:'Fjalla One',sans-serif;font-size:20px;text-transform:uppercase;padding-bottom:6px;border-bottom:1px solid #0D0D0D">Disagreements and deviations</span>
+          <sc-if value="{{ noFeedback }}" hint-placeholder-val="{{ false }}"><span style="font-size:14px;color:#5E6064;line-height:1.5">Nothing yet. Override an order in Planning with a reason, or record what really ran below.</span></sc-if>
+          <sc-for list="{{ feedback }}" as="x" hint-placeholder-count="3">
+            <button onClick="{{ x.select }}" style="display:grid;grid-template-columns:60px minmax(0,1fr) 110px;gap:10px;text-align:left;border:0;border-bottom:1px solid #EEEEEE;background:{{ x.bg }};padding:10px 8px;cursor:pointer;align-items:start">
+              <span style="font-family:'Geist Mono',monospace;font-size:12px">{{ x.id }}</span>
+              <div style="display:flex;flex-direction:column;gap:3px"><span style="font-size:14px;line-height:1.4">{{ x.text }}</span><span style="font-size:11px;color:#5E6064">{{ x.meta }}</span></div>
+              <span style="font-size:12px;color:{{ x.statusColor }}">{{ x.status }}</span>
+            </button>
+          </sc-for>
+          <div style="border:1px solid #0D0D0D;padding:14px 16px;display:grid;grid-template-columns:100px minmax(0,1fr);gap:8px 12px;align-items:center;margin-top:10px;background:#fff">
+            <span style="grid-column:1 / -1;font-family:'Fjalla One',sans-serif;font-size:18px;text-transform:uppercase">Record what really ran</span>
+            <span style="font-size:12px;color:#5E6064">Order</span><input value="{{ f.dv_order }}" onChange="{{ h.dv_order }}" placeholder="O59014" style="border:1px solid #C6C9CC;padding:7px 9px;border-radius:2px">
+            <span style="font-size:12px;color:#5E6064">What</span><input value="{{ f.dv_what }}" onChange="{{ h.dv_what }}" placeholder="Finished two hours late on M04" style="border:1px solid #C6C9CC;padding:7px 9px;border-radius:2px">
+            <span style="font-size:12px;color:#5E6064">First why</span><input value="{{ f.dv_why }}" onChange="{{ h.dv_why }}" placeholder="As told by the floor" style="border:1px solid #C6C9CC;padding:7px 9px;border-radius:2px">
+            <span style="font-size:12px;color:#5E6064">Class</span><select value="{{ f.dv_cls }}" onChange="{{ h.dv_cls }}" style="border:1px solid #C6C9CC;padding:7px 9px;border-radius:2px"><option>rule missing</option><option>rule wrong</option><option>data wrong</option><option>one-off</option><option>human preference</option></select>
+            <span></span><button onClick="{{ addDeviation }}" style="justify-self:start;border:1px solid #0D0D0D;background:#0D0D0D;color:#FDFDFD;border-radius:999px;padding:7px 16px;cursor:pointer">Record</button>
+          </div>
+        </div>
+        <div style="flex:1 1 420px;min-width:0;border:1px solid #0D0D0D;background:#fff;padding:16px 18px;display:flex;flex-direction:column;gap:10px">
+          <span style="font-family:'Fjalla One',sans-serif;font-size:22px;text-transform:uppercase">Five whys · {{ fbSel.id }}</span>
+          <span style="font-size:14px;line-height:1.45;color:#313233">{{ fbSel.text }}</span>
+          <sc-for list="{{ whys }}" as="w" hint-placeholder-count="5">
+            <div style="display:grid;grid-template-columns:64px minmax(0,1fr);gap:8px;align-items:center"><span style="font-family:'Fjalla One',sans-serif;font-size:14px;text-transform:uppercase;color:{{ w.color }}">{{ w.label }}</span><input value="{{ w.value }}" onChange="{{ w.onChange }}" style="border:1px solid #C6C9CC;padding:7px 9px;border-radius:2px"></div>
+          </sc-for>
+          <div style="display:grid;grid-template-columns:64px minmax(0,1fr);gap:8px;align-items:center"><span style="font-family:'Fjalla One',sans-serif;font-size:14px;text-transform:uppercase">Root</span><input value="{{ f.fb_root }}" onChange="{{ h.fb_root }}" placeholder="The fact about the plant" style="border:1px solid #0D0D0D;padding:7px 9px;border-radius:2px"></div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap"><sc-for list="{{ outcomes }}" as="o" hint-placeholder-count="3"><button onClick="{{ o.pick }}" style="border:1px solid #0D0D0D;background:{{ o.bg }};color:{{ o.color }};border-radius:999px;padding:5px 12px;font-size:13px;cursor:pointer">{{ o.label }}</button></sc-for></div>
+          <sc-if value="{{ outcomeRule }}" hint-placeholder-val="{{ false }}">
+            <div style="display:grid;grid-template-columns:90px minmax(0,1fr);gap:8px 10px;align-items:center">
+              <span style="font-size:12px;color:#5E6064">Statement</span><input value="{{ f.nr_statement }}" onChange="{{ h.nr_statement }}" style="border:1px solid #C6C9CC;padding:7px 9px;border-radius:2px">
+              <span style="font-size:12px;color:#5E6064">Type</span><select value="{{ f.nr_type }}" onChange="{{ onRuleType }}" style="border:1px solid #C6C9CC;padding:7px 9px;border-radius:2px"><sc-for list="{{ ruleTypes }}" as="t" hint-placeholder-count="13"><option value="{{ t.value }}">{{ t.label }}</option></sc-for></select>
+              <span style="font-size:12px;color:#5E6064">Parameters</span><textarea value="{{ f.nr_params }}" onChange="{{ h.nr_params }}" style="font-family:'Geist Mono',monospace;font-size:12px;border:1px solid #C6C9CC;padding:7px 9px;border-radius:2px;min-height:56px"></textarea>
+              <span style="font-size:12px;color:#5E6064">Owner</span><input value="{{ f.nr_owner }}" onChange="{{ h.nr_owner }}" style="border:1px solid #C6C9CC;padding:7px 9px;border-radius:2px">
+            </div>
+          </sc-if>
+          <div style="display:flex;gap:10px;align-items:center"><button onClick="{{ saveFeedback }}" style="border:1px solid #0D0D0D;background:#0D0D0D;color:#FDFDFD;border-radius:999px;padding:8px 18px;cursor:pointer" style-hover="background:#FD594F;border-color:#FD594F;color:#0D0D0D">{{ saveLabel }}</button><span style="font-size:12px;color:#5E6064">A rule is proposed; Corinne validates it in Rules.</span></div>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isArch }}" hint-placeholder-val="{{ false }}">
+      <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;background:#F3F3F3;padding:14px 16px">
+        <span style="font-size:14px;line-height:1.45;flex:1 1 400px">The workflow decides with solvers and reads with models. Six layers, from the plant's systems to the harness under everything. Each card says whether it runs in this app, is simulated from the lab kit, or exists only in production. Click a card.</span>
+        <span style="border:1px solid #0D0D0D;border-radius:999px;padding:4px 12px;font-family:'Geist Mono',monospace;font-size:12px">{{ archRuntime }}</span>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <span style="font-family:Archivo,Inter,sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:0.14em;color:#5E6064">One click, end to end: applying an event</span>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:stretch">
+          <sc-for list="{{ archFlow }}" as="x" hint-placeholder-count="7">
+            <div style="display:flex;align-items:center;gap:8px;flex:1 1 150px;min-width:0">
+              <sc-if value="{{ x.notFirst }}" hint-placeholder-val="{{ true }}"><span style="flex:none;display:flex;align-items:center"><span style="width:10px;height:2px;background:#0D0D0D"></span><span style="width:0;height:0;border-top:5px solid transparent;border-bottom:5px solid transparent;border-left:7px solid #0D0D0D"></span></span></sc-if>
+              <div style="flex:1;min-width:0;border:1px solid #0D0D0D;background:{{ x.bg }};color:{{ x.color }};padding:8px 10px;display:flex;flex-direction:column;gap:4px;align-self:stretch">
+                <span style="font-family:'Fjalla One',sans-serif;font-size:15px;text-transform:uppercase;line-height:1.1">{{ x.name }}</span>
+                <span style="font-family:'Geist Mono',monospace;font-size:11px;line-height:1.4;color:{{ x.sub }};overflow-wrap:anywhere">{{ x.code }}</span>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:22px;align-items:flex-start">
+        <div style="flex:3 1 640px;min-width:0;display:flex;flex-direction:column;gap:0;border-top:1px solid #0D0D0D">
+          <sc-for list="{{ archLayers }}" as="L" hint-placeholder-count="6">
+            <div style="display:grid;grid-template-columns:minmax(150px,190px) minmax(0,1fr);gap:16px;padding:14px 0;border-bottom:1px solid #EEEEEE">
+              <div style="display:flex;flex-direction:column;gap:4px">
+                <span style="font-family:'Geist Mono',monospace;font-size:11px;color:#888A8C">{{ L.n }}</span>
+                <span style="font-family:'Fjalla One',sans-serif;font-size:19px;text-transform:uppercase;line-height:1.1">{{ L.name }}</span>
+                <span style="font-size:12px;line-height:1.4;color:#5E6064">{{ L.note }}</span>
+              </div>
+              <div style="display:flex;flex-wrap:wrap;gap:8px;align-content:flex-start">
+                <sc-for list="{{ L.cards }}" as="c" hint-placeholder-count="5">
+                  <button onClick="{{ c.pick }}" style="background:{{ c.bg }};color:{{ c.color }};border:{{ c.border }};outline:{{ c.outline }};outline-offset:2px;padding:9px 11px;display:flex;flex-direction:column;gap:5px;text-align:left;cursor:pointer;flex:1 1 170px;max-width:260px;min-width:0;border-radius:0">
+                    <span style="font-family:'Fjalla One',sans-serif;font-size:15px;text-transform:uppercase;line-height:1.1">{{ c.name }}</span>
+                    <span style="font-family:'Geist Mono',monospace;font-size:11px;line-height:1.35;color:{{ c.sub }}">{{ c.stat }}</span>
+                    <span style="align-self:flex-start;border:1px {{ c.pillLine }} {{ c.pillColor }};color:{{ c.pillColor }};border-radius:999px;padding:1px 8px;font-family:Archivo,Inter,sans-serif;font-size:9px;text-transform:uppercase;letter-spacing:0.1em;white-space:nowrap">{{ c.statusLabel }}</span>
+                  </button>
+                </sc-for>
+              </div>
+            </div>
+          </sc-for>
+          <div style="display:flex;flex-wrap:wrap;gap:18px;padding-top:14px;font-size:12px;color:#313233">
+            <span style="display:flex;align-items:center;gap:6px"><span style="width:14px;height:14px;background:#F3F3F3;border:1.5px solid #888A8C"></span>Existing system</span>
+            <span style="display:flex;align-items:center;gap:6px"><span style="width:14px;height:14px;background:#0D0D0D"></span>Platform, out of the box</span>
+            <span style="display:flex;align-items:center;gap:6px"><span style="width:14px;height:14px;background:#fff;border:1.5px solid #0D0D0D"></span>Built for Lyon</span>
+            <span style="display:flex;align-items:center;gap:6px"><span style="width:14px;height:14px;background:#fff;border:2px dashed #FD594F"></span>A model</span>
+          </div>
+        </div>
+        <div style="flex:1 1 300px;min-width:0;position:sticky;top:90px;border:1px solid #0D0D0D;background:#fff;padding:18px 20px;display:flex;flex-direction:column;gap:12px">
+          <span style="font-family:Archivo,Inter,sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:0.14em;color:#5E6064">{{ archSel.layer }} · {{ archSel.kindLabel }}</span>
+          <span style="font-family:'Fjalla One',sans-serif;font-size:26px;text-transform:uppercase;line-height:1.05">{{ archSel.name }}</span>
+          <span style="align-self:flex-start;border:1px {{ archSel.pillLine }} #0D0D0D;border-radius:999px;padding:2px 10px;font-family:Archivo,Inter,sans-serif;font-size:10px;text-transform:uppercase;letter-spacing:0.1em">{{ archSel.statusLabel }}</span>
+          <span style="font-size:14px;line-height:1.5">{{ archSel.what }}</span>
+          <div style="display:grid;grid-template-columns:72px minmax(0,1fr);gap:8px 10px;font-size:12px;line-height:1.45;border-top:1px solid #EEEEEE;padding-top:12px">
+            <span style="color:#5E6064">Now</span><span style="font-family:'Geist Mono',monospace">{{ archSel.stat }}</span>
+            <span style="color:#5E6064">Code</span><span style="font-family:'Geist Mono',monospace;overflow-wrap:anywhere">{{ archSel.code }}</span>
+            <span style="color:#5E6064">Who</span><span>{{ archSel.who }}</span>
+          </div>
+          <sc-if value="{{ archSel.hasPage }}" hint-placeholder-val="{{ false }}"><button onClick="{{ archSel.open }}" style="align-self:flex-start;border:1px solid #0D0D0D;background:#0D0D0D;color:#FDFDFD;border-radius:999px;padding:7px 16px;cursor:pointer" style-hover="background:#FD594F;color:#0D0D0D">{{ archSel.openLabel }}</button></sc-if>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isEval }}" hint-placeholder-val="{{ false }}">
+      <div style="display:flex;flex-wrap:wrap;gap:22px;align-items:flex-start">
+        <div style="flex:3 1 640px;min-width:0;border:1px solid #0D0D0D;background:#fff;padding:18px 20px;display:flex;flex-direction:column;gap:14px">
+          <div style="display:flex;align-items:baseline;gap:14px;flex-wrap:wrap">
+            <span style="font-family:'Fjalla One',sans-serif;font-size:24px;text-transform:uppercase;line-height:1">The scorecard</span>
+            <span style="font-size:13px;line-height:1.45;color:#5E6064;flex:1 1 300px">Each measure scores 0 at its worst acceptable value and 100 at its target. A plan's score is the weighted average of the measures that apply to it. A plan that breaks a guardrail fails, whatever its score. Edit any number: the comparison below follows.</span>
+          </div>
+          <div style="overflow-x:auto">
+            <div style="min-width:720px;display:flex;flex-direction:column">
+              <div style="display:grid;grid-template-columns:36px minmax(0,1.7fr) 74px 96px 96px minmax(170px,1fr);gap:12px;padding-bottom:8px;border-bottom:1px solid #0D0D0D;align-items:end;font-family:Archivo,Inter,sans-serif;font-size:10px;text-transform:uppercase;letter-spacing:0.12em;color:#5E6064"><span>On</span><span>Measure</span><span>Better</span><span>Worst · 0 pts</span><span>Target · 100</span><span>Weight · share</span></div>
+              <sc-for list="{{ scRows }}" as="m" hint-placeholder-count="7">
+                <div style="display:grid;grid-template-columns:36px minmax(0,1.7fr) 74px 96px 96px minmax(170px,1fr);gap:12px;padding:9px 0;border-bottom:1px solid #EEEEEE;align-items:center;opacity:{{ m.opacity }}">
+                  <button onClick="{{ m.onToggle }}" title="Use this measure" style="width:20px;height:20px;border:2px solid #0D0D0D;background:{{ m.box }};cursor:pointer;padding:0"></button>
+                  <div style="display:flex;flex-direction:column;gap:2px"><span style="font-size:14px;font-weight:600">{{ m.label }}</span><span style="font-size:12px;line-height:1.35;color:#5E6064">{{ m.why }}</span></div>
+                  <span style="font-size:12px;color:#313233">{{ m.dir }}</span>
+                  <div style="display:flex;align-items:center;gap:4px"><input value="{{ m.floor }}" onChange="{{ m.onFloor }}" style="font-family:'Geist Mono',monospace;font-size:13px;border:1px solid #C6C9CC;padding:5px 7px;border-radius:2px;width:100%;background:#fff"><span style="font-size:12px;color:#5E6064">{{ m.unit }}</span></div>
+                  <div style="display:flex;align-items:center;gap:4px"><input value="{{ m.target }}" onChange="{{ m.onTarget }}" style="font-family:'Geist Mono',monospace;font-size:13px;border:1px solid #C6C9CC;padding:5px 7px;border-radius:2px;width:100%;background:#fff;border-color:#0D0D0D"><span style="font-size:12px;color:#5E6064">{{ m.unit }}</span></div>
+                  <div style="display:grid;grid-template-columns:56px minmax(0,1fr) 38px;gap:8px;align-items:center"><input value="{{ m.weight }}" onChange="{{ m.onWeight }}" style="font-family:'Geist Mono',monospace;font-size:13px;border:1px solid #C6C9CC;padding:5px 7px;border-radius:2px;width:100%;background:#fff"><div style="height:10px;background:#EEEEEE;display:flex"><div style="width:{{ m.share }}%;background:#0D0D0D"></div></div><span style="font-family:'Geist Mono',monospace;font-size:12px;text-align:right">{{ m.shareLabel }}</span></div>
+                </div>
+              </sc-for>
+              <div style="display:flex;align-items:center;gap:10px;padding:14px 0 8px;font-family:Archivo,Inter,sans-serif;font-size:10px;text-transform:uppercase;letter-spacing:0.12em;color:#5E6064"><span style="width:10px;height:10px;background:#FD594F"></span><span>Guardrails: a plan that breaks one fails</span></div>
+              <sc-for list="{{ guardRows }}" as="g" hint-placeholder-count="2">
+                <div style="display:grid;grid-template-columns:36px minmax(0,1.7fr) 74px 96px minmax(0,1fr);gap:12px;padding:8px 0;border-top:1px solid #EEEEEE;align-items:center;opacity:{{ g.opacity }}">
+                  <button onClick="{{ g.onToggle }}" title="Use this guardrail" style="width:20px;height:20px;border:2px solid #FD594F;background:{{ g.box }};cursor:pointer;padding:0"></button>
+                  <span style="font-size:14px;font-weight:600">{{ g.label }}</span>
+                  <span style="font-size:12px;color:#313233">{{ g.op }}</span>
+                  <div style="display:flex;align-items:center;gap:4px"><input value="{{ g.value }}" onChange="{{ g.onValue }}" style="font-family:'Geist Mono',monospace;font-size:13px;border:1px solid #C6C9CC;padding:5px 7px;border-radius:2px;width:100%;background:#fff;border-color:#FD594F"><span style="font-size:12px;color:#5E6064">{{ g.unit }}</span></div>
+                  <span></span>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+          <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;border-top:1px solid #0D0D0D;padding-top:12px">
+            <span style="font-family:'Geist Mono',monospace;font-size:12px">{{ weightTotal }}</span>
+            <span style="font-size:12px;color:{{ scStatusColor }};flex:1 1 240px">{{ scStatus }}</span>
+            <button onClick="{{ resetSc }}" style="border:1px solid #0D0D0D;background:transparent;border-radius:999px;padding:6px 14px;font-size:13px;cursor:pointer">Default</button>
+            <sc-if value="{{ scDirty }}" hint-placeholder-val="{{ false }}"><button onClick="{{ discardSc }}" style="border:1px solid #0D0D0D;background:transparent;border-radius:999px;padding:6px 14px;font-size:13px;cursor:pointer">Discard</button></sc-if>
+            <sc-if value="{{ scDirty }}" hint-placeholder-val="{{ false }}"><button onClick="{{ saveSc }}" style="border:1px solid #0D0D0D;background:#0D0D0D;color:#FDFDFD;border-radius:999px;padding:6px 16px;font-size:13px;cursor:pointer" style-hover="background:#FD594F;border-color:#FD594F;color:#0D0D0D">Save the scorecard</button></sc-if>
+          </div>
+        </div>
+
+        <div style="flex:2 1 380px;min-width:0;border:1px solid #0D0D0D;background:#fff;padding:18px 20px;display:flex;flex-direction:column;gap:12px">
+          <span style="font-family:Archivo,Inter,sans-serif;font-size:10px;text-transform:uppercase;letter-spacing:0.12em;color:#5E6064">{{ evSel.kind }}</span>
+          <span style="font-family:'Fjalla One',sans-serif;font-size:22px;text-transform:uppercase;line-height:1.1">{{ evSel.label }}</span>
+          <div style="display:flex;align-items:flex-end;gap:16px">
+            <span style="font-family:'Fjalla One',sans-serif;font-size:72px;line-height:0.9">{{ evSel.score }}</span>
+            <div style="display:flex;flex-direction:column;gap:6px;padding-bottom:6px"><span style="align-self:flex-start;background:{{ evSel.passBg }};color:{{ evSel.passColor }};padding:2px 10px;font-family:'Geist Mono',monospace;font-size:12px">{{ evSel.pass }}</span><span style="font-size:12px;color:#5E6064">{{ evSel.rank }}</span></div>
+          </div>
+          <sc-for list="{{ evSel.items }}" as="c" hint-placeholder-count="6">
+            <div style="display:flex;flex-direction:column;gap:4px;padding:6px 0;border-top:1px solid #EEEEEE;opacity:{{ c.opacity }}">
+              <div style="display:flex;justify-content:space-between;gap:10px;font-size:13px"><span style="font-weight:600">{{ c.label }}</span><span style="font-family:'Geist Mono',monospace">{{ c.line }}</span></div>
+              <div style="display:grid;grid-template-columns:minmax(0,1fr) 92px;gap:10px;align-items:center"><div style="height:10px;background:#EEEEEE;display:flex"><div style="width:{{ c.w }}%;background:{{ c.color }}"></div></div><span style="font-family:'Geist Mono',monospace;font-size:12px;text-align:right">{{ c.contrib }}</span></div>
+            </div>
+          </sc-for>
+          <sc-for list="{{ evSel.guards }}" as="g" hint-placeholder-count="2">
+            <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;line-height:1.35"><span style="flex:none;font-family:'Geist Mono',monospace;font-size:11px;padding:1px 6px;background:{{ g.bg }};color:{{ g.color }}">{{ g.mark }}</span><span>{{ g.label }}</span></div>
+          </sc-for>
+          <sc-if value="{{ evSel.lost }}" hint-placeholder-val="{{ false }}"><div style="background:#F3F3F3;padding:10px 12px;font-size:13px;line-height:1.45"><b style="font-weight:600">Where it lost points.</b> {{ evSel.lost }}</div></sc-if>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+        <span style="font-family:'Fjalla One',sans-serif;font-size:22px;text-transform:uppercase">How each plan fared</span>
+        <span style="font-size:13px;color:#5E6064;flex:1 1 300px">Every plan produced so far, against the scorecard above. Click a row for the detail.</span>
+        <button onClick="{{ snapshot }}" style="border:1px solid #0D0D0D;background:#0D0D0D;color:#FDFDFD;border-radius:999px;padding:7px 16px;cursor:pointer">Score the current plan</button>
+      </div>
+      <div style="overflow-x:auto;border-top:1px solid #0D0D0D">
+        <div style="min-width:{{ matrixMin }}">
+          <div style="display:grid;grid-template-columns:{{ matrixCols }};gap:10px;padding:10px 0;border-bottom:1px solid #0D0D0D;align-items:end">
+            <span style="font-family:Archivo,Inter,sans-serif;font-size:10px;text-transform:uppercase;letter-spacing:0.12em;color:#5E6064">Plan</span>
+            <sc-for list="{{ mHead }}" as="h" hint-placeholder-count="6"><div style="display:flex;flex-direction:column;gap:2px"><span style="font-family:Archivo,Inter,sans-serif;font-size:10px;text-transform:uppercase;letter-spacing:0.12em;color:#5E6064;color:#0D0D0D">{{ h.label }}</span><span style="font-family:'Geist Mono',monospace;font-size:11px;color:#5E6064">{{ h.sub }}</span></div></sc-for>
+            <span style="font-family:Archivo,Inter,sans-serif;font-size:10px;text-transform:uppercase;letter-spacing:0.12em;color:#5E6064">Guardrails</span>
+            <span style="font-family:Archivo,Inter,sans-serif;font-size:10px;text-transform:uppercase;letter-spacing:0.12em;color:#5E6064">Score</span>
+          </div>
+          <sc-for list="{{ evRows }}" as="e" hint-placeholder-count="4">
+            <button onClick="{{ e.select }}" style="width:100%;display:grid;grid-template-columns:{{ matrixCols }};gap:10px;padding:10px 0;border:0;border-bottom:1px solid #EEEEEE;background:{{ e.bg }};text-align:left;cursor:pointer;align-items:center">
+              <div style="display:flex;flex-direction:column;gap:2px;padding-left:4px"><span style="font-size:13px;font-weight:600;line-height:1.3"><span style="font-family:'Geist Mono',monospace;font-weight:400;margin-right:6px">{{ e.id }}</span>{{ e.label }}</span><span style="font-size:11px;color:#5E6064">{{ e.meta }}</span></div>
+              <sc-for list="{{ e.cells }}" as="c" hint-placeholder-count="6">
+                <div style="display:flex;flex-direction:column;gap:4px"><span style="font-family:'Geist Mono',monospace;font-size:13px;color:{{ c.tc }}">{{ c.value }}</span><div style="height:6px;background:#EEEEEE;display:flex"><div style="width:{{ c.w }}%;background:{{ c.color }}"></div></div><span style="font-family:'Geist Mono',monospace;font-size:10px;color:#5E6064">{{ c.pts }}</span></div>
+              </sc-for>
+              <span style="justify-self:start;background:{{ e.guardBg }};color:{{ e.guardColor }};padding:2px 8px;font-family:'Geist Mono',monospace;font-size:11px">{{ e.guard }}</span>
+              <div style="display:flex;align-items:center;gap:8px"><span style="font-family:'Fjalla One',sans-serif;font-size:28px;line-height:1">{{ e.score }}</span><span style="font-family:Archivo,Inter,sans-serif;font-size:10px;letter-spacing:0.12em;color:#FD594F">{{ e.best }}</span></div>
+            </button>
+          </sc-for>
+        </div>
+      </div>
+      <div style="display:flex;gap:18px;flex-wrap:wrap;font-size:12px;color:#5E6064">
+        <span style="display:flex;align-items:center;gap:6px"><span style="width:16px;height:6px;background:#0D0D0D"></span>target met</span>
+        <span style="display:flex;align-items:center;gap:6px"><span style="width:16px;height:6px;background:#888A8C"></span>between worst and target</span>
+        <span style="display:flex;align-items:center;gap:6px"><span style="width:16px;height:6px;background:#FD594F"></span>at or below worst: 0 points</span>
+        <span>n/a: the measure does not apply to this kind of plan</span>
+      </div>
+    </sc-if>
+
+    </div>
+  </div>
+  <sc-if value="{{ busy }}" hint-placeholder-val="{{ false }}"><div style="position:fixed;inset:0;background:rgba(253,253,253,0.7);display:flex;align-items:center;justify-content:center;z-index:9"><div style="background:#0D0D0D;color:#FDFDFD;padding:18px 26px;font-family:'Fjalla One',sans-serif;font-size:22px;text-transform:uppercase">{{ busy }}</div></div></sc-if>
+  <sc-if value="{{ toast }}" hint-placeholder-val="{{ false }}"><div style="position:fixed;right:20px;bottom:20px;background:{{ toastBg }};color:{{ toastColor }};padding:12px 18px;font-size:14px;max-width:480px;z-index:10">{{ toast }}</div></sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;startPage&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;ontology&quot;,&quot;rules&quot;,&quot;planning&quot;,&quot;sources&quot;,&quot;feedback&quot;,&quot;eval&quot;,&quot;architecture&quot;],&quot;default&quot;:&quot;planning&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;View&quot;}}">
+class Component extends DCLogic {
+  state = { sc: null, page: this.props.startPage ?? 'planning', actor: 'corinne', s: null, mode: 'local', busy: '', toast: '', toastErr: false, ontoSel: 'Rule', pick: null, fbSel: null, evSel: null, outcome: 'rule', showRuleForm: false,
+    f: { rq: '', rc: '', rs: '', now: '2026-05-11 05:30', ov_line: 'M07', ov_pos: '1', ov_reason: '', dv_order: '', dv_what: '', dv_why: '', dv_cls: 'rule missing', fb_root: '', nr_statement: '', nr_type: 'rate_factor', nr_params: '{"line":"M04","weekdays":[6,0],"factor":0.85}', nr_owner: 'Corinne', nr_source: '' }, whys: ['', '', '', '', ''] };
+  KEY = 'lyonPlanner.state.v1';
+  TYPES = { changeover_override: ['Changeover time that replaces the matrix', { from_family: 'PPC', to_family: 'PPN', minutes: 130 }], forbidden_transition: ['A family may never follow another', { from_family: 'PPG', to_family: 'PPW' }], transition_window: ['A changeover only in a window', { from_family: 'PPK', to_family: 'PPN', weekdays: [6], from: '06:00', to: '14:00' }], line_capability: ['A family or product only on some lines', { product_code: 'PPG-5031', lines: ['M01', 'M05'] }], customer_line_qualification: ['A customer only from some lines', { customer: 'Brisol Automotive', lines: ['M01', 'M05'] }], shared_resource_gap: ['Starts on shared equipment apart', { family: 'PA6', lines: ['M03', 'M06'], gap_minutes: 240 }], max_changeovers_per_shift: ['Maximum changeovers per shift', { max: 3, shifts: ['C'] }], blackout: ['A line or family cannot run in a window', { line: 'M06', family: 'PA6', weekdays: [0], from: '22:00', to: '06:00' }], rate_factor: ['A line runs slower on some days', { line: 'M04', weekdays: [6, 0], factor: 0.85 }], release_lag: ['Time from end of production to the promise', { kind: 'lab', customer: 'Brisol Automotive', product_code: 'PPC-3120', minutes: 360 }], line_preference: ['Soft: an order prefers some lines', { family: 'PPK', lines: ['M01', 'M06', 'M07'], penalty: 40 }], priority: ['Customer weights', { weights: { 'Codra Retail': 5 }, default: 1 }], freeze_window: ['Nothing moves before now plus', { minutes: 240 }] };
+  async componentDidMount() {
+    await this.waitLibs();
+    try { const r = await fetch('./api/health'); if (r.ok) { const j = await r.json(); if (j.ok) { this.setState({ mode: 'server' }); await this.pull(); this._poll = setInterval(() => this.pull(true), 4000); return; } } } catch (e) {}
+    let s = null; try { s = JSON.parse(localStorage.getItem(this.KEY) || 'null'); } catch (e) {}
+    if (!s || !s.version) { this.setState({ busy: 'Loading week 20' }); await new Promise((r) => setTimeout(r, 30)); s = window.LyonCore.initial(); }
+    if (!s.scorecard) s.scorecard = JSON.parse(JSON.stringify(window.LyonCore.DEFAULT_SCORECARD));
+    this.setState({ s, busy: '' }, () => this.save());
+  }
+  componentWillUnmount() { clearInterval(this._poll); }
+  waitLibs() { return new Promise((res) => { const t = () => (window.LyonCore && window.LyonEngine && window.LyonPlannerData ? res() : setTimeout(t, 50)); t(); }); }
+  save() { if (this.state.mode === 'local' && this.state.s) { try { localStorage.setItem(this.KEY, JSON.stringify(this.state.s)); } catch (e) {} } }
+  async pull(quiet) { try { const j = await (await fetch('./api/state')).json(); if (!this.state.s || j.state.version !== this.state.s.version) this.setState({ s: j.state }); } catch (e) { if (!quiet) this.flash('Server not reachable', true); } }
+  flash(t, err) { this.setState({ toast: t, toastErr: !!err }); clearTimeout(this._t); this._t = setTimeout(() => this.setState({ toast: '' }), err ? 6000 : 3500); }
+  async op(name, args, msg, heavy) {
+    if (heavy) { this.setState({ busy: heavy }); await new Promise((r) => setTimeout(r, 40)); }
+    try {
+      let s;
+      if (this.state.mode === 'server') { const r = await fetch('./api/op', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ op: name, actor: this.state.actor, args }) }); const j = await r.json(); if (!r.ok) throw new Error(j.error); s = j.state; }
+      else s = window.LyonCore.apply(this.state.s, name, this.state.actor, args);
+      this.setState({ s, busy: '' }, () => this.save()); if (msg) this.flash(typeof msg === 'function' ? msg(s) : msg); return true;
+    } catch (e) { this.setState({ busy: '' }); this.flash(e.message, true); return false; }
+  }
+  setF(k, v) { this.setState((st) => ({ f: { ...st.f, [k]: v } })); }
+  go(p) { this.setState({ page: p }); }
+  vArch(s) {
+    const C = window.LyonCore, A = C.ACTORS, server = this.state.mode === 'server';
+    const who = (pred) => Object.values(A).filter((a) => a.grants.some(pred)).map((a) => a.name).join(', ') || 'Nobody';
+    const n = (arr, fn) => arr.filter(fn).length, src = (id) => s.sources.find((x) => x.id === id) || {};
+    const KIND = { sys: ['#F3F3F3', '#0D0D0D', '1.5px solid #888A8C', '#5E6064', 'Existing system'], plat: ['#0D0D0D', '#FDFDFD', '1.5px solid #0D0D0D', '#C6C9CC', 'Platform, out of the box'], lyon: ['#FFFFFF', '#0D0D0D', '1.5px solid #0D0D0D', '#5E6064', 'Built for Lyon'], model: ['#FFFFFF', '#0D0D0D', '2px dashed #FD594F', '#5E6064', 'A model'] };
+    const STAT = { run: ['Runs in this app', 'solid'], sim: ['Simulated from the lab kit', 'solid'], prod: ['Production only', 'dashed'] };
+    const sc = s.scorecard || { measures: [], guards: [] }, store = server ? 'state on the Node server disk' : 'localStorage in this browser';
+    const pTitle = { ontology: 'Ontology', rules: 'Rules', planning: 'Planning', sources: 'Data sources', feedback: 'Feedback', eval: 'Eval' };
+    const L = [
+      ['Existing systems', 'Unchanged. Owned by the plant.', s.sources.map((x) => [x.id, 'sys', 'sim', x.name, x.what + '. Refresh ' + x.refresh + '.', x.mode + ' · ' + (x.enabled ? 'on' : 'off'), 'data.js · lab kit fixtures', 'sources', x.owner])],
+      ['Connectors', 'Platform readers; two built for Lyon.', [
+        ['c_sap', 'plat', 'sim', 'SAP reader', 'Reads open orders, customers, products and promise dates through a read-only reporting user.', s.orders.length + ' orders read', 'data.js orders', 'sources', 'Group IT'],
+        ['c_file', 'plat', 'sim', 'File reader', 'Reads the LineLog CSV at 06:00 and the monthly HR and carrier files.', 'LineLog, HR', 'data.js lines', 'sources', 'Nadia'],
+        ['c_rest', 'plat', 'sim', 'REST reader', 'Reads MaintPro preventive windows and breakdowns with a read-only token.', 'MaintPro', 'data.js rules (blackout)', 'sources', 'Patrick'],
+        ['c_mail', 'plat', 'sim', 'Mailbox reader', 'Reads the shared planning mailbox only. Every message becomes a proposed event, never an instruction.', n(s.events, (e) => /mailbox/i.test(e.source || '')) + ' messages', 'data.js events', 'sources', 'Stéphane'],
+        ['c_lab', 'lyon', 'sim', 'Lab mapping', 'Maps a batch number in the lab database to an order id, nightly.', 'batch → order', 'data.js events (quality_hold)', 'sources', 'Amina'],
+        ['c_wb', 'lyon', 'sim', 'SAP write-back', 'Writes the published plan to SAP process orders. Off until Nadia turns it on.', src('sap_wb').enabled ? 'on' : 'off', 'core.js OPS.publish', 'sources', 'Nadia'],
+        ['c_onto', 'lyon', 'run', 'Ontology mapping', 'Turns Polymex fields into the objects every other layer uses: order, line, product, rule, event.', 'order, line, rule, event', 'core.js baseState()', 'ontology', 'The FDE team']]],
+      ['Store', 'One owner per fact. Every version kept.', [
+        ['s_state', 'plat', 'run', 'Plant state', 'Orders, lines and what each line is running.', s.orders.length + ' orders · ' + Object.keys(s.lines).length + ' lines', 'core.js baseState()', 'planning', 'SAP, LineLog'],
+        ['s_rules', 'plat', 'run', 'Rule register', 'Every rule with its id, source, owner and status. Only active rules reach the solvers.', n(s.rules, (r) => r.status === 'active') + ' active · ' + n(s.rules, (r) => r.status === 'proposed') + ' proposed', 'core.js s.rules', 'rules', who((g) => g === 'rule.validate') + ' validate'],
+        ['s_events', 'plat', 'run', 'Event log', 'Every change to the plan: proposed, applied, rejected.', n(s.events, (e) => e.status === 'applied') + ' applied · ' + n(s.events, (e) => e.status !== 'applied') + ' open', 'core.js s.events', 'planning', 'Sylvie'],
+        ['s_plans', 'plat', 'run', 'Plans', 'The draft and the published plan, every version kept and scored.', (s.published ? 'published' : 'none published') + (s.draft ? ' · draft open' : ''), 'core.js s.draft, s.published', 'planning', 'Corinne'],
+        ['s_fb', 'plat', 'run', 'Feedback and overrides', 'Every disagreement with the plan, with its why and what it became.', s.feedback.length + ' entries · ' + n(s.feedback, (x) => x.status === 'open') + ' open', 'core.js s.feedback', 'feedback', who((g) => g === 'feedback.write')],
+        ['s_audit', 'plat', 'run', 'Audit trail', 'One line per call, decision and write, with who did it.', s.audit.length + ' lines', 'core.js log()', null, 'Everyone, read-only'],
+        ['s_persist', 'plat', 'run', 'Persistence', 'Where the whole state is saved between sessions.', store, server ? './api/state' : 'localStorage', null, server ? 'The Node server' : 'This browser']]],
+      ['Decision layer', 'Solvers decide. Models read and explain.', [
+        ['d_rules', 'plat', 'run', 'Rules engine', 'Compiles active rules into constraints and checks every plan against them, citing rule ids.', n(s.rules, (r) => r.status === 'active') + ' rules compiled', 'engine.js compile(), gapViolations()', 'rules', 'Deterministic'],
+        ['d_long', 'plat', 'run', 'Long solver', 'Sequences all lines for the week, once a day, inside a time budget.', '2.5 s budget', 'engine.js longSolve()', 'planning', 'Deterministic'],
+        ['d_fast', 'plat', 'run', 'Fast solver', 'Repairs the published plan after one event, keeping the freeze window.', 'one event, freeze kept', 'engine.js applyEvent(), fastRepair()', 'planning', 'Deterministic'],
+        ['d_eval', 'plat', 'run', 'Evaluator', 'Scores every plan: KPIs, then the scorecard measures and guardrails.', n(sc.measures, (m) => m.on) + ' measures · ' + n(sc.guards || [], (g) => g.on) + ' guardrails', 'engine.js evaluate(), core.js scoreAgainst()', 'eval', 'Deterministic'],
+        ['d_conf', 'lyon', 'run', 'Lyon configuration', 'Objective costs, move penalty, freeze window, horizons.', 'costs, freeze, horizon', 'engine.js COST, MOVE_PENALTY', 'rules', 'Corinne, the FDE team'],
+        ['d_jev', 'model', 'sim', 'Jev, event reader', 'Picks the event type and the order from a list, with a probability. Here, events arrive already typed from the lab kit.', s.events.length + ' events typed', 'data.js events', 'planning', 'Sylvie confirms'],
+        ['d_small', 'model', 'prod', 'Small fast LLM', 'Extracts the fields of an event into a schema the code checks.', 'not wired', 'tool schema submit_event', null, 'Sylvie confirms'],
+        ['d_frontier', 'model', 'prod', 'Frontier LLM', 'Explains a change in five lines for the night shift; drafts rules and customer answers.', 'not wired', 'model gateway', null, 'A person signs']]],
+      ['Orchestrator and mini-apps', 'A fixed workflow, written for Lyon.', [
+        ['o_orch', 'lyon', 'run', 'Orchestrator', 'Runs the fixed steps: daily run, apply an event, what-if, override, publish. No model chooses the order.', 'runDaily, applyEvent, whatIf, publish', 'core.js OPS, apply()', 'planning', 'Code'],
+        ['o_review', 'lyon', 'run', 'Plan review', 'Run the day, compare to the baseline, override with a reason, publish.', s.published ? 'plan published' : 'nothing published', 'Planning page · OPS.runDaily, override, publish', 'planning', who((g) => g === 'plan.publish')],
+        ['o_desk', 'lyon', 'run', 'Event desk', 'Confirm, correct or reject an event, then repair the plan.', n(s.events, (e) => e.status !== 'applied') + ' waiting', 'Planning page · OPS.applyEvent', 'planning', who((g) => g === 'event.apply')],
+        ['o_whatif', 'lyon', 'run', 'What-if', 'Test an event on a copy of the plan; nothing changes.', 'copy only', 'OPS.whatIf', 'planning', who((g) => g === 'event.whatif')],
+        ['o_capture', 'lyon', 'run', 'Rules capture', 'Five whys on a disagreement, then a proposed rule with a type, a source and an owner.', n(s.rules, (r) => r.status === 'proposed') + ' proposed', 'Feedback page · OPS.feedbackSave', 'feedback', who((g) => g === 'rule.propose')],
+        ['o_exec', 'lyon', 'run', 'Execution capture', 'What really ran and why, in two taps from the floor.', s.feedback.length + ' entries', 'OPS.deviation', 'feedback', who((g) => g === 'feedback.write')],
+        ['o_score', 'lyon', 'run', 'Scorecard', 'Edit the measures and guardrails every plan is judged by.', n(sc.measures, (m) => m.on) + ' measures on', 'Eval page · scoreAgainst()', 'eval', who((g) => g === 'scorecard.edit')]]],
+      ['Harness', 'Out of the box, under everything.', [
+        ['h_perm', 'plat', 'run', 'Permissions', 'An identity per person with explicit grants. Every operation checks them first.', Object.keys(A).length + ' people', 'core.js can(), need()', null, 'Switch with "Acting as"'],
+        ['h_gates', 'plat', 'run', 'Human gates', 'Publishing a plan and validating a rule always need a named person.', 'publish, rule.validate', 'core.js need()', 'rules', who((g) => g === 'plan.publish' || g === 'rule.validate')],
+        ['h_kill', 'plat', 'run', 'Kill switch', 'Stops every operation at once.', s.killswitch ? 'ENGAGED' : 'off', 'core.js need() · s.killswitch', 'sources', who((g) => g === 'killswitch')],
+        ['h_audit', 'plat', 'run', 'Audit', 'Every operation writes who, what and when.', s.audit.length + ' lines', 'core.js log()', null, 'Automatic'],
+        ['h_rt', 'plat', 'run', 'Runtime', server ? 'A Node server holds one shared state for the whole class.' : 'Everything runs in this browser; start the Node server to share one state.', server ? 'shared server' : 'local demo', server ? './api/op, ./api/state, ./api/reset' : 'LyonCore.apply() in the page', null, 'npm start'],
+        ['h_gw', 'plat', 'prod', 'Model gateway', 'One EU endpoint for every model call, with redaction before a prompt leaves and evals per model role.', 'not wired', 'secrets in the environment', null, 'Nadia']]]];
+    const selId = this.state.archSel || 'o_orch'; let sel = null;
+    const layers = L.map(([name, note, cards], i) => ({ n: String(i + 1).padStart(2, '0'), name, note, cards: cards.map(([id, k, st, nm, what, stat, code, page, w]) => {
+      const [bg, color, border, sub, kindLabel] = KIND[k], [statusLabel, pillLine] = STAT[st];
+      const c = { id, name: nm, what, stat, code, who: w, bg, color, border, sub, kindLabel, statusLabel, pillLine, pillColor: k === 'plat' ? '#FDFDFD' : '#0D0D0D', outline: id === selId ? '3px solid #FD594F' : '0px solid transparent', layer: name, pick: () => this.setState({ archSel: id }), hasPage: !!page, open: () => page && this.go(page), openLabel: page ? 'Open ' + pTitle[page] : '' };
+      if (id === selId) sel = c; return c; }) }));
+    const flow = [['You click', 'Apply on an event, Planning page'], ['Request', server ? 'POST ./api/op {op, actor, args}' : 'LyonCore.apply(state, op, actor, args)'], ['Permission', 'need(): grant, kill switch'], ['Orchestrator', 'OPS.applyEvent'], ['Engine', 'applyEvent() → fastRepair() → evaluate()'], ['Store and audit', 'addEval(), log() → ' + (server ? 'server disk' : 'localStorage')], ['Screen', server ? 'GET ./api/state, re-render' : 're-render']].map(([name, code], i) => ({ name, code, notFirst: i > 0, bg: i === 3 || i === 4 ? '#0D0D0D' : '#FFFFFF', color: i === 3 || i === 4 ? '#FDFDFD' : '#0D0D0D', sub: i === 3 || i === 4 ? '#C6C9CC' : '#5E6064' }));
+    return { archLayers: layers, archSel: sel || {}, archFlow: flow, archRuntime: server ? 'Shared server · ' + store : 'Local demo · ' + store };
+  }
+  renderVals() {
+    const st = this.state, s = st.s, f = st.f, C = window.LyonCore;
+    const h = new Proxy({}, { get: (_, k) => (e) => this.setF(k, e.target.value) });
+    const actors = C ? Object.entries(C.ACTORS).map(([id, a]) => ({ id, label: a.name + ', ' + a.role })) : [];
+    const pages = [['ontology', 'Ontology'], ['rules', 'Rules'], ['planning', 'Planning'], ['sources', 'Data sources'], ['feedback', 'Feedback'], ['eval', 'Eval'], ['architecture', 'Architecture']];
+    const SUB = { ontology: 'The objects of Lyon planning, their links, and the rules that bind them. Click an object.', rules: 'The rule register: every rule with its source, its owner and its status. Only active rules reach the solvers.', planning: 'Week 20 on M01 to M07. The long loop drafts the day; the short loop repairs it at every event; Corinne publishes.', sources: 'Where every fact comes from, who owns it, and what the system may read or write.', feedback: 'Every disagreement with the plan, and what it became: a rule, a data fix, or not a rule.', eval: 'The scorecard every plan is judged by, and how each plan fared against it.', architecture: 'How the solution is built: what reads, what decides, what people do, and what runs under everything.' };
+    const base = { nav: pages.map(([k, l]) => ({ label: l, go: () => this.go(k), bg: st.page === k ? '#313233' : 'transparent', color: st.page === k ? '#FDFDFD' : '#C6C9CC', mark: st.page === k ? '#FD594F' : 'transparent', count: s ? ({ rules: s.rules.filter((r) => r.status === 'active').length, feedback: s.feedback.filter((x) => x.status === 'open').length || '', eval: s.evals.length, planning: s.events.filter((e) => e.status !== 'applied').length + ' ev' })[k] ?? '' : '' })),
+      actors, actor: st.actor, onActor: (e) => { this.setState({ actor: e.target.value }); this.flash('Acting as ' + C.ACTORS[e.target.value].name); }, actorGrants: C && C.ACTORS[st.actor] ? 'May: ' + C.ACTORS[st.actor].grants.join(', ') : '',
+      modeLabel: st.mode === 'server' ? 'Shared server' : 'Local demo', modeColor: st.mode === 'server' ? '#FD594F' : '#888A8C',
+      onReset: async () => { if (st.mode === 'server') { await fetch('./api/reset', { method: 'POST' }); this.pull(); } else { localStorage.removeItem(this.KEY); this.setState({ busy: 'Resetting' }); setTimeout(() => this.setState({ s: window.LyonCore.initial(), busy: '', pick: null, fbSel: null, evSel: null }, () => this.save()), 30); } },
+      pageTitle: (pages.find((p) => p[0] === st.page) || [])[1], pageSub: SUB[st.page], killswitch: !!(s && s.killswitch), clock: s ? s.clock : '', busy: st.busy || (!s ? 'Loading' : ''), toast: st.toast, toastBg: st.toastErr ? '#FD594F' : '#0D0D0D', toastColor: st.toastErr ? '#0D0D0D' : '#FDFDFD',
+      isOnto: st.page === 'ontology', isRules: st.page === 'rules', isPlan: st.page === 'planning', isSources: st.page === 'sources', isFeedback: st.page === 'feedback', isEval: st.page === 'eval', isArch: st.page === 'architecture', f, h };
+    if (!s) return { ...base, ontoNodes: [], ontoLabels: [], ruleRows: [], gantt: [], events: [], sources: [], feedback: [], evals: [], ontoSel: {}, evSel: {}, fbSel: {}, pick: {}, archLayers: [], archFlow: [], archSel: {}, archRuntime: '' };
+    return { ...base, ...this.vOnto(s), ...this.vRules(s), ...this.vPlan(s), ...this.vSources(s), ...this.vFeedback(s), ...this.vEval(s), ...this.vArch(s) };
+  }
+  vOnto(s) {
+    const O = window.LyonPlannerData.onto, sel = this.state.ontoSel, scale = 0.6;
+    const STY = { d: ['#FFFFFF', '#0D0D0D', '1.5px solid #0D0D0D', '#5E6064'], r: ['#0D0D0D', '#FDFDFD', '2px solid #0D0D0D', '#C6C9CC'], k: ['#313233', '#FDFDFD', '1.5px solid #313233', '#C6C9CC'], x: ['#FFFFFF', '#0D0D0D', '2px dashed #FD594F', '#5E6064'], a: ['#F3F3F3', '#0D0D0D', '1.5px solid #888A8C', '#5E6064'] };
+    const near = new Set([sel]); O.edges.forEach((e) => { if (e.a === sel) near.add(e.b); if (e.b === sel) near.add(e.a); });
+    const svg = React.createElement('svg', { width: O.W, height: O.H, style: { position: 'absolute', left: 0, top: 0 } }, O.edges.flatMap((e, i) => { const on = e.a === sel || e.b === sel; const c = on ? '#FD594F' : '#C6C9CC'; const out = [React.createElement('path', { key: 'p' + i, d: e.d, fill: 'none', stroke: c, strokeWidth: on ? 3 : 1.5 })]; if (e.arrow) out.push(React.createElement('path', { key: 'a' + i, d: 'M-6,-5 L6,0 L-6,5 z', fill: c, transform: 'translate(' + e.arrow.x + ',' + e.arrow.y + ') rotate(' + e.arrow.ang + ')' })); return out; }));
+    const live = { Order: s.orders.length + ' open orders', Rule: s.rules.filter((r) => r.status === 'active').length + ' active of ' + s.rules.length, Customer: new Set(s.orders.map((o) => o.customer)).size + ' customers', Product: s.products.length + ' products', Line: '7 lines', Event: s.events.filter((e) => e.status === 'applied').length + ' applied of ' + s.events.length, Plan: s.published ? 'Published: ' + s.published.label : s.draft ? 'Draft: ' + s.draft.label : 'None yet', Override: s.feedback.filter((x) => x.kind === 'override').length + ' recorded', Deviation: s.feedback.filter((x) => x.kind === 'deviation').length + ' recorded', Decision: s.audit.length + ' in the audit trail', Actor: '5 people, 3 agents, 3 services', Assignment: (s.draft || s.published) ? Object.values((s.draft || s.published).timed).flat().length + ' in the current plan' : 'none' };
+    const BIND = { Changeover: ['changeover_table', 'changeover_override', 'forbidden_transition', 'transition_window'], Product: ['changeover_override', 'forbidden_transition', 'line_capability', 'rate_factor'], Family: ['changeover_table', 'line_capability', 'forbidden_transition'], Line: ['line_capability', 'blackout', 'rate_factor', 'max_changeovers_per_shift', 'customer_line_qualification', 'line_preference'], Customer: ['customer_line_qualification', 'priority', 'release_lag'], Order: ['release_lag', 'line_preference'], Resource: ['shared_resource_gap'], Shift: ['max_changeovers_per_shift'], Window: ['blackout', 'transition_window'], Plan: ['freeze_window', 'priority'], Assignment: ['freeze_window', 'line_preference'], Lot: ['release_lag'], Rule: Object.keys(this.TYPES).concat('changeover_table'), Constraint: Object.keys(this.TYPES).concat('changeover_table') };
+    const rs = s.rules.filter((r) => (BIND[sel] || []).includes(r.type) && r.status === 'active');
+    const n = O.nodes.find((x) => x.id === sel) || O.nodes[0];
+    const KL = { d: 'Plant and demand', r: 'Rules and constraints', k: 'Knowledge', x: 'Decisions and disagreements', a: 'Agents, tools, permissions' };
+    return { ontoW: Math.round(O.W * scale), ontoH: Math.round(O.H * scale), ontoScale: scale, ontoSvg: svg,
+      ontoNodes: O.nodes.map((x) => { const [bg, color, border, sub] = STY[x.kind]; return { ...x, left: x.x, top: x.y, bg, color, border, subColor: sub, outline: x.id === sel ? '3px solid #FD594F' : '0 solid transparent', opacity: near.has(x.id) ? 1 : 0.45, select: () => this.setState({ ontoSel: x.id }) }; }),
+      ontoLabels: O.edges.map((e) => ({ text: e.l, left: e.lx, top: e.ly, width: e.lw, color: e.a === sel || e.b === sel ? '#0D0D0D' : '#888A8C' })),
+      ontoSel: { id: n.id, def: n.def, attrs: n.attrs, kindLabel: KL[n.kind], live: live[n.id] || n.sub, links: O.edges.filter((e) => e.a === sel || e.b === sel).map((e) => e.a + ' ' + e.l + ' ' + e.b), ruleCount: rs.length, rules: rs.slice(0, 12).map((r) => ({ id: r.id, statement: r.statement, open: () => this.setState({ page: 'rules', f: { ...this.state.f, rq: r.id } }) })) } };
+  }
+  vRules(s) {
+    const f = this.state.f, q = (f.rq || '').toLowerCase(), C = window.LyonCore, me = this.state.actor;
+    const rows = s.rules.filter((r) => (!f.rc || r.category === f.rc) && (!f.rs || r.status === f.rs) && (!q || (r.id + ' ' + r.statement + ' ' + r.source + ' ' + r.owner).toLowerCase().includes(q)));
+    const pill = (x) => x === 'active' ? ['solid', '#0D0D0D', '#0D0D0D', '#FDFDFD'] : x === 'proposed' ? ['dashed', '#0D0D0D', 'transparent', '#0D0D0D'] : ['solid', '#C6C9CC', 'transparent', '#888A8C'];
+    const cats = [...new Set(s.rules.map((r) => r.category))];
+    const t = this.TYPES[f.nr_type] || ['', {}];
+    return { ruleCount: rows.length + ' shown of ' + s.rules.length, ruleCats: [{ value: '', label: 'All categories' }, ...cats.map((c) => ({ value: c, label: c + ' (' + s.rules.filter((r) => r.category === c).length + ')' }))],
+      ruleRows: rows.map((r) => { const [ps, pb, pg, pt] = pill(r.status); return { id: r.id, statement: r.statement, params: r.type === 'changeover_table' ? (r.params.matrix ? 'matrix 6 x 6 by family' : r.params.note) : JSON.stringify(r.params), type: r.type, category: r.category, source: r.source, owner: r.owner, status: r.status, pillStyle: ps, pillBorder: pb, pillBg: pg, pillText: pt, bg: r.status === 'proposed' ? '#FAFAFA' : 'transparent', canValidate: r.status === 'proposed' && C.can(me, 'rule.validate'), canRetire: r.status === 'active' && r.id !== 'R01' && C.can(me, 'rule.retire'), validate: () => this.op('ruleStatus', { id: r.id, status: 'active' }, r.id + ' is active: run the daily plan to apply it'), retire: () => this.op('ruleStatus', { id: r.id, status: 'retired' }, r.id + ' retired') }; }),
+      showRuleForm: this.state.showRuleForm, newRule: () => this.setState({ showRuleForm: !this.state.showRuleForm }),
+      ruleTypes: Object.entries(this.TYPES).map(([k, v]) => ({ value: k, label: k + ': ' + v[0] })), typeHelp: t[0],
+      onRuleType: (e) => this.setState({ f: { ...this.state.f, nr_type: e.target.value, nr_params: JSON.stringify(this.TYPES[e.target.value][1]) } }),
+      addRule: () => this.op('ruleAdd', { rule: { type: f.nr_type, statement: f.nr_statement, params: f.nr_params, owner: f.nr_owner, source: f.nr_source } }, 'Rule proposed. Corinne validates it.').then((ok) => ok && this.setState({ showRuleForm: false })) };
+  }
+  vPlan(s) {
+    const E = window.LyonEngine, p = s.draft || s.published, f = this.state.f, T0 = Date.parse('2026-05-11T06:00:00Z'), SPAN = 168 * 3600e3;
+    const FAM = { PPN: ['#FFFFFF', 'natural'], PPW: ['#F3F3F3', 'white'], PPC: ['#C6C9CC', 'colored'], PPK: ['#0D0D0D', 'black'], PPG: ['#5E6064', 'glass-filled'], PA6: ['#888A8C', 'PA6'] };
+    const x = (t) => Math.max(0, Math.min(100, (t - T0) / SPAN * 100));
+    const late = new Set(p ? p.kpis.late.map((l) => l.order_id) : []), viol = new Set(p ? (p.violations || []).map((v) => v.order_id) : []), moved = new Set(p ? (p.moves || []).filter((m) => m.kind !== 'time').map((m) => m.order_id) : []);
+    const k = p ? p.kpis : null, b = p ? p.before : null;
+    const d = (a, c, u) => (b && c != null ? (a - c > 0 ? '+' : '') + (a - c).toFixed(1) + u + ' vs before' : '');
+    const pick = this.state.pick && p ? Object.values(p.timed).flat().find((r) => r.order_id === this.state.pick) : null;
+    const ord = pick ? s.orders.find((o) => o.order_id === pick.order_id) : null;
+    const C = window.LyonCore;
+    return { hasPlan: !!p, noPlan: !p, hasDraft: !!s.draft,
+      planTitle: s.draft ? 'Draft: ' + s.draft.label : s.published ? 'Published: ' + s.published.label : 'No plan',
+      kpis: k ? [{ label: 'On time', value: k.on_time_pct + '%', delta: d(k.on_time_pct, b && b.on_time_pct, ' pts') }, { label: 'Codra on time', value: (k.codra_on_time_pct ?? '–') + '%', delta: d(k.codra_on_time_pct, b && b.codra_on_time_pct, ' pts') }, { label: 'Changeover hours', value: k.changeover_hours, delta: d(k.changeover_hours, b && b.changeover_hours, ' h') }, { label: 'Changeovers', value: k.changeovers, delta: '' }, { label: 'Late orders', value: k.late.length, delta: '' }, { label: 'Rule violations', value: (p.violations || []).length, delta: p.runtime_ms != null ? 'computed in ' + p.runtime_ms + ' ms' : '' }] : [],
+      dayHeads: ['Mon 11', 'Tue 12', 'Wed 13', 'Thu 14', 'Fri 15', 'Sat 16', 'Sun 17'].map((l, i) => ({ label: l, left: (i * 100 / 7).toFixed(2) })),
+      gantt: p ? Object.entries(p.timed).map(([line, rows]) => ({ line, cos: rows.filter((r) => r.co_minutes > 0).map((r) => ({ left: x(r.co_start).toFixed(2), width: Math.max(0.15, x(r.start) - x(r.co_start)).toFixed(2) })), blocks: rows.map((r) => { const fam = r.product_code.slice(0, 3); const flag = late.has(r.order_id) || viol.has(r.order_id) || moved.has(r.order_id); return { left: x(r.start).toFixed(2), width: Math.max(0.3, x(r.end) - x(r.start)).toFixed(2), bg: (FAM[fam] || ['#fff'])[0], color: fam === 'PPK' || fam === 'PPG' ? '#FDFDFD' : '#0D0D0D', outline: flag ? '2px solid #FD594F' : '0 solid transparent', label: r.order_id.slice(-3) + ' ' + r.customer.split(' ')[0], title: r.order_id + ' · ' + r.customer + ' · ' + r.product_code + ' · ' + r.tonnes + ' t · ' + E.fmtTime(r.start) + ' to ' + E.fmtTime(r.end) + ' · due ' + r.due, pick: () => this.setState({ pick: r.order_id, f: { ...this.state.f, ov_line: line, dv_order: r.order_id } }) }; }) })) : [],
+      legend: Object.values(FAM).map(([bg, label]) => ({ bg, label })),
+      hasPick: !!pick, pick: pick ? { title: pick.order_id + ' · ' + pick.customer + ' · ' + pick.product_code + ' · ' + pick.tonnes + ' t', detail: pick.line + ' · ' + E.fmtTime(pick.start) + ' to ' + E.fmtTime(pick.end) + ' · due ' + pick.due + (ord && ord.available_from ? ' · material from ' + ord.available_from : '') + (pick.co_rule ? ' · changeover ' + pick.co_minutes + ' min, ' + pick.co_rule : '') } : {},
+      override: () => this.op('override', { order_id: this.state.pick, line: f.ov_line, position: f.ov_pos, reason: f.ov_reason }, 'Override recorded. Ask why in Feedback.'),
+      toDeviation: () => this.setState({ page: 'feedback' }),
+      runDaily: () => this.op('runDaily', { now: f.now }, (ns) => 'Daily plan drafted in ' + ns.draft.runtime_ms + ' ms. Score ' + ns.evals[0].score, 'Optimizing all lines'),
+      publish: () => this.op('publish', {}, 'Published').then((ok) => ok && this.setF('now', '2026-05-12 05:30')),
+      discard: () => this.op('discard', { reason: 'Discarded by ' + C.ACTORS[this.state.actor].name }, 'Draft discarded'),
+      eventCount: s.events.filter((e) => e.status !== 'applied').length + ' open',
+      events: s.events.map((e) => ({ id: e.event_id, raw: e.raw, meta: e.at + ' · ' + e.source + ' · ' + e.type.replace('_', ' '), open: e.status !== 'applied', done: e.status === 'applied', opacity: e.status === 'applied' ? 0.5 : 1, apply: () => this.op('applyEvent', { id: e.event_id }, (ns) => 'Repair drafted in ' + ns.draft.runtime_ms + ' ms, ' + ns.draft.moves.filter((m) => m.kind !== 'time').length + ' orders moved. Publish it as Corinne.'), whatif: () => this.op('whatIf', { id: e.event_id }) })),
+      whatIfText: s.lastWhatIf ? 'What if ' + s.lastWhatIf.id + ': ' + (s.lastWhatIf.order ? s.lastWhatIf.order.order_id + ' on ' + s.lastWhatIf.order.line + ', ends ' + s.lastWhatIf.order.end + ', due ' + s.lastWhatIf.order.due + '. ' : '') + s.lastWhatIf.moved + ' other orders would move; on time ' + s.lastWhatIf.on_time + '%, Codra ' + s.lastWhatIf.codra + '%. Nothing saved.' : '',
+      moveCount: p && p.moves ? p.moves.filter((m) => m.kind !== 'time').length : 0,
+      moves: p && p.moves ? p.moves.filter((m) => m.kind !== 'time').slice(0, 30).map((m) => ({ id: m.order_id, kind: m.kind, text: (m.from ? m.from.line + ' ' + m.from.start.slice(5) : 'new') + ' → ' + (m.to ? m.to.line + ' ' + (m.to.start ? m.to.start.slice(5) : 'pos ' + m.to.position) : 'removed') })) : [],
+      violCount: p ? (p.violations || []).length : 0, viols: p ? (p.violations || []).map((v) => ({ rule: v.rule, what: (v.order_id ? v.order_id + ' · ' : '') + (v.line ? v.line + ' · ' : '') + v.what })) : [] };
+  }
+  vSources(s) {
+    const p = s.published, rows = p ? Object.values(p.timed).flat() : [], E = window.LyonEngine, C = window.LyonCore;
+    const sample = { sap: s.orders.slice(0, 3).map((o) => o.order_id + ' ' + o.customer.split(' ')[0] + ' ' + o.product_code + ' ' + o.tonnes + 't due ' + o.due.slice(5)).join('\n'), sap_wb: p ? rows.slice(0, 3).map((r) => r.line + ' ' + r.order_id + ' ' + E.fmtTime(r.start).slice(5) + '→' + E.fmtTime(r.end).slice(11)).join('\n') : 'Nothing published yet', linelog: Object.entries(s.lines).slice(0, 3).map(([l, x]) => l + ' running ' + x.initial_product + ', free ' + x.available_at.slice(5)).join('\n'), lab: s.events.filter((e) => e.type === 'quality_hold').map((e) => e.order_id + ' held, re-run due ' + e.due.slice(5) + ' (' + e.status + ')').join('\n') || 'No hold', maintpro: s.rules.filter((r) => r.type === 'blackout' && r.params.weekdays).slice(0, 3).map((r) => r.params.line + ' ' + ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][r.params.weekdays[0]] + ' ' + r.params.from + '–' + r.params.to).join('\n'), mailbox: s.events.filter((e) => /mailbox/i.test(e.source)).slice(0, 2).map((e) => e.event_id + ' ' + e.raw.slice(0, 70) + '…').join('\n'), hr: s.rules.filter((r) => r.type === 'release_lag' && r.params.kind === 'transport').slice(0, 3).map((r) => r.params.customer + ' ' + r.params.minutes / 60 + ' h').join('\n') };
+    const count = { sap: s.orders.length + ' orders', sap_wb: s.sources.find((x) => x.id === 'sap_wb').rows ? s.sources.find((x) => x.id === 'sap_wb').rows + ' rows last written' : '0', linelog: '7 lines', lab: s.events.filter((e) => e.type === 'quality_hold').length + ' holds', maintpro: s.rules.filter((r) => r.type === 'blackout').length + ' windows', mailbox: s.events.filter((e) => /mailbox/i.test(e.source)).length + ' messages', hr: s.rules.filter((r) => r.type === 'release_lag' && r.params.kind === 'transport').length + ' carrier times' };
+    return { ksLabel: s.killswitch ? 'Release the kill switch' : 'Engage the kill switch', ksBg: s.killswitch ? '#FD594F' : 'transparent', killswitchToggle: () => this.op('killswitch', {}, (ns) => ns.killswitch ? 'Kill switch engaged: every change is refused' : 'Kill switch released'),
+      sources: s.sources.map((x) => ({ ...x, state: x.enabled ? (x.mode === 'write' ? 'writing' : 'connected') : 'off', pillBg: x.enabled ? '#0D0D0D' : 'transparent', pillText: x.enabled ? '#FDFDFD' : '#0D0D0D', border: x.gated ? '2px dashed #FD594F' : '1px solid #0D0D0D', mode: x.mode === 'write' ? 'Write, at every publish' : 'Read only', sample: sample[x.id] || '', count: count[x.id] || '', toggleLabel: x.enabled ? 'Disable' : 'Enable', toggle: () => this.op('sourceToggle', { id: x.id }, x.name + (x.enabled ? ' disabled' : ' enabled')) })) };
+  }
+  vFeedback(s) {
+    const sel = s.feedback.find((x) => x.id === this.state.fbSel) || s.feedback[0], f = this.state.f, st = this.state;
+    const closed = s.feedback.filter((x) => x.status !== 'open');
+    return { noFeedback: s.feedback.length === 0,
+      loop: [{ label: 'Overrides', value: s.feedback.filter((x) => x.kind === 'override').length }, { label: 'Deviations', value: s.feedback.filter((x) => x.kind === 'deviation').length }, { label: 'Waiting for a why', value: s.feedback.filter((x) => x.status === 'open').length }, { label: 'Became a rule', value: s.feedback.filter((x) => x.outcome === 'rule').length }, { label: 'Not a rule or data fix', value: closed.filter((x) => x.outcome && x.outcome !== 'rule').length }],
+      feedback: s.feedback.map((x) => ({ id: x.id, text: x.text, meta: (x.kind === 'override' ? 'Override' : 'Deviation') + (x.order_id ? ' · ' + x.order_id : '') + ' · ' + (window.LyonCore.ACTORS[x.by] || {}).name + (x.detail ? ' · ' + x.detail : '') + (x.cls ? ' · ' + x.cls : ''), status: x.status, statusColor: x.status === 'open' ? '#FD594F' : '#313233', bg: sel && sel.id === x.id ? '#F3F3F3' : 'transparent', select: () => this.setState({ fbSel: x.id, whys: [0, 1, 2, 3, 4].map((i) => (x.whys || [])[i] || ''), f: { ...this.state.f, fb_root: x.root || '' } }) })),
+      fbSel: sel ? { id: sel.id, text: sel.text + (sel.order_id ? ' (' + sel.order_id + ')' : '') } : { id: '–', text: 'Select an item on the left.' },
+      whys: st.whys.map((v, i) => ({ label: 'Why ' + (i + 1), value: v, color: v ? '#0D0D0D' : '#888A8C', onChange: (e) => { const w = [...this.state.whys]; w[i] = e.target.value; this.setState({ whys: w }); } })),
+      outcomes: [['rule', 'A rule'], ['data', 'A data fix'], ['not', 'Not a rule']].map(([k, l]) => ({ label: l, bg: st.outcome === k ? '#0D0D0D' : 'transparent', color: st.outcome === k ? '#FDFDFD' : '#0D0D0D', pick: () => this.setState({ outcome: k }) })),
+      outcomeRule: st.outcome === 'rule', saveLabel: st.outcome === 'rule' ? 'Propose the rule' : st.outcome === 'data' ? 'Close as a data fix' : 'Close as not a rule',
+      saveFeedback: () => { if (!sel) return this.flash('Nothing selected', true); this.op('feedbackSave', { id: sel.id, whys: st.whys.filter(Boolean), root: f.fb_root, outcome: st.outcome, rule: st.outcome === 'rule' ? { type: f.nr_type, statement: f.nr_statement || f.fb_root, params: f.nr_params, owner: f.nr_owner, source: (window.LyonCore.ACTORS[st.actor] || {}).name + ', five whys on ' + sel.id } : null }, st.outcome === 'rule' ? 'Rule proposed. Validate it in Rules as Corinne.' : 'Closed'); },
+      addDeviation: () => this.op('deviation', { order_id: f.dv_order, what: f.dv_what, why: f.dv_why, cls: f.dv_cls }, 'Recorded. Ask why on the right.') };
+  }
+  scDraft(s) { return this.state.sc || (s && s.scorecard) || window.LyonCore.DEFAULT_SCORECARD; }
+  editSc(fn) { const x = JSON.parse(JSON.stringify(this.scDraft(this.state.s))); fn(x); this.setState({ sc: x }); }
+  vEval(s) {
+    const C = window.LyonCore, sc = this.scDraft(s), dirty = !!this.state.sc;
+    const on = sc.measures.filter((m) => m.on), wsum = on.reduce((x, m) => x + Math.max(0, +m.weight || 0), 0);
+    const fmt = (v, u) => (v == null || isNaN(v) ? '–' : (Math.round(v * 10) / 10) + (u || ''));
+    const COL = { met: '#0D0D0D', partial: '#888A8C', miss: '#FD594F', na: '#EEEEEE' };
+    const KIND = { human: 'Human plan', long: 'Long optimizer', short: 'Short optimizer, repair', override: 'Override by the planner' };
+    const scored = s.evals.map((e) => ({ e, r: C.scoreAgainst(e, sc) }));
+    const passing = scored.filter((x) => x.r.pass).map((x) => x.r.score), best = passing.length ? Math.max(...passing) : null;
+    const sel = scored.find((x) => x.e.id === this.state.evSel) || scored[0];
+    const rankOf = (x) => 1 + scored.filter((y) => y.r.pass && y.r.score > x.r.score).length;
+    const meta = s.scorecardMeta;
+    return {
+      snapshot: () => this.op('snapshot', {}, 'Scored'),
+      scRows: sc.measures.map((m, i) => { const w = Math.max(0, +m.weight || 0), share = m.on && wsum ? Math.round(w / wsum * 100) : 0;
+        return { label: m.label + (m.repairOnly ? ' · repairs only' : ''), why: m.why, dir: +m.target >= +m.floor ? 'Higher' : 'Lower', unit: (m.unit || '').trim(), floor: String(m.floor), target: String(m.target), weight: String(m.weight), share, shareLabel: m.on ? share + '%' : 'off', opacity: m.on ? 1 : 0.45, box: m.on ? '#0D0D0D' : 'transparent',
+          onToggle: () => this.editSc((x) => { x.measures[i].on = !x.measures[i].on; if (x.measures[i].on && !(+x.measures[i].weight)) x.measures[i].weight = 10; }),
+          onFloor: (e) => { const v = e.target.value; this.editSc((x) => { x.measures[i].floor = v; }); },
+          onTarget: (e) => { const v = e.target.value; this.editSc((x) => { x.measures[i].target = v; }); },
+          onWeight: (e) => { const v = e.target.value; this.editSc((x) => { x.measures[i].weight = v; }); } }; }),
+      guardRows: (sc.guards || []).map((g, i) => { const hasMax = g.max != null && g.max !== '' || (g.min == null);
+        return { label: g.label, op: hasMax ? 'at most' : 'at least', unit: (g.unit || '').trim(), value: String(hasMax ? g.max : g.min), opacity: g.on ? 1 : 0.45, box: g.on ? '#FD594F' : 'transparent',
+          onToggle: () => this.editSc((x) => { x.guards[i].on = !x.guards[i].on; }),
+          onValue: (e) => { const v = e.target.value; this.editSc((x) => { const gg = x.guards[i]; if (gg.max != null) gg.max = v; else gg.min = v; }); } }; }),
+      weightTotal: 'Weights ' + wsum + (wsum === 100 ? '' : ', shown as shares of 100'),
+      scDirty: dirty, scStatusColor: dirty ? '#FD594F' : '#5E6064',
+      scStatus: dirty ? 'Not saved: the comparison already uses these numbers. Save to share them with the team.' : meta ? 'Saved by ' + meta.by + ', ' + meta.at.slice(0, 16).replace('T', ' ') : "The scorecard from this morning's Exercise 2.",
+      saveSc: () => this.op('scorecardSet', { scorecard: sc }, 'Scorecard saved: every plan rescored').then((ok) => ok && this.setState({ sc: null })),
+      discardSc: () => this.setState({ sc: null }),
+      resetSc: () => this.setState({ sc: JSON.parse(JSON.stringify(C.DEFAULT_SCORECARD)) }),
+      matrixCols: 'minmax(220px,1.5fr) repeat(' + on.length + ',minmax(92px,1fr)) 92px 96px',
+      matrixMin: (240 + on.length * 102 + 210) + 'px',
+      mHead: on.map((m) => ({ label: m.label, sub: m.target + (m.unit || '').trim() + ' · ' + (wsum ? Math.round((+m.weight || 0) / wsum * 100) : 0) + '%' })),
+      evRows: scored.map(({ e, r }) => ({ id: e.id, label: e.label, meta: KIND[e.kind] || e.kind, bg: sel && sel.e.id === e.id ? '#F3F3F3' : 'transparent', select: () => this.setState({ evSel: e.id }),
+        cells: on.map((m) => { const c = r.rows.find((x) => x.id === m.id) || { status: 'na' }; return c.status === 'na' ? { value: 'n/a', w: 0, color: COL.na, pts: '', tc: '#888A8C' } : { value: fmt(c.value, (m.unit || '').trim()), w: c.pts, color: COL[c.status], pts: c.pts + ' pts', tc: '#0D0D0D' }; }),
+        guard: r.pass ? 'PASS' : 'FAIL', guardBg: r.pass ? '#0D0D0D' : '#FD594F', guardColor: r.pass ? '#FDFDFD' : '#0D0D0D', score: r.score, best: r.pass && r.score === best ? 'BEST' : '' })),
+      evSel: sel ? (() => { const r = sel.r, app = r.rows;
+        const lost = app.filter((x) => x.status !== 'na' && x.status !== 'met').sort((a, b) => (b.max - b.contrib) - (a.max - a.contrib)).slice(0, 3).map((x) => { const m = sc.measures.find((y) => y.id === x.id); return x.label + ' ' + fmt(x.value, (m.unit || '').trim()) + ' against ' + m.target + (m.unit || '').trim() + ' (−' + (x.max - x.contrib).toFixed(1) + ')'; });
+        return { kind: (KIND[sel.e.kind] || sel.e.kind) + ' · ' + ((C.ACTORS[sel.e.by] || {}).name || sel.e.by), label: sel.e.id + ' · ' + sel.e.label, score: r.score, pass: r.pass ? 'PASSES THE GUARDRAILS' : 'FAILS A GUARDRAIL', passBg: r.pass ? '#0D0D0D' : '#FD594F', passColor: r.pass ? '#FDFDFD' : '#0D0D0D', rank: r.pass ? 'Rank ' + rankOf(sel) + ' of ' + passing.length + ' passing plans' : 'Not ranked',
+          items: app.map((x) => { const m = sc.measures.find((y) => y.id === x.id); const u = (m.unit || '').trim();
+            return x.status === 'na' ? { label: x.label, line: 'n/a', w: 0, color: COL.na, contrib: 'not counted', opacity: 0.5 } : { label: x.label, line: fmt(x.value, u) + ' → ' + m.target + u, w: x.pts, color: COL[x.status], contrib: x.contrib.toFixed(1) + ' / ' + x.max.toFixed(1), opacity: 1 }; }),
+          guards: r.guards.map((g) => ({ label: g.label + ': ' + fmt(g.value, ''), mark: g.pass ? 'PASS' : 'FAIL', bg: g.pass ? '#0D0D0D' : '#FD594F', color: g.pass ? '#FDFDFD' : '#0D0D0D' })),
+          lost: lost.join('; ') }; })() : { kind: '', label: 'No plan yet', score: '', items: [], guards: [], lost: '' },
+    };
+  }
+}
+</script>
+</body>
+</html>

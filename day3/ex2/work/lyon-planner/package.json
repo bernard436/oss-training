@@ -1,0 +1,12 @@
+{
+ "name": "lyon-planner",
+ "version": "1.0.0",
+ "private": true,
+ "engines": {
+  "node": ">=18"
+ },
+ "scripts": {
+  "start": "node server.cjs",
+  "reset": "node -e \"require('fs').rmSync('state.json',{force:true})\""
+ }
+}
