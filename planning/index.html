@@ -1,0 +1,290 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lyon Planning, Stated vs Real</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo+Narrow:wght@500;600;700&family=Public+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: one row per step, stated card left, real card right; time is the loudest element on every card */
+:root{
+  --bg:#f5f6f7; --surface:#fff; --fg:#1d2329; --muted:#5d6873; --line:#d9dee3;
+  --stated:#3f6c8f; --stated-soft:#e6eef4; --real:#c4561b; --real-soft:#fbeadf; --warn:#a33a2c;
+  --display:"Archivo Narrow","Arial Narrow",system-ui,sans-serif;
+  --body:"Public Sans",system-ui,-apple-system,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root{
+  --bg:#14181c; --surface:#1c2127; --fg:#e6e9ec; --muted:#9aa5b0; --line:#2e353d;
+  --stated:#86b1d3; --stated-soft:#1e2c38; --real:#f08a4b; --real-soft:#3a2418; --warn:#ff8a7a; color-scheme:dark}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.55 var(--body);
+  padding:32px max(16px,env(safe-area-inset-left)) 56px max(16px,env(safe-area-inset-right))}
+.wrap{max-width:1180px;margin:0 auto;display:flex;flex-direction:column;gap:40px}
+h1,h2,h3{font-family:var(--display);margin:0;line-height:1.15;text-wrap:balance}
+h1{font-size:clamp(28px,4.4vw,44px)} h2{font-size:24px;font-weight:600} h3{font-size:18px;font-weight:600}
+p{margin:0}
+.eyebrow{font:600 12px/1.4 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.lede{max-width:70ch;color:var(--muted);font-size:16px}
+header{display:flex;flex-direction:column;gap:12px}
+
+.toggle{display:inline-flex;border:1px solid var(--line);border-radius:6px;overflow:hidden;align-self:flex-start;background:var(--surface)}
+.toggle button{font:600 13px var(--body);border:0;background:none;color:var(--muted);padding:8px 14px;cursor:pointer}
+.toggle button[aria-pressed="true"]{background:var(--fg);color:var(--bg)}
+.toggle button:focus-visible{outline:2px solid var(--real);outline-offset:-2px}
+
+/* weekly time budget */
+.budget{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:20px;display:flex;flex-direction:column;gap:16px}
+.brow{display:grid;grid-template-columns:120px 1fr 90px;gap:14px;align-items:center}
+@media (max-width:640px){.brow{grid-template-columns:1fr;gap:6px}}
+.blabel{font-weight:600}
+.blabel.s{color:var(--stated)} .blabel.r{color:var(--real)}
+.track{display:flex;height:34px;background:var(--bg);border-radius:4px;overflow:hidden;min-width:0}
+.seg{display:flex;align-items:center;justify-content:center;font:600 11px var(--mono);color:#fff;white-space:nowrap;overflow:hidden;border-right:2px solid var(--surface)}
+.seg.s{background:var(--stated)}
+.seg.r1{background:#e0884f}.seg.r3{background:#c4561b}.seg.r4{background:#9c3f12}.seg.r5{background:#6e2a0a}
+.btotal{font:600 26px var(--display);font-variant-numeric:tabular-nums;text-align:right}
+@media (max-width:640px){.btotal{text-align:left}}
+.btotal.s{color:var(--stated)} .btotal.r{color:var(--real)}
+.bkey{display:flex;flex-wrap:wrap;gap:8px 18px;font-size:13px;color:var(--muted)}
+.bkey i{display:inline-block;width:12px;height:12px;border-radius:2px;margin-right:6px;vertical-align:-1px}
+
+/* steps */
+.colheads,.row{display:grid;grid-template-columns:44px 1fr 1fr;gap:16px}
+.colheads{position:sticky;top:0;z-index:2;background:var(--bg);padding-block:10px;border-bottom:1px solid var(--line)}
+.colheads h2.s{color:var(--stated)} .colheads h2.r{color:var(--real)}
+.rows{display:flex;flex-direction:column;gap:18px}
+.stepn{font:600 22px var(--display);color:var(--muted);padding-top:14px;text-align:center}
+.card{min-width:0;background:var(--surface);border:1px solid var(--line);border-top:4px solid var(--c);border-radius:6px;padding:14px 16px;display:flex;flex-direction:column;gap:12px}
+.card.s{--c:var(--stated);--soft:var(--stated-soft)} .card.r{--c:var(--real);--soft:var(--real-soft)}
+.top{display:flex;flex-direction:column;gap:2px}
+.when{font:600 12px var(--mono);color:var(--c)}
+.time{display:grid;grid-template-columns:1fr 1fr;gap:10px;background:var(--soft);border-radius:6px;padding:10px 12px}
+.time div{display:flex;flex-direction:column;gap:2px;min-width:0}
+.time b{font:700 26px/1 var(--display);color:var(--c);font-variant-numeric:tabular-nums}
+.time span{font-size:12px;color:var(--muted)}
+dl{margin:0;display:grid;grid-template-columns:78px 1fr;gap:6px 10px;font-size:14px}
+dt{font:600 11px/1.9 var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+dd{margin:0;min-width:0}
+.flow{font:13px/1.5 var(--mono)}
+.pain{font:600 12px var(--mono);color:var(--warn);background:var(--real-soft);border-radius:4px;padding:6px 10px;align-self:flex-start}
+.src{font:11px var(--mono);color:var(--muted)}
+.inf{font:600 10px var(--mono);color:var(--muted);border:1px solid var(--line);border-radius:3px;padding:0 4px;margin-left:4px;vertical-align:1px}
+
+body[data-view="stated"] .card.r, body[data-view="stated"] .colheads h2.r{display:none}
+body[data-view="real"] .card.s, body[data-view="real"] .colheads h2.s{display:none}
+body[data-view="stated"] .row, body[data-view="real"] .row,
+body[data-view="stated"] .colheads, body[data-view="real"] .colheads{grid-template-columns:44px 1fr}
+
+@media (max-width:820px){
+  .colheads{display:none}
+  .row,body[data-view] .row{grid-template-columns:1fr}
+  .stepn{text-align:left;padding-top:0}
+  .card.s::before{content:"Stated";font:600 11px var(--mono);text-transform:uppercase;letter-spacing:.08em;color:var(--stated)}
+  .card.r::before{content:"Reality";font:600 11px var(--mono);text-transform:uppercase;letter-spacing:.08em;color:var(--real)}
+}
+.close{background:var(--real-soft);border-radius:8px;padding:18px 20px;display:flex;flex-direction:column;gap:8px}
+footer{font:12px/1.7 var(--mono);color:var(--muted)}
+</style>
+</head>
+<body data-view="both">
+<div class="wrap">
+
+<header>
+  <span class="eyebrow">FDE School · Day 3 · Polymex Lyon · week of 6 May 2026</span>
+  <h1>Lyon planning: the stated process vs. what really happens</h1>
+  <p class="lede">Five steps on each side, described with the same fields: trigger, who decides, system, data in and out, time, and the pain it creates. The time block on each card shows hands-on work and the lag before the next person can act.</p>
+  <div class="toggle" role="group" aria-label="View">
+    <button type="button" id="v-both" data-v="both" aria-pressed="true">Side by side</button>
+    <button type="button" id="v-stated" data-v="stated" aria-pressed="false">Stated only</button>
+    <button type="button" id="v-real" data-v="real" aria-pressed="false">Reality only</button>
+  </div>
+</header>
+
+<section class="budget" aria-label="Planning hours per week">
+  <h2>Hours spent on planning, per week</h2>
+  <div class="brow">
+    <span class="blabel s">Stated</span>
+    <div class="track"><div class="seg s" style="width:14.3%">6 h</div></div>
+    <span class="btotal s">6 h</span>
+  </div>
+  <div class="brow">
+    <span class="blabel r">Reality</span>
+    <div class="track">
+      <div class="seg r1" style="width:10.7%" title="Friday plan">4.5 h</div>
+      <div class="seg r3" style="width:14.3%" title="Morning replan and 8:30 meeting">6 h</div>
+      <div class="seg r4" style="width:15.2%" title="Repairs during the day">6.3 h</div>
+      <div class="seg r5" style="width:59.5%" title="Re-keying into SAP">25 h re-keying into SAP</div>
+    </div>
+    <span class="btotal r">≈ 42 h</span>
+  </div>
+  <div class="bkey">
+    <span><i style="background:#e0884f"></i>Friday plan (Corinne)</span>
+    <span><i style="background:#c4561b"></i>Morning replan + 8:30 meeting</span>
+    <span><i style="background:#9c3f12"></i>Repairs during the day</span>
+    <span><i style="background:#6e2a0a"></i>Re-keying into SAP (Sylvie)</span>
+  </div>
+  <p class="lede" style="font-size:13px">Stated: the 08:00–14:00 window in PRO-PLN-004. Reality: Friday and re-keying as stated in interviews; the daily replan and repairs are extrapolated from the shadowing of Wednesday 6 May to five weekdays (inferred). Night swaps by shift leaders are not counted.</p>
+</section>
+
+<div>
+  <div class="colheads">
+    <span></span>
+    <h2 class="s">What they think happens</h2>
+    <h2 class="r">What really happens</h2>
+  </div>
+
+  <div class="rows">
+
+  <!-- 1 -->
+  <div class="row">
+    <span class="stepn">1</span>
+    <article class="card s">
+      <div class="top"><span class="when">THURSDAY 17:00 · WEEKLY</span><h3>Demand freeze</h3></div>
+      <div class="time"><div><b>Cut-off</b><span>hands-on: order entry</span></div><div><b>13 h</b><span>lag until the MRP run</span></div></div>
+      <dl>
+        <dt>Who</dt><dd>Sales, customer service</dd>
+        <dt>System</dt><dd>SAP SD, EDI for Codra</dd>
+        <dt>In → out</dt><dd class="flow">customer orders → SAP sales orders → MRP</dd>
+      </dl>
+      <span class="src">stated/PRO-PLN-004 step 1 · stated/sap-planning-flow.md</span>
+    </article>
+    <article class="card r">
+      <div class="top"><span class="when">FRIDAY 13:00 → 19:30 · WEEKLY</span><h3>Friday plan, by hand, outside SAP</h3></div>
+      <div class="time"><div><b>4–5 h</b><span>hands-on sequencing</span></div><div><b>6 h 30</b><span>export to PDF sent</span></div></div>
+      <dl>
+        <dt>Who</dt><dd>Corinne, with her own rules: light to dark, glass only on M01/M02/M05, PA6 on M03/M06, max 4 changeovers a shift</dd>
+        <dt>System</dt><dd>Excel workbook on the shared drive; the SAP planning board is not used</dd>
+        <dt>In → out</dt><dd class="flow">SAP open orders export → workbook → PDF by email</dd>
+      </dl>
+      <span class="pain">No demand freeze: orders keep arriving all week</span>
+      <span class="src">field/01-corinne-planner.md · field/08-nadia-it-manager.md</span>
+    </article>
+  </div>
+
+  <!-- 2 -->
+  <div class="row">
+    <span class="stepn">2</span>
+    <article class="card s">
+      <div class="top"><span class="when">FRIDAY 06:00 (IT says nightly 02:00)</span><h3>MRP run</h3></div>
+      <div class="time"><div><b>0 h</b><span>hands-on, automatic</span></div><div><b>2 h</b><span>lag until planning starts</span></div></div>
+      <dl>
+        <dt>Who</dt><dd>SAP</dd>
+        <dt>System</dt><dd>SAP MRP, lot sizes from material master, infinite capacity</dd>
+        <dt>In → out</dt><dd class="flow">sales orders → planned orders per product</dd>
+      </dl>
+      <span class="src">stated/PRO-PLN-004 step 2 · stated/sap-planning-flow.md §2, §5</span>
+    </article>
+    <article class="card r">
+      <div class="top"><span class="when">EVERY NIGHT · NO PLANNER ON SHIFT</span><h3>Night swaps on the line</h3></div>
+      <div class="time"><div><b>On the spot</b><span>decision by the shift leader</span></div><div><b>Until 07:00</b><span>before the planner sees it</span></div></div>
+      <dl>
+        <dt>Who</dt><dd>Kevin, night shift leader: same family if possible, else the closest colour</dd>
+        <dt>System</dt><dd>LineLog free-text comment</dd>
+        <dt>In → out</dt><dd class="flow">breakdown / missing material → swap → LineLog note → Corinne</dd>
+      </dl>
+      <span class="pain">18 night swaps in 4 weeks, no CR-PLN form</span>
+      <span class="src">field/04-kevin-shift-leader-night.md · data/change_log_w15-w18.csv</span>
+    </article>
+  </div>
+
+  <!-- 3 -->
+  <div class="row">
+    <span class="stepn">3</span>
+    <article class="card s">
+      <div class="top"><span class="when">FRIDAY 08:00 → 14:00 · WEEKLY</span><h3>Weekly plan</h3></div>
+      <div class="time"><div><b>6 h</b><span>hands-on, planner</span></div><div><b>2 h</b><span>lag until approval</span></div></div>
+      <dl>
+        <dt>Who</dt><dd>Planner</dd>
+        <dt>System</dt><dd>SAP planning board, standard routings: 60 min changeover for every product, every line runs every family</dd>
+        <dt>In → out</dt><dd class="flow">planned orders → sequenced process orders M01–M07</dd>
+      </dl>
+      <span class="src">stated/PRO-PLN-004 step 3 · stated/sap-planning-flow.md §3, §4</span>
+    </article>
+    <article class="card r">
+      <div class="top"><span class="when">EVERY MORNING 07:00 → 09:20 · DAILY</span><h3>Morning replan and 8:30 meeting</h3></div>
+      <div class="time"><div><b>52 + 20 min</b><span>full replan + meeting</span></div><div><b>2 h 20</b><span>until version 2 is sent</span></div></div>
+      <dl>
+        <dt>Who</dt><dd>Corinne rewrites the next 2–3 days; the 8:30 meeting (Didier, Corinne, quality, maintenance) takes the real decisions</dd>
+        <dt>System</dt><dd>LineLog, Excel, phone; lab results and MaintPro only by word of mouth</dd>
+        <dt>In → out</dt><dd class="flow">night notes + lab holds + maintenance windows → plan v2 → Sylvie</dd>
+      </dl>
+      <span class="pain">Every weekday, all 7 lines replanned</span>
+      <span class="src">field/01 · field/05-didier-production-manager.md · field/09 07:30, 08:30, 09:20</span>
+    </article>
+  </div>
+
+  <!-- 4 -->
+  <div class="row">
+    <span class="stepn">4</span>
+    <article class="card s">
+      <div class="top"><span class="when">FRIDAY 16:00 · WEEKLY</span><h3>Approval and freeze</h3></div>
+      <div class="time"><div><b>Sign-off</b><span>production manager</span></div><div><b>7 days</b><span>plan frozen Mon 06:00 → Mon 06:00</span></div></div>
+      <dl>
+        <dt>Who</dt><dd>Didier, production manager</dd>
+        <dt>System</dt><dd>SAP; changes by CR-PLN form, max one per line per day</dd>
+        <dt>In → out</dt><dd class="flow">weekly plan → frozen plan → shift leaders</dd>
+      </dl>
+      <span class="src">stated/PRO-PLN-004 steps 4 and 6</span>
+    </article>
+    <article class="card r">
+      <div class="top"><span class="when">ALL DAY · 2 TO 4 TIMES A DAY</span><h3>Repairs on 24–48 h</h3></div>
+      <div class="time"><div><b>12–26 min</b><span>per repair, 76 min on 6 May</span></div><div><b>17 h</b><span>median wait for a customer answer</span></div></div>
+      <dl>
+        <dt>Who</dt><dd>Corinne repairs one or two lines; never touches the running order or the next one (~4 h)</dd>
+        <dt>System</dt><dd>Email and phone from Stéphane, Patrick, the lab</dd>
+        <dt>In → out</dt><dd class="flow">customer change / breakdown → repaired plan v3…v6 → shift leaders</dd>
+      </dl>
+      <span class="pain">188 changes in 4 weeks · 80% inside 48 h · 0 CR-PLN since 2023</span>
+      <span class="src">field/01 · field/09 10:41–17:45 · data/change_log_w15-w18.csv</span>
+    </article>
+  </div>
+
+  <!-- 5 -->
+  <div class="row">
+    <span class="stepn">5</span>
+    <article class="card s">
+      <div class="top"><span class="when">MONDAY → SUNDAY</span><h3>Execution and promises</h3></div>
+      <div class="time"><div><b>≥ 95%</b><span>schedule adherence target</span></div><div><b>Real time</b><span>sales promise from SAP ATP</span></div></div>
+      <dl>
+        <dt>Who</dt><dd>Shift leaders execute; clerk confirms; sales promise</dd>
+        <dt>System</dt><dd>LineLog for deviations, SAP for confirmations and ATP</dd>
+        <dt>In → out</dt><dd class="flow">frozen plan → production → SAP confirmations → promise dates</dd>
+      </dl>
+      <span class="src">stated/PRO-PLN-004 steps 5 and 7 · stated/sap-planning-flow.md §6, §7</span>
+    </article>
+    <article class="card r">
+      <div class="top"><span class="when">NEXT DAY · CONTINUOUS</span><h3>Re-keying into SAP, a day late</h3></div>
+      <div class="time"><div><b>25 h / week</b><span>Sylvie keying each version</span></div><div><b>+1 day</b><span>SAP behind the real plan</span></div></div>
+      <dl>
+        <dt>Who</dt><dd>Sylvie re-keys; Stéphane promises from yesterday's SAP and adds margin</dd>
+        <dt>System</dt><dd>SAP, plus Sylvie's personal notebook of every change</dd>
+        <dt>In → out</dt><dd class="flow">plan versions → SAP process orders → promises of 9–14 days (Codra wants 7)</dd>
+      </dl>
+      <span class="pain">20% of changes in SAP the same day · adherence not measured since 2024</span>
+      <span class="src">field/02-sylvie-scheduling-clerk.md · field/03 · field/05 · data/change_log_w15-w18.csv</span>
+    </article>
+  </div>
+
+  </div>
+</div>
+
+<div class="close">
+  <h3>In one sentence</h3>
+  <p>The procedure budgets 6 hours a week for one frozen plan in SAP; in reality about 42 hours a week go into a plan that is rebuilt every morning, repaired several times a day in Excel and re-keyed into SAP a day late.</p>
+</div>
+
+<footer>Source: day3/fde-school-day3-am-lyon-planning-kit.zip. stated/, field/01–09, data/change_log_w15-w18.csv (188 events, computed by script), data/kpi_weekly_2026-w06-w18.csv. Polymex is a fictional company used by the FDE School.</footer>
+</div>
+<script>
+document.querySelectorAll('.toggle button').forEach(function(b){
+  b.addEventListener('click',function(){
+    document.body.dataset.view=b.dataset.v;
+    document.querySelectorAll('.toggle button').forEach(function(x){x.setAttribute('aria-pressed',x===b?'true':'false')});
+  });
+});
+</script>
+</body>
+</html>
