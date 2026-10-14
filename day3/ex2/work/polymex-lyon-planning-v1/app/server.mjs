@@ -111,10 +111,11 @@ const routes = {
   'POST /api/reset': (b, actor) => { guard(actor, 'write', 'plan:published'); store.reset(); audit(actor, 'reset', {}); return { ok: true }; },
 };
 
-http.createServer(async (req, res) => {
+// One handler for both: the local server (`npm start`) and the Vercel function (api/planner.mjs at the repo root).
+export async function handle(req, res) {
   const url = new URL(req.url, 'http://x'); const key = req.method + ' ' + url.pathname; const actor = req.headers['x-actor'] || 'human:corinne';
   if (routes[key]) {
-    try { const b = req.method === 'POST' ? await body(req) : Object.fromEntries(url.searchParams); send(res, 200, await routes[key](b, actor)); }
+    try { const b = req.method === 'POST' ? (req.body && typeof req.body === 'object' ? req.body : await body(req)) : Object.fromEntries(url.searchParams); send(res, 200, await routes[key](b, actor)); }
     catch (e) { send(res, e.status || 500, { error: e.message }); }
     return;
   }
@@ -122,4 +123,8 @@ http.createServer(async (req, res) => {
   const p = path.join(HERE, 'public', path.normalize(file).replace(/^(\.\.[/\\])+/, ''));
   if (fs.existsSync(p) && fs.statSync(p).isFile()) { res.writeHead(200, { 'content-type': p.endsWith('.html') ? 'text/html; charset=utf-8' : p.endsWith('.js') ? 'text/javascript' : 'text/plain' }); fs.createReadStream(p).pipe(res); }
   else { res.writeHead(404); res.end('Not found'); }
-}).listen(PORT, () => console.log('Plant planning app on http://localhost:' + PORT));
+}
+
+if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  http.createServer(handle).listen(PORT, () => console.log('Plant planning app on http://localhost:' + PORT));
+}

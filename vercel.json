@@ -1,0 +1,10 @@
+{
+  "functions": {
+    "api/planner.mjs": { "includeFiles": "day3/ex2/work/polymex-lyon-planning-v1/**", "maxDuration": 30 }
+  },
+  "rewrites": [
+    { "source": "/planner", "destination": "/api/planner?route=__ui" },
+    { "source": "/planner/", "destination": "/api/planner?route=__ui" },
+    { "source": "/api/:path((?!planner$).*)", "destination": "/api/planner?route=:path" }
+  ]
+}
