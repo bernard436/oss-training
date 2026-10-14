@@ -198,11 +198,11 @@ async function api(path, b) {
   const j = await r.json(); if (!r.ok) { toast(j.error || r.status, true); throw new Error(j.error); } return j;
 }
 function toast(t, err) { const el = $('#toast'); el.textContent = t; el.className = 'toast' + (err ? ' err' : ''); clearTimeout(el._t); el._t = setTimeout(() => el.classList.add('hide'), err ? 7000 : 3500); }
-const TABS = [['plan', 'Plan'], ['events', 'Events'], ['mail', 'Mail'], ['promise', 'Promise'], ['night', 'Night'], ['feedback', 'Feedback'], ['ontology', 'Ontology'], ['rules', 'Rules'], ['execution', 'Execution'], ['scorecard', 'Scorecard'], ['audit', 'Audit']];
+const TABS = [['plan', 'Plan'], ['events', 'Events'], ['mail', 'Mail'], ['promise', 'Promise'], ['night', 'Night'], ['feedback', 'Feedback'], ['discovery', 'Discovery'], ['ontology', 'Ontology'], ['rules', 'Rules'], ['execution', 'Execution'], ['scorecard', 'Scorecard'], ['audit', 'Audit']];
 const NEWTABS = { promise: 'new', night: 'new', events: 'updated', plan: 'updated', scorecard: 'updated' };
 // EVOLUTIONS 6 and 10: each person lands on their screen and sees only their tabs and buttons.
 const HOME = { 'human:corinne': 'plan', 'human:sylvie': 'events', 'human:stephane': 'promise', 'human:kevin': 'night', 'human:herve': 'scorecard', 'human:julien': 'scorecard', 'human:nadia': 'audit' };
-const VISIBLE = { 'human:herve': ['scorecard', 'plan', 'ontology'], 'human:julien': ['scorecard', 'plan', 'audit', 'ontology'], 'human:stephane': ['promise', 'mail', 'events', 'feedback', 'plan'], 'human:kevin': ['night', 'plan', 'feedback', 'execution', 'rules'], 'human:nadia': ['audit', 'ontology', 'plan'] };
+const VISIBLE = { 'human:herve': ['scorecard', 'plan', 'ontology'], 'human:julien': ['scorecard', 'plan', 'audit', 'ontology'], 'human:stephane': ['promise', 'mail', 'events', 'feedback', 'plan'], 'human:kevin': ['night', 'plan', 'feedback', 'discovery', 'execution', 'rules'], 'human:nadia': ['audit', 'ontology', 'plan'] };
 const can = (g) => (S.grants || []).some((x) => x === g || (x.endsWith('*') && g.startsWith(x.slice(0, -1))));
 async function loadMe() { try { const r = await fetch('/api/me', { headers: { 'x-actor': S.actor } }); S.grants = (await r.json()).grants; } catch (e) { S.grants = []; } }
 function tabs() { const vis = VISIBLE[S.actor]; $('#tabs').innerHTML = TABS.filter(([k]) => !vis || vis.includes(k)).map(([k, l]) => `<button class="${S.tab === k ? 'on' : ''} ${NEWTABS[k] ? 'evo' : ''}" onclick="go('${k}')">${l}${NEWTABS[k] ? '' : ''}</button>`).join(''); }
@@ -361,12 +361,24 @@ async function render() {
       <div class="grid2"><div><h3>Links</h3><table><tr><th>Subject</th><th>Link</th><th>Object</th></tr>${ont.links.map(([a, l, b]) => `<tr><td>${esc(a)}</td><td><i>${esc(l)}</i></td><td>${esc(b)}</td></tr>`).join('')}</table></div>
       <div><h3>History of changes</h3>${ont.changes.filter((c) => c.status !== 'proposed').map(changeCard).join('') || '<div class="lbl">No change yet. Ask the AI from the Mail or Feedback tab.</div>'}</div></div>`;
   }
+  if (S.tab === 'discovery') {
+    const d = await api('/api/discovery');
+    const KIND = { changeover: ['Changeover stopwatch', 'How long does each changeover really take?'], night_swap: ['Night swap reasons', 'Why do we swap orders at night?'], material: ['Material arrival check', 'Do suppliers deliver on time?'] };
+    const tag = (s) => s === 'validated' ? 'applied' : s === 'to validate' ? 'proposed' : 'retired';
+    m.innerHTML = `<div class="row"><h2>Discovery</h2><span class="lbl">CSV from the throwaway apps → findings → Corinne validates → a rule or a feedback item</span><div class="sp"></div>${can('write:feedback') ? '<label class="btn" style="cursor:pointer">⬆ Import CSV files<input type="file" accept=".csv,text/csv" multiple style="display:none" onchange="importDisc(this)"></label>' : ''}${can('write:rule:validated') ? '<button class="btn ghost" onclick="purgeDisc()">End of study: delete raw rows</button>' : ''}</div>
+      <div class="lbl" style="margin:6px 0 12px">Imports: ${d.imports.map((i) => `${i.id} ${i.kind} · ${i.rows} rows · ${i.at.slice(0, 10)}${i.raw_kept ? '' : ' · raw deleted'}`).join(' | ') || 'none yet. Download the CSV in each app, then import it here.'}</div>
+      ${Object.entries(KIND).map(([k, [t, q]]) => { const f = d.findings.filter((x) => x.kind === k); const ok = f.filter((x) => x.status !== 'not enough data').length;
+        return `<h3>${t}</h3><div class="lbl">${q} · ${ok} of ${f.length} findings have enough data</div><table><tr><th>Id</th><th>About</th><th>Finding</th><th>n</th><th>Status</th><th></th></tr>${f.map((x) => `<tr><td class="mono">${x.id}</td><td>${esc(x.about)}</td><td>${esc(x.statement)}${x.proposal ? `<div class="lbl">Proposed rule: ${esc(x.proposal.statement)}</div>` : ''}${x.rule_id ? `<div class="lbl">→ active rule ${x.rule_id}</div>` : ''}${x.feedback_id ? `<div class="lbl">→ feedback ${x.feedback_id}</div>` : ''}${x.note ? `<div class="lbl">Note: ${esc(x.note)}</div>` : ''}</td><td class="mono">${x.n}/${x.target}</td><td><span class="tag ${tag(x.status)}">${esc(x.status)}</span></td><td>${x.status === 'to validate' && can('write:rule:validated') ? `<div class="row"><button class="btn" onclick="decideDisc('${x.id}','validate')">Validate</button><button class="btn ghost" onclick="decideDisc('${x.id}','reject')">Reject</button></div>` : ''}</td></tr>`).join('') || '<tr><td colspan="6" class="lbl">No data yet: import the CSV of this app.</td></tr>'}</table>`; }).join('')}`;
+  }
   if (S.tab === 'audit') {
     const a = await api('/api/audit');
     m.innerHTML = `<h2>Audit trail</h2><table><tr><th>When</th><th>Who</th><th>What</th><th>Details</th></tr>${a.map((x) => `<tr><td class="mono">${x.at.slice(5, 19).replace('T', ' ')}</td><td class="mono">${esc(x.actor)}</td><td>${esc(x.what)}</td><td class="mono" style="max-width:640px;word-break:break-word">${esc(JSON.stringify(x.payload).slice(0, 260))}</td></tr>`).join('')}</table>`;
   }
   if (bar) m.insertAdjacentHTML('afterbegin', bar);
 }
+async function importDisc(inp) { for (const f of inp.files) { const csv = await f.text(); const r = await api('/api/discovery/import', { csv, file: f.name }); toast(`${f.name}: ${r.rows} rows, ${r.to_validate} findings to validate`); } render(); }
+async function decideDisc(id, decision) { const note = decision === 'reject' ? prompt('Why reject it?') : ''; if (note == null) return; const r = await api('/api/discovery/decide', { id, decision, note }); toast(r.rule_id ? 'Rule ' + r.rule_id + ' is active. Run the daily plan to use it.' : r.feedback_id ? 'Added to Feedback as ' + r.feedback_id : id + ' ' + r.status); render(); }
+async function purgeDisc() { if (!confirm('Delete the raw rows and the findings not decided? Validated findings stay.')) return; const r = await api('/api/discovery/purge', {}); toast(r.purged_rows + ' raw rows deleted'); render(); }
 function promiseCard(x) {
   return `<h3>Answer for ${esc(x.customer)}</h3>${x.promised_due ? `<div class="answer">${x.feasible_as_asked ? 'Yes, by ' + x.wished.slice(5) : 'Earliest: ' + x.promised_due.slice(5)}</div>
     <div class="mono">${x.tonnes} t ${x.product_code} on ${x.line}, planned to end ${String(x.planned_end).slice(5)} · lead time <b class="${x.lead_days <= 7 ? 'wait-ok' : 'wait-ko'}">${x.lead_days} days</b> · ${x.other_orders_moved} other order(s) would move</div>

@@ -6,6 +6,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import * as O from '../architecture/orchestrator.mjs';
 import * as A from '../architecture/assistant.mjs';
+import * as D from '../architecture/discovery.mjs';
 import * as store from '../platform/store.mjs';
 import { guard, audit, readAudit, permissions } from '../platform/harness/harness.mjs';
 import { compile } from '../platform/rules/engine.mjs';
@@ -101,6 +102,11 @@ const routes = {
   'POST /api/mail': (b, actor) => A.addMail({ actor, text: b.text }),
   'POST /api/assistant': (b, actor) => A.askAssistant({ actor, source: b }),
   'POST /api/changes/decide': (b, actor) => A.decideChange({ actor, id: b.id, decision: b.decision }),
+  // Discovery apps: CSV import, validation by Corinne, purge of raw rows
+  'GET /api/discovery': (b, actor) => D.listDiscovery({ actor }),
+  'POST /api/discovery/import': (b, actor) => D.importCsv({ actor, csv: b.csv, kind: b.kind, file: b.file }),
+  'POST /api/discovery/decide': (b, actor) => D.decideFinding({ actor, id: b.id, decision: b.decision, note: b.note }),
+  'POST /api/discovery/purge': (b, actor) => D.purgeRaw({ actor, kind: b.kind }),
   'POST /api/reset': (b, actor) => { guard(actor, 'write', 'plan:published'); store.reset(); audit(actor, 'reset', {}); return { ok: true }; },
 };
 
