@@ -7,10 +7,11 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo+Narrow:wght@500;600;700&family=Public+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
 <style>
-/* Layout: on suit un lot de granulés de gauche à droite (frise des heures), puis station par station, puis les règles de la matière */
+/* Layout: frise d'un lot, puis cinq étapes ; chaque étape = deux colonnes (ce qu'on pense | ce qui se passe) avec les mêmes champs */
 :root{
   --bg:#f4f6f6; --surface:#fff; --fg:#1b2226; --muted:#5b676e; --line:#d6dddf;
-  --raw:#7a8b3a; --mix:#4f8a8b; --ext:#c4561b; --lab:#5a5fa8; --ship:#3f6c8f; --warn:#a33a2c; --warn-soft:#f8e6e2;
+  --think:#3f6c8f; --think-soft:#e6eef4; --real:#c4561b; --real-soft:#fbeadf;
+  --raw:#7a8b3a; --mix:#4f8a8b; --ext:#c4561b; --lab:#5a5fa8; --ship:#3f6c8f; --warn:#a33a2c;
   --display:"Archivo Narrow","Arial Narrow",system-ui,sans-serif;
   --body:"Public Sans",system-ui,-apple-system,sans-serif;
   --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
@@ -18,18 +19,19 @@
 }
 @media (prefers-color-scheme:dark){:root{
   --bg:#131819; --surface:#1b2224; --fg:#e5eaeb; --muted:#99a6ab; --line:#2c3639;
-  --raw:#a9bd5e; --mix:#7bbcbd; --ext:#f08a4b; --lab:#9a9ff0; --ship:#86b1d3; --warn:#ff8a7a; --warn-soft:#3a2220; color-scheme:dark}}
+  --think:#86b1d3; --think-soft:#1e2c38; --real:#f08a4b; --real-soft:#3a2418;
+  --raw:#a9bd5e; --mix:#7bbcbd; --ext:#f08a4b; --lab:#9a9ff0; --ship:#86b1d3; --warn:#ff8a7a; color-scheme:dark}}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.55 var(--body);
   padding:32px max(16px,env(safe-area-inset-left)) 56px max(16px,env(safe-area-inset-right))}
-.wrap{max-width:1180px;margin:0 auto;display:flex;flex-direction:column;gap:48px}
+.wrap{max-width:1200px;margin:0 auto;display:flex;flex-direction:column;gap:48px}
 h1,h2,h3{font-family:var(--display);margin:0;line-height:1.15;text-wrap:balance}
 h1{font-size:clamp(30px,4.6vw,48px)} h2{font-size:26px;font-weight:600} h3{font-size:18px;font-weight:600}
 p{margin:0}
 section{display:flex;flex-direction:column;gap:16px}
 .eyebrow{font:600 12px/1.4 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
-.lede{max-width:70ch;color:var(--muted);font-size:16px}
-.small{font-size:13px;color:var(--muted);max-width:80ch}
+.lede{max-width:72ch;color:var(--muted);font-size:16px}
+.small{font-size:13px;color:var(--muted);max-width:85ch}
 .src{font:11px/1.6 var(--mono);color:var(--muted)}
 header{display:flex;flex-direction:column;gap:12px}
 .facts{display:flex;flex-wrap:wrap;gap:8px 24px;font:13px var(--mono);color:var(--muted)}
@@ -50,45 +52,53 @@ header{display:flex;flex-direction:column;gap:12px}
 .hours span:last-child{transform:translateX(-100%)}
 @media (max-width:700px){.strip{height:auto;flex-direction:column}.strip div{width:100%!important;padding:8px 10px;border-right:0;border-bottom:2px solid var(--surface)}.hours{display:none}}
 
-/* stations */
-.stations{display:flex;flex-direction:column;gap:0}
-.station{display:grid;grid-template-columns:64px 1fr;gap:18px;position:relative;padding-bottom:22px}
-.station:not(:last-child)::before{content:"";position:absolute;left:31px;top:64px;bottom:0;width:3px;background:repeating-linear-gradient(var(--line) 0 6px,transparent 6px 12px)}
-.badge{width:64px;height:64px;border-radius:50%;display:grid;place-items:center;background:var(--c);color:#fff;font:700 24px var(--display)}
-.scard{min-width:0;background:var(--surface);border:1px solid var(--line);border-left:5px solid var(--c);border-radius:6px;padding:16px 18px;display:flex;flex-direction:column;gap:12px}
-.shead{display:flex;flex-wrap:wrap;justify-content:space-between;gap:6px 16px;align-items:baseline}
-.shead h3{font-size:22px;color:var(--c)}
-.stime{font:700 22px var(--display);font-variant-numeric:tabular-nums}
-.sgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px 24px}
-@media (max-width:760px){.sgrid{grid-template-columns:1fr}.station{grid-template-columns:44px 1fr;gap:12px}.badge{width:44px;height:44px;font-size:18px}.station:not(:last-child)::before{left:21px;top:44px}}
-.sgrid div{min-width:0;display:flex;flex-direction:column;gap:4px}
-.sgrid h4{margin:0;font:600 11px var(--mono);letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
-.sgrid ul{margin:0;padding-left:18px;font-size:14px;display:flex;flex-direction:column;gap:3px}
-.risk{background:var(--warn-soft);border-radius:4px;padding:8px 12px;font-size:14px;color:var(--fg)}
-.risk b{color:var(--warn)}
+/* légende des colonnes */
+.colheads{display:grid;grid-template-columns:1fr 1fr;gap:16px;position:sticky;top:env(safe-area-inset-top,0px);z-index:3;background:var(--bg);padding-block:10px;border-bottom:1px solid var(--line)}
+.colheads div{display:flex;flex-direction:column;gap:2px}
+.colheads h2{font-size:22px}
+.colheads .t h2{color:var(--think)} .colheads .r h2{color:var(--real)}
+.colheads p{font-size:13px;color:var(--muted)}
+@media (max-width:820px){.colheads{display:none}}
+
+/* étapes */
+.steps{display:flex;flex-direction:column;gap:36px}
+.step{display:flex;flex-direction:column;gap:12px}
+.stephead{display:flex;align-items:center;gap:14px}
+.badge{flex:none;width:48px;height:48px;border-radius:50%;display:grid;place-items:center;background:var(--c);color:#fff;font:700 22px var(--display)}
+.stephead h3{font-size:26px;color:var(--c)}
+.stephead p{font-size:14px;color:var(--muted)}
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media (max-width:820px){.pair{grid-template-columns:1fr}}
+.card{min-width:0;background:var(--surface);border:1px solid var(--line);border-top:4px solid var(--k);border-radius:6px;padding:14px 16px;display:flex;flex-direction:column;gap:12px}
+.card.t{--k:var(--think);--ks:var(--think-soft)} .card.r{--k:var(--real);--ks:var(--real-soft)}
+.card .lab{font:600 11px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--k)}
+.quote{font-size:15px;font-style:italic;border-left:3px solid var(--k);padding-left:10px}
+.quote cite{display:block;font-style:normal;font-size:12px;color:var(--muted);margin-top:2px}
+.time{display:grid;grid-template-columns:1fr 1fr;gap:10px;background:var(--ks);border-radius:6px;padding:10px 12px}
+.time div{display:flex;flex-direction:column;gap:2px;min-width:0}
+.time b{font:700 24px/1.05 var(--display);color:var(--k);font-variant-numeric:tabular-nums}
+.time span{font-size:12px;color:var(--muted)}
+dl{margin:0;display:grid;grid-template-columns:96px 1fr;gap:6px 10px;font-size:14px}
+dt{font:600 11px/1.9 var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+dd{margin:0;min-width:0}
+.flow{font:13px/1.5 var(--mono)}
+.pain{font-size:14px;background:var(--real-soft);border-radius:4px;padding:8px 12px}
+.pain b{color:var(--warn)}
+.card.t .pain{background:var(--think-soft)}
+.card.t .pain b{color:var(--think)}
 .c-raw{--c:var(--raw)} .c-mix{--c:var(--mix)} .c-ext{--c:var(--ext)} .c-lab{--c:var(--lab)} .c-ship{--c:var(--ship)}
 
-/* matrice */
+/* tableaux */
 .tablewrap{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:8px}
 table{border-collapse:collapse;width:100%;font-size:14px;font-variant-numeric:tabular-nums}
 th,td{padding:9px 12px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
 th{font:600 11px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
 tr:last-child td{border-bottom:0}
 .matrix{min-width:560px}
-.matrix td.m{text-align:center;font:600 13px var(--mono);color:var(--fg);background:color-mix(in srgb,var(--ext) calc(var(--v)*1%),transparent)}
+.matrix td.m{text-align:center;font:600 13px var(--mono);background:color-mix(in srgb,var(--ext) calc(var(--v)*1%),transparent)}
 .matrix td.never{text-align:center;font:11px var(--mono);color:var(--muted);background:repeating-linear-gradient(45deg,transparent 0 5px,var(--line) 5px 6px)}
-.matrix th.row{text-align:left}
-.lines{min-width:720px}
-.dot{display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--ext)}
-.no{color:var(--muted)}
-.lines td:not(:first-child),.lines th:not(:first-child){text-align:center}
-
-.alea{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
-@media (max-width:820px){.alea{grid-template-columns:repeat(2,1fr)}}
-.a{min-width:0;background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:14px;display:flex;flex-direction:column;gap:6px}
-.a b{font:700 34px/1 var(--display);color:var(--warn);font-variant-numeric:tabular-nums}
-.a span{font-size:14px}
-.ship{min-width:420px}
+.close{background:var(--real-soft);border-radius:8px;padding:18px 20px;display:flex;flex-direction:column;gap:8px}
+.close p{max-width:85ch}
 footer{font:12px/1.7 var(--mono);color:var(--muted)}
 </style>
 </head>
@@ -98,7 +108,7 @@ footer{font:12px/1.7 var(--mono);color:var(--muted)}
 <header>
   <span class="eyebrow">FDE School · Jour 3 · Polymex Industries · usine de Lyon</span>
   <h1>La vie d'un plastique dans l'usine de Lyon</h1>
-  <p class="lede">On suit un lot de granulés depuis l'arrivée des matières premières jusqu'au camion qui part chez le client : ce qui lui arrive à chaque étape, combien de temps ça prend, et ce qui peut mal tourner.</p>
+  <p class="lede">On suit le plastique en cinq étapes, des matières premières au camion. Pour chaque étape, deux colonnes : à gauche, ce que les salariés et les systèmes pensent qu'il se passe (procédures, SAP, entretiens) ; à droite, ce qui se passe réellement d'après les données du terrain.</p>
   <div class="facts"><span><b>86 kt</b> produites en 2025</span><span><b>7</b> lignes d'extrusion</span><span><b>3 × 8 h</b>, 7 jours sur 7</span><span><b>312</b> personnes</span><span>Compounds PP et polyamide 6</span></div>
 </header>
 
@@ -107,74 +117,188 @@ footer{font:12px/1.7 var(--mono);color:var(--muted)}
   <h2>18 tonnes de blanc pour Codra, du silo au client</h2>
   <div class="lot">
     <div class="lothead">
-      <p>Commande O58872 · <b>PPW-2010</b>, blanc standard · <b>18 t</b> · ligne <b>M05</b> · client Codra Retail, Corbas</p>
-      <span class="total">≈ 18 h<small>dans l'usine et sur la route</small></span>
+      <p>Commande O58872 · <b>PPW-2010</b>, blanc standard · <b>18 t</b> · ligne <b>M05</b> · Codra Retail, Corbas</p>
+      <span class="total">≈ 19 h<small>dans l'usine et sur la route</small></span>
     </div>
     <div class="strip" aria-label="Frise du lot en heures">
-      <div style="width:5.5%;background:var(--ext);opacity:.65">Nett.<span>1 h</span></div>
-      <div style="width:49.5%;background:var(--ext)">Extrusion sur M05<span>18 t à 2,02 t/h ≈ 8 h 55</span></div>
-      <div style="width:11%;background:var(--lab)">Labo<span>2 h</span></div>
-      <div style="width:34%;background:var(--ship)">Transport vers Corbas<span>6 h</span></div>
+      <div style="width:5.3%;background:var(--ext);opacity:.65">Nett.<span>1 h</span></div>
+      <div style="width:47.1%;background:var(--ext)">Extrusion sur M05<span>18 t à 2,02 t/h ≈ 8 h 55</span></div>
+      <div style="width:10.6%;background:var(--lab)">Labo<span>2 h</span></div>
+      <div style="width:5.3%;background:var(--mix)">Emb.<span>1 h</span></div>
+      <div style="width:31.7%;background:var(--ship)">Transport vers Corbas<span>6 h</span></div>
     </div>
-    <div class="hours"><span style="left:0">0 h</span><span style="left:27.8%">5 h</span><span style="left:55.6%">10 h</span><span style="left:83.3%">15 h</span><span style="left:100%">18 h</span></div>
-    <p class="small">Nettoyage de la ligne : 25 à 90 min selon le produit d'avant, 1 h retenue ici. Matières premières, mélange et emballage ne sont pas chiffrés dans le kit et ne sont pas comptés.</p>
+    <div class="hours"><span style="left:0">0 h</span><span style="left:26.3%">5 h</span><span style="left:52.6%">10 h</span><span style="left:78.9%">15 h</span><span style="left:100%">19 h</span></div>
+    <p class="small">Nettoyage de la ligne : 25 à 90 min selon le produit précédent, 1 h retenue ici. Emballage en big bags : 1 h après la libération. Matières premières et mélange ne sont pas chiffrés dans le kit. Pourtant, le délai annoncé à Codra est de 9 à 14 jours.</p>
   </div>
 </section>
 
 <section>
-  <span class="eyebrow">Étape par étape</span>
-  <h2>Les cinq étapes du plastique</h2>
-  <div class="stations">
+  <div class="colheads">
+    <div class="t"><h2>Ce qu'ils pensent qu'il se passe</h2><p>Procédures, SAP, ce que disent les salariés en entretien</p></div>
+    <div class="r"><h2>Ce qui se passe réellement</h2><p>Journal des changements, LineLog, labo, indicateurs, observation</p></div>
+  </div>
 
-    <div class="station c-raw"><span class="badge">1</span><article class="scard">
-      <div class="shead"><h3>Matières premières</h3><span class="stime">en stock</span></div>
-      <div class="sgrid">
-        <div><h4>Ce qui entre</h4><ul><li>Résine polypropylène (PP)</li><li>Mélanges maîtres de couleur (masterbatch)</li><li>Noir de carbone, dont un noir conducteur</li><li>Fibre de verre, en silo</li><li>Polyamide 6 (PA6)</li></ul></div>
-        <div><h4>Contraintes physiques</h4><ul><li>Le silo de verre alimente seulement M01, M02 et M05 ; deux démarrages verre à au moins 120 min d'écart</li><li>Le PA6 passe au sécheur : jamais deux démarrages PA6 à moins de 4 h</li></ul></div>
-      </div>
-      <p class="risk"><b>Ce qui peut mal tourner :</b> le masterbatch n'est pas livré, la ligne doit changer de produit. 17 retards matière en 4 semaines.</p>
-      <span class="src">field/01 · field/04 · knowledge/03 · data/change_log_w15-w18.csv</span>
-    </article></div>
+  <div class="steps">
 
-    <div class="station c-mix"><span class="badge">2</span><article class="scard">
-      <div class="shead"><h3>Hall de mélange</h3><span class="stime">non mesuré</span></div>
-      <div class="sgrid">
-        <div><h4>Ce qui se passe</h4><ul><li>Les matières sont dosées et mélangées selon la recette du produit</li></ul></div>
-        <div><h4>Équipement</h4><ul><li>Doseur gravimétrique sur M01, M02, M04, M05, M07 : seules ces lignes font le vert 3140</li><li>Pas de doseur de carbone sur M07 : pas de noir conducteur</li></ul></div>
-      </div>
-      <p class="small">Le kit ne donne pas de temps pour cette étape. C'est une question à poser sur le terrain.</p>
-      <span class="src">context/plant-lyon.md · knowledge/06</span>
-    </article></div>
+  <!-- 1 -->
+  <div class="step c-raw">
+    <div class="stephead"><span class="badge">1</span><div><h3>Matières premières</h3><p>Résine PP, masterbatch de couleur, noir de carbone, fibre de verre, PA6</p></div></div>
+    <div class="pair">
+      <article class="card t">
+        <span class="lab">Ce qu'ils pensent</span>
+        <div class="time"><div><b>Automatique</b><span>calcul MRP chaque nuit à 02:00</span></div><div><b>À l'heure</b><span>matière prête au démarrage</span></div></div>
+        <dl>
+          <dt>Quand</dt><dd>Chaque nuit, calcul des besoins</dd>
+          <dt>Qui</dt><dd>SAP, achats</dd>
+          <dt>Système</dt><dd>SAP MRP, tailles de lot de la fiche article</dd>
+          <dt>Entrée → sortie</dt><dd class="flow">commandes → besoins matière → livraison avant production</dd>
+        </dl>
+        <p class="pain"><b>Hypothèse :</b> la matière est là quand la ligne démarre.</p>
+        <span class="src">stated/sap-planning-flow.md §2 · stated/PRO-PLN-004 étape 2</span>
+      </article>
+      <article class="card r">
+        <span class="lab">Ce qui se passe</span>
+        <div class="quote">« Si le masterbatch n'est pas là, je permute avec l'ordre suivant que je peux faire sur la ligne. »<cite>Kevin, chef d'équipe de nuit</cite></div>
+        <div class="time"><div><b>25 h</b><span>préavis médian d'un retard matière</span></div><div><b>1 sur 17</b><span>retards entrés dans SAP le jour même</span></div></div>
+        <dl>
+          <dt>Quand</dt><dd>N'importe quand, souvent la veille</dd>
+          <dt>Qui</dt><dd>Logistique, entrepôt ; la nuit, le chef d'équipe décide seul</dd>
+          <dt>Système</dt><dd>Téléphone (17 sur 17), note dans LineLog</dd>
+          <dt>Entrée → sortie</dt><dd class="flow">masterbatch en retard → ordre permuté → note LineLog lue à 07:00</dd>
+        </dl>
+        <p class="pain"><b>17 retards matière</b> en 4 semaines, surtout sur M04 et M06. 10 des 18 permutations de nuit sont dues à un masterbatch absent.</p>
+        <span class="src">field/04 · field/09 07:05 · data/change_log_w15-w18.csv</span>
+      </article>
+    </div>
+  </div>
 
-    <div class="station c-ext"><span class="badge">3</span><article class="scard">
-      <div class="shead"><h3>Extrusion sur M01 à M07 · le goulot de l'usine</h3><span class="stime">≈ 2 t/h</span></div>
-      <div class="sgrid">
-        <div><h4>Ce qui se passe</h4><ul><li>La matière fond dans la vis, passe la filière et sort en granulés</li><li>Cadence standard 2,02 t/h (idéal 2,30 t/h, performance 88 %)</li><li>Plus lent : verre 85 %, PA6 90 %, blanc brillant 90 %, noir conducteur 92 %, ligne M07 92 %</li></ul></div>
-        <div><h4>Entre deux produits</h4><ul><li>Il faut purger la ligne : de 15 min (même famille) à 4 h (noir vers naturel)</li><li>Toujours du clair vers le foncé</li><li>Noir vers naturel : démontage de la vis le samedi, 4 h, maintenance présente</li><li>M04 a une vis usée : elle retient le noir, 150 min pour passer à une couleur</li></ul></div>
-      </div>
-      <p class="risk"><b>Ce qui peut mal tourner :</b> panne (boîte de vitesses et doseur de M02 surtout), 19 pannes en 4 semaines. Après un nettoyage trop rapide, la matière de démarrage est hors spécification : <b>45 % des rebuts</b> viennent de là. Rebut total 4,7 % de la matière en avril.</p>
-      <span class="src">knowledge/02 · knowledge/03 · knowledge/08 · field/06 · field/07 · data/kpi_weekly · data/change_log_w15-w18.csv</span>
-    </article></div>
+  <!-- 2 -->
+  <div class="step c-mix">
+    <div class="stephead"><span class="badge">2</span><div><h3>Dosage et mélange</h3><p>Les matières sont dosées et mélangées avant d'entrer dans l'extrudeuse</p></div></div>
+    <div class="pair">
+      <article class="card t">
+        <span class="lab">Ce qu'ils pensent</span>
+        <div class="time"><div><b>24 h / 24</b><span>3 postes, 7 jours</span></div><div><b>Sans limite</b><span>chaque ligne peut tout faire</span></div></div>
+        <dl>
+          <dt>Quand</dt><dd>En continu</dd>
+          <dt>Qui</dt><dd>Opérateurs</dd>
+          <dt>Système</dt><dd>SAP : la fiche de chaque ligne liste toutes les familles de produits</dd>
+          <dt>Entrée → sortie</dt><dd class="flow">matières → mélange → extrudeuse</dd>
+        </dl>
+        <p class="pain"><b>Hypothèse :</b> chaque ligne a son équipement et peut faire chaque plastique.</p>
+        <span class="src">stated/sap-planning-flow.md §5 et « Known limits »</span>
+      </article>
+      <article class="card r">
+        <span class="lab">Ce qui se passe</span>
+        <div class="time"><div><b>4 équipements</b><span>partagés entre lignes</span></div><div><b>45 min à 4 h</b><span>d'écart imposé entre deux démarrages</span></div></div>
+        <dl>
+          <dt>Quand</dt><dd>À chaque démarrage d'un produit spécial</dd>
+          <dt>Qui</dt><dd>Chefs d'équipe, avec des règles qui ne sont écrites que dans des carnets</dd>
+          <dt>Équipements</dt><dd>Station couleur M01/M02 : 60 min · trémie noir M06/M07 : 45 min · silo verre M01/M02/M05 : 120 min · sécheur PA6 M03/M06 : 4 h, arrêté le dimanche 06:00–10:00</dd>
+          <dt>Entrée → sortie</dt><dd class="flow">équipement occupé → la ligne attend ou change de produit</dd>
+        </dl>
+        <p class="pain"><b>Aucune de ces contraintes n'est dans SAP.</b> Le kit ne donne pas de durée de mélange : c'est une question à poser sur le terrain.</p>
+        <span class="src">knowledge/01 (carnets N2, N3) · knowledge/03 · knowledge/06 · knowledge/07</span>
+      </article>
+    </div>
+  </div>
 
-    <div class="station c-lab"><span class="badge">4</span><article class="scard">
-      <div class="shead"><h3>Laboratoire et libération du lot</h3><span class="stime">2 à 6 h</span></div>
-      <div class="sgrid">
-        <div><h4>Ce qui se passe</h4><ul><li>Chaque lot est testé avant de partir : indice de fluidité, couleur, humidité pour le PA6</li><li>Le lot attend en zone bloquée jusqu'au résultat</li><li>Résultats dans une base Access sur le PC du labo, par numéro de lot</li></ul></div>
-        <div><h4>Temps d'attente</h4><ul><li>Standard : 2 h</li><li>Chargé verre : 2 h 30 (taux de cendres)</li><li>Naturel contact alimentaire : 3 h (migration)</li><li>PA6 : 4 h (humidité)</li><li>Couleurs automobiles : jusqu'à 6 h</li></ul></div>
-      </div>
-      <p class="risk"><b>Ce qui peut mal tourner :</b> un lot non conforme doit être refait, ce qui crée une nouvelle commande urgente. 16 lots bloqués par le labo en 4 semaines.</p>
-      <span class="src">field/06 · knowledge/04 · data/change_log_w15-w18.csv</span>
-    </article></div>
+  <!-- 3 -->
+  <div class="step c-ext">
+    <div class="stephead"><span class="badge">3</span><div><h3>Extrusion sur M01 à M07, le goulot de l'usine</h3><p>Le plastique fond dans la vis, passe la filière et sort en granulés</p></div></div>
+    <div class="pair">
+      <article class="card t">
+        <span class="lab">Ce qu'ils pensent</span>
+        <div class="quote">« Je suis le standard. »<cite>Un opérateur de M04</cite></div>
+        <div class="time"><div><b>60 min</b><span>par nettoyage, pour tous les produits</span></div><div><b>≥ 95 %</b><span>du plan respecté</span></div></div>
+        <dl>
+          <dt>Quand</dt><dd>Dans l'ordre du plan, du lundi au dimanche</dd>
+          <dt>Qui</dt><dd>Chefs d'équipe, opérateurs</dd>
+          <dt>Système</dt><dd>Gammes SAP fixées en 2011, LineLog pour les écarts</dd>
+          <dt>Entrée → sortie</dt><dd class="flow">mélange → granulés → lot à tester</dd>
+        </dl>
+        <p class="pain"><b>Hypothèse :</b> un nettoyage coûte toujours une heure, quel que soit l'ordre des produits.</p>
+        <span class="src">stated/sap-planning-flow.md §4 · stated/PRO-PLN-004 étape 5 · context/12</span>
+      </article>
+      <article class="card r">
+        <span class="lab">Ce qui se passe</span>
+        <div class="quote">« Quarante-cinq pour cent de nos rebuts sont des démarrages après un changement de série. »<cite>Amina, responsable qualité</cite></div>
+        <div class="time"><div><b>15 min à 4 h</b><span>par nettoyage, 66 min en moyenne</span></div><div><b>223 h / sem.</b><span>de nettoyage en avril, environ 19 % du temps des lignes</span></div></div>
+        <dl>
+          <dt>Quand</dt><dd>203 nettoyages par semaine en avril, contre 131 début février</dd>
+          <dt>Qui</dt><dd>Chefs d'équipe ; la maintenance pour un démontage de vis (le samedi, 4 h)</dd>
+          <dt>Système</dt><dd>LineLog, historien PI sur 3 lignes seulement</dd>
+          <dt>Cadence</dt><dd>2,02 t/h, soit 88 % de l'idéal ; verre 85 %, PA6 90 %, M07 92 %</dd>
+        </dl>
+        <p class="pain"><b>19 pannes</b> en 4 semaines, signalées surtout par téléphone. Rebut en hausse : 3,9 % → 4,7 % de la matière.</p>
+        <span class="src">data/kpi_weekly (W06–W18) · knowledge/02, 03, 08 · field/06 · field/07 · data/change_log_w15-w18.csv</span>
+      </article>
+    </div>
+  </div>
 
-    <div class="station c-ship"><span class="badge">5</span><article class="scard">
-      <div class="shead"><h3>Emballage et expédition</h3><span class="stime">3 à 10 h de route</span></div>
-      <div class="sgrid">
-        <div><h4>Ce qui se passe</h4><ul><li>Le lot libéré passe au hall d'emballage</li><li>Puis il part en camion vers le site du client</li><li>La date promise est la date de livraison chez le client</li></ul></div>
-        <div><h4>Temps de transport</h4><ul><li>Alvena (Lyon), Kerno (Grenoble) : 3 h</li><li>Codra (Corbas), Brisol (Montbéliard) : 6 h</li><li>Duval (Orléans) : 8 h</li><li>Estrel (Toulouse) : 9 h</li><li>Bricoval (Lille) : 10 h</li></ul></div>
-      </div>
-      <p class="small">Le kit ne donne pas de temps pour l'emballage.</p>
-      <span class="src">context/plant-lyon.md · knowledge/10</span>
-    </article></div>
+  <!-- 4 -->
+  <div class="step c-lab">
+    <div class="stephead"><span class="badge">4</span><div><h3>Laboratoire et libération du lot</h3><p>Indice de fluidité, couleur, humidité pour le PA6</p></div></div>
+    <div class="pair">
+      <article class="card t">
+        <span class="lab">Ce qu'ils pensent</span>
+        <div class="quote">« Chaque lot est testé avant d'être libéré. Deux heures, six pour les couleurs automobiles. »<cite>Amina, responsable qualité</cite></div>
+        <div class="time"><div><b>2 h</b><span>attente standard (procédure QP-03)</span></div><div><b>Disponible</b><span>pour SAP dès la production confirmée</span></div></div>
+        <dl>
+          <dt>Quand</dt><dd>À chaque lot</dd>
+          <dt>Qui</dt><dd>Laboratoire</dd>
+          <dt>Système</dt><dd>SAP considère le lot disponible ; aucun lien avec le labo</dd>
+          <dt>Entrée → sortie</dt><dd class="flow">lot produit → test → lot libéré</dd>
+        </dl>
+        <p class="pain"><b>Hypothèse :</b> le lot est bon et part après 2 h.</p>
+        <span class="src">field/06 · knowledge/04 (QP-03) · stated/sap-planning-flow.md « Known limits »</span>
+      </article>
+      <article class="card r">
+        <span class="lab">Ce qui se passe</span>
+        <div class="time"><div><b>2 h à 6 h</b><span>verre 2 h 30, alimentaire 3 h, PA6 4 h</span></div><div><b>3 sur 16</b><span>lots bloqués connus de SAP le jour même</span></div></div>
+        <dl>
+          <dt>Quand</dt><dd>16 lots bloqués en 4 semaines, libérés après 2 à 6 h</dd>
+          <dt>Qui</dt><dd>Le labo prévient par téléphone (9) ou à la réunion de 8:30 (7)</dd>
+          <dt>Système</dt><dd>Base Access sur le PC du labo, hors SAP</dd>
+          <dt>Entrée → sortie</dt><dd class="flow">lot hors spécification → lot bloqué → refaire : nouvelle commande urgente</dd>
+        </dl>
+        <p class="pain"><b>Motifs :</b> fluidité hors spécification, humidité. Un lot raté repasse sur une ligne déjà pleine.</p>
+        <span class="src">field/06 · knowledge/04 · data/change_log_w15-w18.csv</span>
+      </article>
+    </div>
+  </div>
+
+  <!-- 5 -->
+  <div class="step c-ship">
+    <div class="stephead"><span class="badge">5</span><div><h3>Emballage et expédition</h3><p>Big bags, puis camion jusqu'au site du client</p></div></div>
+    <div class="pair">
+      <article class="card t">
+        <span class="lab">Ce qu'ils pensent</span>
+        <div class="quote">« Je promets depuis SAP. SAP, c'est le plan d'hier. Alors j'ajoute de la marge. »<cite>Stéphane, responsable grands comptes</cite></div>
+        <div class="time"><div><b>9 à 14 jours</b><span>délai annoncé au client</span></div><div><b>7 jours</b><span>délai que Codra demande</span></div></div>
+        <dl>
+          <dt>Quand</dt><dd>À la prise de commande</dd>
+          <dt>Qui</dt><dd>Ventes</dd>
+          <dt>Système</dt><dd>SAP, disponibilité à promettre (ATP)</dd>
+          <dt>Entrée → sortie</dt><dd class="flow">commande → date promise → livraison</dd>
+        </dl>
+        <p class="pain"><b>Hypothèse :</b> avec de la marge, on livre à l'heure.</p>
+        <span class="src">field/03 · stated/PRO-PLN-004 étape 7</span>
+      </article>
+      <article class="card r">
+        <span class="lab">Ce qui se passe</span>
+        <div class="time"><div><b>1 h + 3 à 10 h</b><span>emballage puis transport selon le client</span></div><div><b>83 %</b><span>livré à l'heure en avril (Codra : 82 %)</span></div></div>
+        <dl>
+          <dt>Quand</dt><dd>Dès la libération du lot</dd>
+          <dt>Qui</dt><dd>Hall d'emballage, transporteurs</dd>
+          <dt>Transport</dt><dd>Lyon, Grenoble 3 h · Corbas, Montbéliard 6 h · Orléans 8 h · Toulouse 9 h · Lille 10 h</dd>
+          <dt>Entrée → sortie</dt><dd class="flow">lot libéré → big bags → camion → client</dd>
+        </dl>
+        <p class="pain"><b>Le délai annoncé a augmenté de 9,5 à 13 jours</b> entre février et avril, et le taux de livraison à l'heure a baissé de 88 % à 83 %. Codra exige 95 % sur trois mois avant septembre.</p>
+        <span class="src">knowledge/07 · knowledge/10 · data/kpi_weekly (W06–W18) · field/03</span>
+      </article>
+    </div>
+  </div>
 
   </div>
 </section>
@@ -182,53 +306,27 @@ footer{font:12px/1.7 var(--mono);color:var(--muted)}
 <section>
   <span class="eyebrow">Les règles de la matière</span>
   <h2>Combien de temps pour passer d'un plastique à l'autre</h2>
-  <p class="lede">Minutes de nettoyage de la ligne quand on passe d'une famille (ligne) à une autre (colonne). Plus la case est foncée, plus c'est long. Les cases hachurées sont interdites.</p>
+  <p class="lede">Minutes de nettoyage quand une ligne passe d'une famille (ligne du tableau) à une autre (colonne). SAP compte 60 minutes partout. Les cases hachurées sont interdites.</p>
   <div class="tablewrap"><table class="matrix">
     <thead><tr><th>De ↓ vers →</th><th>Naturel PPN</th><th>Blanc PPW</th><th>Couleur PPC</th><th>Noir PPK</th><th>Verre PPG</th><th>PA6</th></tr></thead>
     <tbody>
-      <tr><th class="row">Naturel PPN</th><td class="m" style="--v:10">25</td><td class="m" style="--v:12">30</td><td class="m" style="--v:15">35</td><td class="m" style="--v:12">30</td><td class="m" style="--v:19">45</td><td class="m" style="--v:62">150</td></tr>
-      <tr><th class="row">Blanc PPW</th><td class="m" style="--v:31">75</td><td class="m" style="--v:10">25</td><td class="m" style="--v:17">40</td><td class="m" style="--v:12">30</td><td class="m" style="--v:19">45</td><td class="m" style="--v:62">150</td></tr>
-      <tr><th class="row">Couleur PPC</th><td class="m" style="--v:46">110</td><td class="m" style="--v:37">90</td><td class="m" style="--v:25">60</td><td class="m" style="--v:15">35</td><td class="m" style="--v:25">60</td><td class="m" style="--v:62">150</td></tr>
-      <tr><th class="row">Noir PPK</th><td class="m" style="--v:100">240</td><td class="m" style="--v:75">180</td><td class="m" style="--v:50">120</td><td class="m" style="--v:10">25</td><td class="m" style="--v:25">60</td><td class="m" style="--v:62">150</td></tr>
-      <tr><th class="row">Verre PPG</th><td class="m" style="--v:37">90</td><td class="never">jamais</td><td class="m" style="--v:42">100</td><td class="m" style="--v:37">90</td><td class="m" style="--v:10">25</td><td class="never">jamais</td></tr>
-      <tr><th class="row">PA6</th><td class="m" style="--v:62">150</td><td class="m" style="--v:62">150</td><td class="m" style="--v:62">150</td><td class="m" style="--v:62">150</td><td class="never">jamais</td><td class="m" style="--v:10">25</td></tr>
+      <tr><th>Naturel PPN</th><td class="m" style="--v:10">25</td><td class="m" style="--v:12">30</td><td class="m" style="--v:15">35</td><td class="m" style="--v:12">30</td><td class="m" style="--v:19">45</td><td class="m" style="--v:62">150</td></tr>
+      <tr><th>Blanc PPW</th><td class="m" style="--v:31">75</td><td class="m" style="--v:10">25</td><td class="m" style="--v:17">40</td><td class="m" style="--v:12">30</td><td class="m" style="--v:19">45</td><td class="m" style="--v:62">150</td></tr>
+      <tr><th>Couleur PPC</th><td class="m" style="--v:46">110</td><td class="m" style="--v:37">90</td><td class="m" style="--v:25">60</td><td class="m" style="--v:15">35</td><td class="m" style="--v:25">60</td><td class="m" style="--v:62">150</td></tr>
+      <tr><th>Noir PPK</th><td class="m" style="--v:100">240</td><td class="m" style="--v:75">180</td><td class="m" style="--v:50">120</td><td class="m" style="--v:10">25</td><td class="m" style="--v:25">60</td><td class="m" style="--v:62">150</td></tr>
+      <tr><th>Verre PPG</th><td class="m" style="--v:37">90</td><td class="never">jamais</td><td class="m" style="--v:42">100</td><td class="m" style="--v:37">90</td><td class="m" style="--v:10">25</td><td class="never">jamais</td></tr>
+      <tr><th>PA6</th><td class="m" style="--v:62">150</td><td class="m" style="--v:62">150</td><td class="m" style="--v:62">150</td><td class="m" style="--v:62">150</td><td class="never">jamais</td><td class="m" style="--v:10">25</td></tr>
     </tbody>
   </table></div>
-  <p class="small">Lecture : aller du clair vers le foncé coûte 30 à 35 min, revenir du noir au naturel coûte 4 h. C'est pour ça que l'usine produit du clair au foncé et garde le noir pour la fin de semaine. Source : tableau blanc de Corinne, knowledge/02.</p>
+  <p class="small">Du clair vers le foncé : 30 à 35 min. Du noir vers le naturel : 4 h et un démontage de vis. Source : tableau blanc de la planificatrice, knowledge/02.</p>
 </section>
 
-<section>
-  <span class="eyebrow">Les lignes</span>
-  <h2>Toutes les lignes ne font pas tous les plastiques</h2>
-  <div class="tablewrap"><table class="lines">
-    <thead><tr><th>Ce que la ligne sait faire</th><th>M01</th><th>M02</th><th>M03</th><th>M04</th><th>M05</th><th>M06</th><th>M07</th></tr></thead>
-    <tbody>
-      <tr><td>Chargé verre (silo de fibre)</td><td><span class="dot"></span></td><td><span class="dot"></span></td><td class="no">–</td><td class="no">–</td><td><span class="dot"></span></td><td class="no">–</td><td class="no">–</td></tr>
-      <tr><td>Polyamide PA6 (sécheur)</td><td class="no">–</td><td class="no">–</td><td><span class="dot"></span></td><td class="no">–</td><td class="no">–</td><td><span class="dot"></span></td><td class="no">–</td></tr>
-      <tr><td>Naturel contact alimentaire (certifié BRC)</td><td class="no">–</td><td><span class="dot"></span></td><td><span class="dot"></span></td><td class="no">–</td><td><span class="dot"></span></td><td class="no">–</td><td><span class="dot"></span></td></tr>
-      <tr><td>Blanc brillant (filtre 40 µm)</td><td><span class="dot"></span></td><td class="no">–</td><td><span class="dot"></span></td><td class="no">–</td><td><span class="dot"></span></td><td class="no">–</td><td><span class="dot"></span></td></tr>
-      <tr><td>Vert 3140 (doseur gravimétrique)</td><td><span class="dot"></span></td><td><span class="dot"></span></td><td class="no">–</td><td><span class="dot"></span></td><td><span class="dot"></span></td><td class="no">–</td><td><span class="dot"></span></td></tr>
-      <tr><td>Noir conducteur (doseur de carbone)</td><td><span class="dot"></span></td><td><span class="dot"></span></td><td><span class="dot"></span></td><td><span class="dot"></span></td><td><span class="dot"></span></td><td><span class="dot"></span></td><td class="no">–</td></tr>
-      <tr><td>Blanc standard 2010</td><td><span class="dot"></span></td><td><span class="dot"></span></td><td><span class="dot"></span></td><td><span class="dot"></span></td><td><span class="dot"></span></td><td class="no">–</td><td><span class="dot"></span></td></tr>
-      <tr><td>Suivi temps réel (historien PI)</td><td><span class="dot"></span></td><td><span class="dot"></span></td><td class="no">–</td><td class="no">–</td><td><span class="dot"></span></td><td class="no">–</td><td class="no">–</td></tr>
-    </tbody>
-  </table></div>
-  <p class="small">Les lignes « noir conducteur » et « blanc standard » listent les lignes que le kit n'exclut pas. Particularités : M04 a une vis usée (au plus 2 nettoyages par poste) ; M06 laisse des résidus de PA6 qui jaunissent le blanc ; M07 est plus petite mais change vite de filière (25 min du blanc à la couleur). Sources : knowledge/02, 03, 04, 06, context/plant-lyon.md.</p>
-</section>
+<div class="close">
+  <h3>En une phrase</h3>
+  <p>Le plastique passe environ 19 heures dans l'usine, mais SAP et les procédures imaginent une matière toujours disponible, des lignes interchangeables, un nettoyage d'une heure et des lots toujours bons ; sur le terrain, les retards matière, les équipements partagés, des nettoyages de 15 minutes à 4 heures et les blocages labo sont gérés par téléphone et dans des carnets.</p>
+</div>
 
-<section>
-  <span class="eyebrow">Les aléas physiques</span>
-  <h2>Ce qui interrompt le plastique, semaines 15 à 18</h2>
-  <div class="alea">
-    <div class="a"><b>19</b><span>pannes de ligne</span></div>
-    <div class="a"><b>18</b><span>permutations de nuit quand une ligne s'arrête ou qu'une matière manque</span></div>
-    <div class="a"><b>17</b><span>retards de matière première</span></div>
-    <div class="a"><b>16</b><span>lots bloqués par le labo</span></div>
-  </div>
-  <p class="small">Comptés par script dans data/change_log_w15-w18.csv, sur 4 semaines du 6 avril au 3 mai 2026.</p>
-</section>
-
-<footer>Source : day3/fde-school-day3-am-lyon-planning-kit.zip (context/, field/, knowledge/, data/). Polymex est une entreprise fictive utilisée par la FDE School.</footer>
+<footer>Source : day3/fde-school-day3-am-lyon-planning-kit.zip (stated/, field/, knowledge/, data/, context/). Comptages faits par script sur data/change_log_w15-w18.csv (6 avril – 3 mai 2026) et data/kpi_weekly_2026-w06-w18.csv. Polymex est une entreprise fictive utilisée par la FDE School.</footer>
 </div>
 </body>
 </html>
