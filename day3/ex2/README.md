@@ -1,4 +1,4 @@
-# FDE School · Day 4
+# FDE School · Day 3 · Exercise 2
 
 | Folder | What goes here |
 |---|---|
