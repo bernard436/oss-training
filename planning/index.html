@@ -1,13 +1,13 @@
 <!doctype html>
-<html lang="fr">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Polymex Lyon, la vie d'un plastique</title>
+<title>Polymex Lyon, the Life of a Plastic</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo+Narrow:wght@500;600;700&family=Public+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
 <style>
-/* Layout: frise d'un lot, puis cinq étapes ; chaque étape = deux colonnes (ce qu'on pense | ce qui se passe) avec les mêmes champs */
+/* Layout: lot timeline, then five steps; each step = what they think | time bars | what really happens */
 :root{
   --bg:#f4f6f6; --surface:#fff; --fg:#1b2226; --muted:#5b676e; --line:#d6dddf;
   --think:#3f6c8f; --think-soft:#e6eef4; --real:#c4561b; --real-soft:#fbeadf;
@@ -24,7 +24,7 @@
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.55 var(--body);
   padding:32px max(16px,env(safe-area-inset-left)) 56px max(16px,env(safe-area-inset-right))}
-.wrap{max-width:1200px;margin:0 auto;display:flex;flex-direction:column;gap:48px}
+.wrap{max-width:1280px;margin:0 auto;display:flex;flex-direction:column;gap:48px}
 h1,h2,h3{font-family:var(--display);margin:0;line-height:1.15;text-wrap:balance}
 h1{font-size:clamp(30px,4.6vw,48px)} h2{font-size:26px;font-weight:600} h3{font-size:18px;font-weight:600}
 p{margin:0}
@@ -37,7 +37,7 @@ header{display:flex;flex-direction:column;gap:12px}
 .facts{display:flex;flex-wrap:wrap;gap:8px 24px;font:13px var(--mono);color:var(--muted)}
 .facts b{color:var(--fg);font-weight:600}
 
-/* frise du lot */
+/* lot timeline */
 .lot{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:20px;display:flex;flex-direction:column;gap:14px}
 .lothead{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px 20px;align-items:baseline}
 .total{font:700 40px/1 var(--display);font-variant-numeric:tabular-nums}
@@ -52,23 +52,22 @@ header{display:flex;flex-direction:column;gap:12px}
 .hours span:last-child{transform:translateX(-100%)}
 @media (max-width:700px){.strip{height:auto;flex-direction:column}.strip div{width:100%!important;padding:8px 10px;border-right:0;border-bottom:2px solid var(--surface)}.hours{display:none}}
 
-/* légende des colonnes */
-.colheads{display:grid;grid-template-columns:1fr 1fr;gap:16px;position:sticky;top:env(safe-area-inset-top,0px);z-index:3;background:var(--bg);padding-block:10px;border-bottom:1px solid var(--line)}
+/* column heads */
+.colheads,.pair{display:grid;grid-template-columns:minmax(0,1fr) 250px minmax(0,1fr);gap:16px}
+.colheads{position:sticky;top:env(safe-area-inset-top,0px);z-index:3;background:var(--bg);padding-block:10px;border-bottom:1px solid var(--line)}
 .colheads div{display:flex;flex-direction:column;gap:2px}
 .colheads h2{font-size:22px}
-.colheads .t h2{color:var(--think)} .colheads .r h2{color:var(--real)}
+.colheads .t h2{color:var(--think)} .colheads .r h2{color:var(--real)} .colheads .m h2{color:var(--fg);font-size:18px}
 .colheads p{font-size:13px;color:var(--muted)}
-@media (max-width:820px){.colheads{display:none}}
+@media (max-width:980px){.colheads{display:none}.pair{grid-template-columns:1fr}.gauge{order:-1}}
 
-/* étapes */
-.steps{display:flex;flex-direction:column;gap:36px}
+/* steps */
+.steps{display:flex;flex-direction:column;gap:40px}
 .step{display:flex;flex-direction:column;gap:12px}
 .stephead{display:flex;align-items:center;gap:14px}
 .badge{flex:none;width:48px;height:48px;border-radius:50%;display:grid;place-items:center;background:var(--c);color:#fff;font:700 22px var(--display)}
 .stephead h3{font-size:26px;color:var(--c)}
 .stephead p{font-size:14px;color:var(--muted)}
-.pair{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-@media (max-width:820px){.pair{grid-template-columns:1fr}}
 .card{min-width:0;background:var(--surface);border:1px solid var(--line);border-top:4px solid var(--k);border-radius:6px;padding:14px 16px;display:flex;flex-direction:column;gap:12px}
 .card.t{--k:var(--think);--ks:var(--think-soft)} .card.r{--k:var(--real);--ks:var(--real-soft)}
 .card .lab{font:600 11px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--k)}
@@ -76,9 +75,9 @@ header{display:flex;flex-direction:column;gap:12px}
 .quote cite{display:block;font-style:normal;font-size:12px;color:var(--muted);margin-top:2px}
 .time{display:grid;grid-template-columns:1fr 1fr;gap:10px;background:var(--ks);border-radius:6px;padding:10px 12px}
 .time div{display:flex;flex-direction:column;gap:2px;min-width:0}
-.time b{font:700 24px/1.05 var(--display);color:var(--k);font-variant-numeric:tabular-nums}
+.time b{font:700 22px/1.05 var(--display);color:var(--k);font-variant-numeric:tabular-nums}
 .time span{font-size:12px;color:var(--muted)}
-dl{margin:0;display:grid;grid-template-columns:96px 1fr;gap:6px 10px;font-size:14px}
+dl{margin:0;display:grid;grid-template-columns:92px 1fr;gap:6px 10px;font-size:14px}
 dt{font:600 11px/1.9 var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
 dd{margin:0;min-width:0}
 .flow{font:13px/1.5 var(--mono)}
@@ -88,7 +87,30 @@ dd{margin:0;min-width:0}
 .card.t .pain b{color:var(--think)}
 .c-raw{--c:var(--raw)} .c-mix{--c:var(--mix)} .c-ext{--c:var(--ext)} .c-lab{--c:var(--lab)} .c-ship{--c:var(--ship)}
 
-/* tableaux */
+/* middle time gauge */
+.gauge{min-width:0;align-self:start;position:sticky;top:96px;background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:14px;display:flex;flex-direction:column;gap:12px}
+@media (max-width:980px){.gauge{position:static}}
+.gauge h4{margin:0;font:600 15px var(--display);text-align:center}
+.g{display:flex;flex-direction:column;gap:4px}
+.gl{display:flex;justify-content:space-between;gap:8px;font-size:12px;color:var(--muted)}
+.gl b{font:700 18px/1 var(--display);font-variant-numeric:tabular-nums}
+.g.t .gl b{color:var(--think)} .g.r .gl b{color:var(--real)}
+.gtrack{position:relative;height:16px;background:var(--bg);border-radius:3px;overflow:hidden}
+.gbar{position:absolute;top:0;bottom:0;left:0;border-radius:3px}
+.g.t .gbar{background:var(--think)} .g.r .gbar{background:var(--real)}
+.g{--gc:var(--real);--gs:var(--real-soft)} .g.t{--gc:var(--think);--gs:var(--think-soft)}
+.g .gtrack .gbar.range{background:repeating-linear-gradient(135deg,var(--gc) 0 4px,var(--gs) 4px 8px);border-left:3px solid var(--gc);border-right:3px solid var(--gc);border-radius:0}
+.gmm{position:relative;height:15px;font:600 11px var(--mono);color:var(--gc)}
+.gmm span{position:absolute;top:0;white-space:nowrap}
+.gmm .mx{right:0}
+.spread{align-self:center;text-align:center;font:700 13px var(--mono);color:var(--real);background:var(--real-soft);border:1px solid var(--real);border-radius:999px;padding:3px 12px}
+.gtick{position:absolute;top:-2px;bottom:-2px;width:3px;background:var(--fg)}
+.gzero{position:absolute;top:0;bottom:0;left:0;width:3px;background:var(--think)}
+.gscale{display:flex;justify-content:space-between;font:11px var(--mono);color:var(--muted);border-top:1px solid var(--line);padding-top:4px}
+.gnote{font-size:12px;color:var(--muted);text-align:center}
+.gx{font:700 28px/1 var(--display);text-align:center;color:var(--real)}
+
+/* tables */
 .tablewrap{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:8px}
 table{border-collapse:collapse;width:100%;font-size:14px;font-variant-numeric:tabular-nums}
 th,td{padding:9px 12px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
@@ -106,67 +128,75 @@ footer{font:12px/1.7 var(--mono);color:var(--muted)}
 <div class="wrap">
 
 <header>
-  <span class="eyebrow">FDE School · Jour 3 · Polymex Industries · usine de Lyon</span>
-  <h1>La vie d'un plastique dans l'usine de Lyon</h1>
-  <p class="lede">On suit le plastique en cinq étapes, des matières premières au camion. Pour chaque étape, deux colonnes : à gauche, ce que les salariés et les systèmes pensent qu'il se passe (procédures, SAP, entretiens) ; à droite, ce qui se passe réellement d'après les données du terrain.</p>
-  <div class="facts"><span><b>86 kt</b> produites en 2025</span><span><b>7</b> lignes d'extrusion</span><span><b>3 × 8 h</b>, 7 jours sur 7</span><span><b>312</b> personnes</span><span>Compounds PP et polyamide 6</span></div>
+  <span class="eyebrow">FDE School · Day 3 · Polymex Industries · Lyon plant</span>
+  <h1>The life of a plastic in the Lyon plant</h1>
+  <p class="lede">We follow the plastic through five steps, from raw materials to the truck. For each step: on the left, what employees and systems think happens (procedures, SAP, interviews); in the middle, the time each side assumes; on the right, what really happens according to the field data.</p>
+  <div class="facts"><span><b>86 kt</b> produced in 2025</span><span><b>7</b> extrusion lines</span><span><b>3 × 8 h</b> shifts, 7 days a week</span><span><b>312</b> people</span><span>PP compounds and polyamide 6</span></div>
 </header>
 
 <section>
-  <span class="eyebrow">Un lot réel</span>
-  <h2>18 tonnes de blanc pour Codra, du silo au client</h2>
+  <span class="eyebrow">One real lot</span>
+  <h2>18 tonnes of white for Codra, from silo to customer</h2>
   <div class="lot">
     <div class="lothead">
-      <p>Commande O58872 · <b>PPW-2010</b>, blanc standard · <b>18 t</b> · ligne <b>M05</b> · Codra Retail, Corbas</p>
-      <span class="total">≈ 19 h<small>dans l'usine et sur la route</small></span>
+      <p>Order O58872 · <b>PPW-2010</b>, standard white · <b>18 t</b> · line <b>M05</b> · Codra Retail, Corbas</p>
+      <span class="total">≈ 19 h<small>in the plant and on the road</small></span>
     </div>
-    <div class="strip" aria-label="Frise du lot en heures">
-      <div style="width:5.3%;background:var(--ext);opacity:.65">Nett.<span>1 h</span></div>
-      <div style="width:47.1%;background:var(--ext)">Extrusion sur M05<span>18 t à 2,02 t/h ≈ 8 h 55</span></div>
-      <div style="width:10.6%;background:var(--lab)">Labo<span>2 h</span></div>
-      <div style="width:5.3%;background:var(--mix)">Emb.<span>1 h</span></div>
-      <div style="width:31.7%;background:var(--ship)">Transport vers Corbas<span>6 h</span></div>
+    <div class="strip" aria-label="Lot timeline in hours">
+      <div style="width:5.3%;background:var(--ext);opacity:.65">Clean<span>25–90′</span></div>
+      <div style="width:47.1%;background:var(--ext)">Extrusion on M05<span>18 t at 2.02 t/h ≈ 8 h 55</span></div>
+      <div style="width:10.6%;background:var(--lab)">Lab<span>2 h</span></div>
+      <div style="width:5.3%;background:var(--mix)">Pack<span>1 h</span></div>
+      <div style="width:31.7%;background:var(--ship)">Transport to Corbas<span>6 h</span></div>
     </div>
     <div class="hours"><span style="left:0">0 h</span><span style="left:26.3%">5 h</span><span style="left:52.6%">10 h</span><span style="left:78.9%">15 h</span><span style="left:100%">19 h</span></div>
-    <p class="small">Nettoyage de la ligne : 25 à 90 min selon le produit précédent, 1 h retenue ici. Emballage en big bags : 1 h après la libération. Matières premières et mélange ne sont pas chiffrés dans le kit. Pourtant, le délai annoncé à Codra est de 9 à 14 jours.</p>
+    <p class="small"><b>Ranges:</b> cleaning 25 to 90 min depending on the previous product (1 h drawn); lab 2 h, up to 6 h if the lot is held; transport 3 to 10 h depending on the customer. Packing in big bags: 1 h after release. Raw materials and mixing have no times in the kit. Yet Codra is quoted 9 to 14 days.</p>
   </div>
 </section>
 
 <section>
   <div class="colheads">
-    <div class="t"><h2>Ce qu'ils pensent qu'il se passe</h2><p>Procédures, SAP, ce que disent les salariés en entretien</p></div>
-    <div class="r"><h2>Ce qui se passe réellement</h2><p>Journal des changements, LineLog, labo, indicateurs, observation</p></div>
+    <div class="t"><h2>What they think happens</h2><p>Procedures, SAP, what employees say in interviews</p></div>
+    <div class="m"><h2>Time per step</h2><p>Thought vs. real, same scale</p></div>
+    <div class="r"><h2>What really happens</h2><p>Change log, LineLog, lab, KPIs, observation</p></div>
   </div>
 
   <div class="steps">
 
   <!-- 1 -->
   <div class="step c-raw">
-    <div class="stephead"><span class="badge">1</span><div><h3>Matières premières</h3><p>Résine PP, masterbatch de couleur, noir de carbone, fibre de verre, PA6</p></div></div>
+    <div class="stephead"><span class="badge">1</span><div><h3>Raw materials</h3><p>PP resin, colour masterbatch, carbon black, glass fibre, PA6</p></div></div>
     <div class="pair">
       <article class="card t">
-        <span class="lab">Ce qu'ils pensent</span>
-        <div class="time"><div><b>Automatique</b><span>calcul MRP chaque nuit à 02:00</span></div><div><b>À l'heure</b><span>matière prête au démarrage</span></div></div>
+        <span class="lab">What they think</span>
+        <div class="time"><div><b>Automatic</b><span>MRP run every night at 02:00</span></div><div><b>On time</b><span>material ready at start-up</span></div></div>
         <dl>
-          <dt>Quand</dt><dd>Chaque nuit, calcul des besoins</dd>
-          <dt>Qui</dt><dd>SAP, achats</dd>
-          <dt>Système</dt><dd>SAP MRP, tailles de lot de la fiche article</dd>
-          <dt>Entrée → sortie</dt><dd class="flow">commandes → besoins matière → livraison avant production</dd>
+          <dt>When</dt><dd>Every night, requirements calculation</dd>
+          <dt>Who</dt><dd>SAP, purchasing</dd>
+          <dt>System</dt><dd>SAP MRP, lot sizes from the material master</dd>
+          <dt>In → out</dt><dd class="flow">orders → material needs → delivered before production</dd>
         </dl>
-        <p class="pain"><b>Hypothèse :</b> la matière est là quand la ligne démarre.</p>
-        <span class="src">stated/sap-planning-flow.md §2 · stated/PRO-PLN-004 étape 2</span>
+        <p class="pain"><b>Assumption:</b> the material is there when the line starts.</p>
+        <span class="src">stated/sap-planning-flow.md §2 · stated/PRO-PLN-004 step 2</span>
       </article>
+      <div class="gauge" aria-label="Waiting for material: thought 0 hours, real about 1 day when it is late">
+        <h4>Waiting for material</h4>
+        <div class="g t"><div class="gl"><span>Thought</span><b>0 h</b></div><div class="gtrack"><span class="gzero"></span></div></div>
+        <div class="g r"><div class="gl"><span>Real, when late</span><b>≈ 1 day</b></div><div class="gtrack"><span class="gbar" style="width:100%"></span></div></div>
+        <div class="gscale"><span>0</span><span>12 h</span><span>24 h</span></div>
+        <span class="spread">0 h → 1 day</span><p class="gnote">17 times in 4 weeks</p>
+      </div>
       <article class="card r">
-        <span class="lab">Ce qui se passe</span>
-        <div class="quote">« Si le masterbatch n'est pas là, je permute avec l'ordre suivant que je peux faire sur la ligne. »<cite>Kevin, chef d'équipe de nuit</cite></div>
-        <div class="time"><div><b>25 h</b><span>préavis médian d'un retard matière</span></div><div><b>1 sur 17</b><span>retards entrés dans SAP le jour même</span></div></div>
+        <span class="lab">What really happens</span>
+        <div class="quote">"If the masterbatch is not there, I swap with the next order I can run on that line."<cite>Kevin, night shift leader</cite></div>
+        <div class="time"><div><b>25 h</b><span>median notice of a late material</span></div><div><b>1 of 17</b><span>late materials entered in SAP the same day</span></div></div>
         <dl>
-          <dt>Quand</dt><dd>N'importe quand, souvent la veille</dd>
-          <dt>Qui</dt><dd>Logistique, entrepôt ; la nuit, le chef d'équipe décide seul</dd>
-          <dt>Système</dt><dd>Téléphone (17 sur 17), note dans LineLog</dd>
-          <dt>Entrée → sortie</dt><dd class="flow">masterbatch en retard → ordre permuté → note LineLog lue à 07:00</dd>
+          <dt>When</dt><dd>Any time, usually the day before</dd>
+          <dt>Who</dt><dd>Logistics, warehouse; at night the shift leader decides alone</dd>
+          <dt>System</dt><dd>Phone (17 of 17), LineLog note</dd>
+          <dt>In → out</dt><dd class="flow">masterbatch late (Thu instead of Wed) → order swapped → LineLog note read at 07:00</dd>
         </dl>
-        <p class="pain"><b>17 retards matière</b> en 4 semaines, surtout sur M04 et M06. 10 des 18 permutations de nuit sont dues à un masterbatch absent.</p>
+        <p class="pain"><b>17 late materials</b> in 4 weeks, mostly on M04 and M06. 10 of the 18 night swaps are caused by missing masterbatch.</p>
         <span class="src">field/04 · field/09 07:05 · data/change_log_w15-w18.csv</span>
       </article>
     </div>
@@ -174,63 +204,79 @@ footer{font:12px/1.7 var(--mono);color:var(--muted)}
 
   <!-- 2 -->
   <div class="step c-mix">
-    <div class="stephead"><span class="badge">2</span><div><h3>Dosage et mélange</h3><p>Les matières sont dosées et mélangées avant d'entrer dans l'extrudeuse</p></div></div>
+    <div class="stephead"><span class="badge">2</span><div><h3>Dosing and mixing</h3><p>Materials are dosed and blended before entering the extruder</p></div></div>
     <div class="pair">
       <article class="card t">
-        <span class="lab">Ce qu'ils pensent</span>
-        <div class="time"><div><b>24 h / 24</b><span>3 postes, 7 jours</span></div><div><b>Sans limite</b><span>chaque ligne peut tout faire</span></div></div>
+        <span class="lab">What they think</span>
+        <div class="time"><div><b>24 / 7</b><span>3 shifts, 7 days</span></div><div><b>No limit</b><span>every line can run everything</span></div></div>
         <dl>
-          <dt>Quand</dt><dd>En continu</dd>
-          <dt>Qui</dt><dd>Opérateurs</dd>
-          <dt>Système</dt><dd>SAP : la fiche de chaque ligne liste toutes les familles de produits</dd>
-          <dt>Entrée → sortie</dt><dd class="flow">matières → mélange → extrudeuse</dd>
+          <dt>When</dt><dd>Continuously</dd>
+          <dt>Who</dt><dd>Operators</dd>
+          <dt>System</dt><dd>SAP: each line's master data lists every product family</dd>
+          <dt>In → out</dt><dd class="flow">materials → blend → extruder</dd>
         </dl>
-        <p class="pain"><b>Hypothèse :</b> chaque ligne a son équipement et peut faire chaque plastique.</p>
-        <span class="src">stated/sap-planning-flow.md §5 et « Known limits »</span>
+        <p class="pain"><b>Assumption:</b> each line has its own equipment and can run every plastic.</p>
+        <span class="src">stated/sap-planning-flow.md §5 and "Known limits"</span>
       </article>
+      <div class="gauge" aria-label="Wait between two starts on shared equipment: thought 0, real 45 minutes to 4 hours">
+        <h4>Wait for shared equipment</h4>
+        <div class="g t"><div class="gl"><span>Thought</span><b>0 min</b></div><div class="gtrack"><span class="gzero"></span></div></div>
+        <div class="g r"><div class="gl"><span>Real</span><b>45 min – 4 h</b></div><div class="gtrack"><span class="gbar range" style="left:18.75%;width:81.25%"></span></div><div class="gmm"><span style="left:18.75%">◂ 45 min</span><span class="mx">4 h ▸</span></div></div>
+        <div class="gscale"><span>0</span><span>2 h</span><span>4 h</span></div>
+        <p class="gnote">between two starts on the same equipment</p><span class="spread">range ×5</span>
+      </div>
       <article class="card r">
-        <span class="lab">Ce qui se passe</span>
-        <div class="time"><div><b>4 équipements</b><span>partagés entre lignes</span></div><div><b>45 min à 4 h</b><span>d'écart imposé entre deux démarrages</span></div></div>
+        <span class="lab">What really happens</span>
+        <div class="time"><div><b>4 pieces of equipment</b><span>shared between lines</span></div><div><b>45 min – 4 h</b><span>required gap between two starts</span></div></div>
         <dl>
-          <dt>Quand</dt><dd>À chaque démarrage d'un produit spécial</dd>
-          <dt>Qui</dt><dd>Chefs d'équipe, avec des règles qui ne sont écrites que dans des carnets</dd>
-          <dt>Équipements</dt><dd>Station couleur M01/M02 : 60 min · trémie noir M06/M07 : 45 min · silo verre M01/M02/M05 : 120 min · sécheur PA6 M03/M06 : 4 h, arrêté le dimanche 06:00–10:00</dd>
-          <dt>Entrée → sortie</dt><dd class="flow">équipement occupé → la ligne attend ou change de produit</dd>
+          <dt>When</dt><dd>At every start of a special product</dd>
+          <dt>Who</dt><dd>Shift leaders, with rules written only in notebooks</dd>
+          <dt>Equipment</dt><dd>Colour station M01/M02: 60 min · black hopper M06/M07: 45 min · glass silo M01/M02/M05: 120 min · PA6 dryer M03/M06: 4 h, off on Sunday 06:00–10:00</dd>
+          <dt>In → out</dt><dd class="flow">equipment busy → line waits or changes product</dd>
         </dl>
-        <p class="pain"><b>Aucune de ces contraintes n'est dans SAP.</b> Le kit ne donne pas de durée de mélange : c'est une question à poser sur le terrain.</p>
-        <span class="src">knowledge/01 (carnets N2, N3) · knowledge/03 · knowledge/06 · knowledge/07</span>
+        <p class="pain"><b>None of these constraints is in SAP.</b> The kit gives no mixing time: a question to ask on the floor.</p>
+        <span class="src">knowledge/01 (notebooks N2, N3) · knowledge/03 · knowledge/06 · knowledge/07</span>
       </article>
     </div>
   </div>
 
   <!-- 3 -->
   <div class="step c-ext">
-    <div class="stephead"><span class="badge">3</span><div><h3>Extrusion sur M01 à M07, le goulot de l'usine</h3><p>Le plastique fond dans la vis, passe la filière et sort en granulés</p></div></div>
+    <div class="stephead"><span class="badge">3</span><div><h3>Extrusion on M01 to M07, the plant's bottleneck</h3><p>The plastic melts in the screw, goes through the die and comes out as pellets</p></div></div>
     <div class="pair">
       <article class="card t">
-        <span class="lab">Ce qu'ils pensent</span>
-        <div class="quote">« Je suis le standard. »<cite>Un opérateur de M04</cite></div>
-        <div class="time"><div><b>60 min</b><span>par nettoyage, pour tous les produits</span></div><div><b>≥ 95 %</b><span>du plan respecté</span></div></div>
+        <span class="lab">What they think</span>
+        <div class="quote">"I follow the standard."<cite>An operator on M04</cite></div>
+        <div class="time"><div><b>60 min</b><span>per changeover, for every product</span></div><div><b>≥ 95%</b><span>of the plan executed as planned</span></div></div>
         <dl>
-          <dt>Quand</dt><dd>Dans l'ordre du plan, du lundi au dimanche</dd>
-          <dt>Qui</dt><dd>Chefs d'équipe, opérateurs</dd>
-          <dt>Système</dt><dd>Gammes SAP fixées en 2011, LineLog pour les écarts</dd>
-          <dt>Entrée → sortie</dt><dd class="flow">mélange → granulés → lot à tester</dd>
+          <dt>When</dt><dd>In plan order, Monday to Sunday</dd>
+          <dt>Who</dt><dd>Shift leaders, operators</dd>
+          <dt>System</dt><dd>SAP routings set in 2011, LineLog for deviations</dd>
+          <dt>In → out</dt><dd class="flow">blend → pellets → lot to test</dd>
         </dl>
-        <p class="pain"><b>Hypothèse :</b> un nettoyage coûte toujours une heure, quel que soit l'ordre des produits.</p>
-        <span class="src">stated/sap-planning-flow.md §4 · stated/PRO-PLN-004 étape 5 · context/12</span>
+        <p class="pain"><b>Assumption:</b> a changeover always costs one hour, whatever the product order.</p>
+        <span class="src">stated/sap-planning-flow.md §4 · stated/PRO-PLN-004 step 5 · context/12</span>
       </article>
+      <div class="gauge" aria-label="Changeover time: thought 60 minutes, real 15 minutes to 4 hours, 66 minutes on average">
+        <h4>One changeover</h4>
+        <div class="g t"><div class="gl"><span>Thought</span><b>60 min</b></div><div class="gtrack"><span class="gbar" style="width:25%"></span></div></div>
+        <div class="g r"><div class="gl"><span>Real (avg 66 min)</span><b>15 min – 4 h</b></div><div class="gtrack"><span class="gbar range" style="left:6.25%;width:93.75%"></span><span class="gtick" style="left:27.5%"></span></div><div class="gmm"><span style="left:6.25%">◂ 15 min</span><span class="mx">4 h ▸</span></div></div>
+        <div class="gscale"><span>0</span><span>2 h</span><span>4 h</span></div>
+        <span class="spread">range ×16</span><p class="gnote">tick = 66 min average · 203 changeovers a week</p>
+        <p class="gx">223 h / week</p>
+        <p class="gnote">of cleaning, about 19% of line time</p>
+      </div>
       <article class="card r">
-        <span class="lab">Ce qui se passe</span>
-        <div class="quote">« Quarante-cinq pour cent de nos rebuts sont des démarrages après un changement de série. »<cite>Amina, responsable qualité</cite></div>
-        <div class="time"><div><b>15 min à 4 h</b><span>par nettoyage, 66 min en moyenne</span></div><div><b>223 h / sem.</b><span>de nettoyage en avril, environ 19 % du temps des lignes</span></div></div>
+        <span class="lab">What really happens</span>
+        <div class="quote">"Forty-five percent of our scrap is start-up after a changeover."<cite>Amina, quality manager</cite></div>
+        <div class="time"><div><b>15 min – 4 h</b><span>per changeover, 66 min on average</span></div><div><b>223 h / week</b><span>of cleaning in April, about 19% of line time</span></div></div>
         <dl>
-          <dt>Quand</dt><dd>203 nettoyages par semaine en avril, contre 131 début février</dd>
-          <dt>Qui</dt><dd>Chefs d'équipe ; la maintenance pour un démontage de vis (le samedi, 4 h)</dd>
-          <dt>Système</dt><dd>LineLog, historien PI sur 3 lignes seulement</dd>
-          <dt>Cadence</dt><dd>2,02 t/h, soit 88 % de l'idéal ; verre 85 %, PA6 90 %, M07 92 %</dd>
+          <dt>When</dt><dd>203 changeovers a week in April, against 131 in early February</dd>
+          <dt>Who</dt><dd>Shift leaders; maintenance for a screw pull (Saturday, 4 h)</dd>
+          <dt>System</dt><dd>LineLog, PI historian on 3 lines only</dd>
+          <dt>Run rate</dt><dd>2.02 t/h, 88% of ideal; glass 85%, PA6 90%, M07 92%</dd>
         </dl>
-        <p class="pain"><b>19 pannes</b> en 4 semaines, signalées surtout par téléphone. Rebut en hausse : 3,9 % → 4,7 % de la matière.</p>
+        <p class="pain"><b>19 breakdowns</b> in 4 weeks, reported mostly by phone. Scrap rising: 3.9% → 4.7% of material.</p>
         <span class="src">data/kpi_weekly (W06–W18) · knowledge/02, 03, 08 · field/06 · field/07 · data/change_log_w15-w18.csv</span>
       </article>
     </div>
@@ -238,31 +284,38 @@ footer{font:12px/1.7 var(--mono);color:var(--muted)}
 
   <!-- 4 -->
   <div class="step c-lab">
-    <div class="stephead"><span class="badge">4</span><div><h3>Laboratoire et libération du lot</h3><p>Indice de fluidité, couleur, humidité pour le PA6</p></div></div>
+    <div class="stephead"><span class="badge">4</span><div><h3>Lab test and lot release</h3><p>Melt flow, colour, moisture for PA6</p></div></div>
     <div class="pair">
       <article class="card t">
-        <span class="lab">Ce qu'ils pensent</span>
-        <div class="quote">« Chaque lot est testé avant d'être libéré. Deux heures, six pour les couleurs automobiles. »<cite>Amina, responsable qualité</cite></div>
-        <div class="time"><div><b>2 h</b><span>attente standard (procédure QP-03)</span></div><div><b>Disponible</b><span>pour SAP dès la production confirmée</span></div></div>
+        <span class="lab">What they think</span>
+        <div class="quote">"Every lot is tested before release. Two hours, six for automotive colours."<cite>Amina, quality manager</cite></div>
+        <div class="time"><div><b>2 h</b><span>standard wait (procedure QP-03)</span></div><div><b>Available</b><span>in SAP as soon as production is confirmed</span></div></div>
         <dl>
-          <dt>Quand</dt><dd>À chaque lot</dd>
-          <dt>Qui</dt><dd>Laboratoire</dd>
-          <dt>Système</dt><dd>SAP considère le lot disponible ; aucun lien avec le labo</dd>
-          <dt>Entrée → sortie</dt><dd class="flow">lot produit → test → lot libéré</dd>
+          <dt>When</dt><dd>Every lot</dd>
+          <dt>Who</dt><dd>Lab</dd>
+          <dt>System</dt><dd>SAP treats the lot as available; no link with the lab</dd>
+          <dt>In → out</dt><dd class="flow">lot produced → test → lot released</dd>
         </dl>
-        <p class="pain"><b>Hypothèse :</b> le lot est bon et part après 2 h.</p>
-        <span class="src">field/06 · knowledge/04 (QP-03) · stated/sap-planning-flow.md « Known limits »</span>
+        <p class="pain"><b>Assumption:</b> the lot is good and leaves after 2 h.</p>
+        <span class="src">field/06 · knowledge/04 (QP-03) · stated/sap-planning-flow.md "Known limits"</span>
       </article>
+      <div class="gauge" aria-label="Lab wait: thought 2 hours, real 2 to 6 hours, median 4 hours for held lots">
+        <h4>Lab wait</h4>
+        <div class="g t"><div class="gl"><span>Thought</span><b>2 h</b></div><div class="gtrack"><span class="gbar" style="width:33.3%"></span></div></div>
+        <div class="g r"><div class="gl"><span>Real (held lots, median 4 h)</span><b>2 – 6 h</b></div><div class="gtrack"><span class="gbar range" style="left:33.3%;width:66.7%"></span><span class="gtick" style="left:66.7%"></span></div><div class="gmm"><span style="left:33.3%">◂ 2 h</span><span class="mx">6 h ▸</span></div></div>
+        <div class="gscale"><span>0</span><span>3 h</span><span>6 h</span></div>
+        <span class="spread">range ×3</span><p class="gnote">tick = 4 h median · 16 lots held in 4 weeks</p>
+      </div>
       <article class="card r">
-        <span class="lab">Ce qui se passe</span>
-        <div class="time"><div><b>2 h à 6 h</b><span>verre 2 h 30, alimentaire 3 h, PA6 4 h</span></div><div><b>3 sur 16</b><span>lots bloqués connus de SAP le jour même</span></div></div>
+        <span class="lab">What really happens</span>
+        <div class="time"><div><b>2 – 6 h</b><span>glass 2 h 30, food contact 3 h, PA6 4 h</span></div><div><b>3 of 16</b><span>held lots known to SAP the same day</span></div></div>
         <dl>
-          <dt>Quand</dt><dd>16 lots bloqués en 4 semaines, libérés après 2 à 6 h</dd>
-          <dt>Qui</dt><dd>Le labo prévient par téléphone (9) ou à la réunion de 8:30 (7)</dd>
-          <dt>Système</dt><dd>Base Access sur le PC du labo, hors SAP</dd>
-          <dt>Entrée → sortie</dt><dd class="flow">lot hors spécification → lot bloqué → refaire : nouvelle commande urgente</dd>
+          <dt>When</dt><dd>16 lots held in 4 weeks, released after 2 to 6 h</dd>
+          <dt>Who</dt><dd>The lab calls (9) or tells the 8:30 meeting (7)</dd>
+          <dt>System</dt><dd>Access database on the lab PC, outside SAP</dd>
+          <dt>In → out</dt><dd class="flow">lot out of spec → lot held → make again: new urgent order</dd>
         </dl>
-        <p class="pain"><b>Motifs :</b> fluidité hors spécification, humidité. Un lot raté repasse sur une ligne déjà pleine.</p>
+        <p class="pain"><b>Reasons:</b> melt flow out of spec, moisture. A failed lot goes back onto a line that is already full.</p>
         <span class="src">field/06 · knowledge/04 · data/change_log_w15-w18.csv</span>
       </article>
     </div>
@@ -270,31 +323,38 @@ footer{font:12px/1.7 var(--mono);color:var(--muted)}
 
   <!-- 5 -->
   <div class="step c-ship">
-    <div class="stephead"><span class="badge">5</span><div><h3>Emballage et expédition</h3><p>Big bags, puis camion jusqu'au site du client</p></div></div>
+    <div class="stephead"><span class="badge">5</span><div><h3>Packing and shipping</h3><p>Big bags, then a truck to the customer's site</p></div></div>
     <div class="pair">
       <article class="card t">
-        <span class="lab">Ce qu'ils pensent</span>
-        <div class="quote">« Je promets depuis SAP. SAP, c'est le plan d'hier. Alors j'ajoute de la marge. »<cite>Stéphane, responsable grands comptes</cite></div>
-        <div class="time"><div><b>9 à 14 jours</b><span>délai annoncé au client</span></div><div><b>7 jours</b><span>délai que Codra demande</span></div></div>
+        <span class="lab">What they think</span>
+        <div class="quote">"I promise from SAP. SAP is yesterday's plan. So I add margin."<cite>Stéphane, key account manager</cite></div>
+        <div class="time"><div><b>9 – 14 days</b><span>lead time quoted to the customer</span></div><div><b>7 days</b><span>what Codra asks for</span></div></div>
         <dl>
-          <dt>Quand</dt><dd>À la prise de commande</dd>
-          <dt>Qui</dt><dd>Ventes</dd>
-          <dt>Système</dt><dd>SAP, disponibilité à promettre (ATP)</dd>
-          <dt>Entrée → sortie</dt><dd class="flow">commande → date promise → livraison</dd>
+          <dt>When</dt><dd>When the order is taken</dd>
+          <dt>Who</dt><dd>Sales</dd>
+          <dt>System</dt><dd>SAP available-to-promise (ATP)</dd>
+          <dt>In → out</dt><dd class="flow">order → promise date → delivery</dd>
         </dl>
-        <p class="pain"><b>Hypothèse :</b> avec de la marge, on livre à l'heure.</p>
-        <span class="src">field/03 · stated/PRO-PLN-004 étape 7</span>
+        <p class="pain"><b>Assumption:</b> with enough margin, we deliver on time.</p>
+        <span class="src">field/03 · stated/PRO-PLN-004 step 7</span>
       </article>
+      <div class="gauge" aria-label="Time to deliver an order: quoted 9 to 14 days, physical time about 19 hours">
+        <h4>Time to deliver an order</h4>
+        <div class="g t"><div class="gl"><span>Quoted</span><b>9 – 14 days</b></div><div class="gtrack"><span class="gbar range" style="left:64.3%;width:35.7%"></span></div></div>
+        <div class="g r"><div class="gl"><span>Plastic needs</span><b>≈ 19 h</b></div><div class="gtrack"><span class="gbar" style="width:5.7%"></span></div></div>
+        <div class="gscale"><span>0</span><span>7 days</span><span>14 days</span></div>
+        <span class="spread">quoted 11–18× the real time</span><p class="gnote">The delay comes from the decisions, not from the material</p>
+      </div>
       <article class="card r">
-        <span class="lab">Ce qui se passe</span>
-        <div class="time"><div><b>1 h + 3 à 10 h</b><span>emballage puis transport selon le client</span></div><div><b>83 %</b><span>livré à l'heure en avril (Codra : 82 %)</span></div></div>
+        <span class="lab">What really happens</span>
+        <div class="time"><div><b>1 h + 3 – 10 h</b><span>packing, then transport depending on the customer</span></div><div><b>83%</b><span>delivered on time in April (Codra: 82%)</span></div></div>
         <dl>
-          <dt>Quand</dt><dd>Dès la libération du lot</dd>
-          <dt>Qui</dt><dd>Hall d'emballage, transporteurs</dd>
+          <dt>When</dt><dd>As soon as the lot is released</dd>
+          <dt>Who</dt><dd>Packing hall, carriers</dd>
           <dt>Transport</dt><dd>Lyon, Grenoble 3 h · Corbas, Montbéliard 6 h · Orléans 8 h · Toulouse 9 h · Lille 10 h</dd>
-          <dt>Entrée → sortie</dt><dd class="flow">lot libéré → big bags → camion → client</dd>
+          <dt>In → out</dt><dd class="flow">lot released → big bags → truck → customer</dd>
         </dl>
-        <p class="pain"><b>Le délai annoncé a augmenté de 9,5 à 13 jours</b> entre février et avril, et le taux de livraison à l'heure a baissé de 88 % à 83 %. Codra exige 95 % sur trois mois avant septembre.</p>
+        <p class="pain"><b>The quoted lead time grew from 9.5 to 13 days</b> between February and April, and on-time delivery fell from 88% to 83%. Codra requires 95% for three months before September.</p>
         <span class="src">knowledge/07 · knowledge/10 · data/kpi_weekly (W06–W18) · field/03</span>
       </article>
     </div>
@@ -304,29 +364,29 @@ footer{font:12px/1.7 var(--mono);color:var(--muted)}
 </section>
 
 <section>
-  <span class="eyebrow">Les règles de la matière</span>
-  <h2>Combien de temps pour passer d'un plastique à l'autre</h2>
-  <p class="lede">Minutes de nettoyage quand une ligne passe d'une famille (ligne du tableau) à une autre (colonne). SAP compte 60 minutes partout. Les cases hachurées sont interdites.</p>
+  <span class="eyebrow">The rules of the material</span>
+  <h2>How long it takes to switch from one plastic to another</h2>
+  <p class="lede">Minutes of cleaning when a line goes from one family (row) to another (column). SAP counts 60 minutes everywhere. Hatched cells are forbidden.</p>
   <div class="tablewrap"><table class="matrix">
-    <thead><tr><th>De ↓ vers →</th><th>Naturel PPN</th><th>Blanc PPW</th><th>Couleur PPC</th><th>Noir PPK</th><th>Verre PPG</th><th>PA6</th></tr></thead>
+    <thead><tr><th>From ↓ to →</th><th>Natural PPN</th><th>White PPW</th><th>Colour PPC</th><th>Black PPK</th><th>Glass PPG</th><th>PA6</th></tr></thead>
     <tbody>
-      <tr><th>Naturel PPN</th><td class="m" style="--v:10">25</td><td class="m" style="--v:12">30</td><td class="m" style="--v:15">35</td><td class="m" style="--v:12">30</td><td class="m" style="--v:19">45</td><td class="m" style="--v:62">150</td></tr>
-      <tr><th>Blanc PPW</th><td class="m" style="--v:31">75</td><td class="m" style="--v:10">25</td><td class="m" style="--v:17">40</td><td class="m" style="--v:12">30</td><td class="m" style="--v:19">45</td><td class="m" style="--v:62">150</td></tr>
-      <tr><th>Couleur PPC</th><td class="m" style="--v:46">110</td><td class="m" style="--v:37">90</td><td class="m" style="--v:25">60</td><td class="m" style="--v:15">35</td><td class="m" style="--v:25">60</td><td class="m" style="--v:62">150</td></tr>
-      <tr><th>Noir PPK</th><td class="m" style="--v:100">240</td><td class="m" style="--v:75">180</td><td class="m" style="--v:50">120</td><td class="m" style="--v:10">25</td><td class="m" style="--v:25">60</td><td class="m" style="--v:62">150</td></tr>
-      <tr><th>Verre PPG</th><td class="m" style="--v:37">90</td><td class="never">jamais</td><td class="m" style="--v:42">100</td><td class="m" style="--v:37">90</td><td class="m" style="--v:10">25</td><td class="never">jamais</td></tr>
-      <tr><th>PA6</th><td class="m" style="--v:62">150</td><td class="m" style="--v:62">150</td><td class="m" style="--v:62">150</td><td class="m" style="--v:62">150</td><td class="never">jamais</td><td class="m" style="--v:10">25</td></tr>
+      <tr><th>Natural PPN</th><td class="m" style="--v:10">25</td><td class="m" style="--v:12">30</td><td class="m" style="--v:15">35</td><td class="m" style="--v:12">30</td><td class="m" style="--v:19">45</td><td class="m" style="--v:62">150</td></tr>
+      <tr><th>White PPW</th><td class="m" style="--v:31">75</td><td class="m" style="--v:10">25</td><td class="m" style="--v:17">40</td><td class="m" style="--v:12">30</td><td class="m" style="--v:19">45</td><td class="m" style="--v:62">150</td></tr>
+      <tr><th>Colour PPC</th><td class="m" style="--v:46">110</td><td class="m" style="--v:37">90</td><td class="m" style="--v:25">60</td><td class="m" style="--v:15">35</td><td class="m" style="--v:25">60</td><td class="m" style="--v:62">150</td></tr>
+      <tr><th>Black PPK</th><td class="m" style="--v:100">240</td><td class="m" style="--v:75">180</td><td class="m" style="--v:50">120</td><td class="m" style="--v:10">25</td><td class="m" style="--v:25">60</td><td class="m" style="--v:62">150</td></tr>
+      <tr><th>Glass PPG</th><td class="m" style="--v:37">90</td><td class="never">never</td><td class="m" style="--v:42">100</td><td class="m" style="--v:37">90</td><td class="m" style="--v:10">25</td><td class="never">never</td></tr>
+      <tr><th>PA6</th><td class="m" style="--v:62">150</td><td class="m" style="--v:62">150</td><td class="m" style="--v:62">150</td><td class="m" style="--v:62">150</td><td class="never">never</td><td class="m" style="--v:10">25</td></tr>
     </tbody>
   </table></div>
-  <p class="small">Du clair vers le foncé : 30 à 35 min. Du noir vers le naturel : 4 h et un démontage de vis. Source : tableau blanc de la planificatrice, knowledge/02.</p>
+  <p class="small">Light to dark: 30 to 35 min. Black to natural: 4 h and a screw pull. Source: the planner's whiteboard, knowledge/02.</p>
 </section>
 
 <div class="close">
-  <h3>En une phrase</h3>
-  <p>Le plastique passe environ 19 heures dans l'usine, mais SAP et les procédures imaginent une matière toujours disponible, des lignes interchangeables, un nettoyage d'une heure et des lots toujours bons ; sur le terrain, les retards matière, les équipements partagés, des nettoyages de 15 minutes à 4 heures et les blocages labo sont gérés par téléphone et dans des carnets.</p>
+  <h3>In one sentence</h3>
+  <p>The plastic spends about 19 hours in the plant, but SAP and the procedures assume material is always there, lines are interchangeable, a changeover takes one hour and every lot is good; on the floor, late materials, shared equipment, changeovers from 15 minutes to 4 hours and lab holds are handled by phone and in notebooks.</p>
 </div>
 
-<footer>Source : day3/fde-school-day3-am-lyon-planning-kit.zip (stated/, field/, knowledge/, data/, context/). Comptages faits par script sur data/change_log_w15-w18.csv (6 avril – 3 mai 2026) et data/kpi_weekly_2026-w06-w18.csv. Polymex est une entreprise fictive utilisée par la FDE School.</footer>
+<footer>Source: day3/fde-school-day3-am-lyon-planning-kit.zip (stated/, field/, knowledge/, data/, context/). Counts computed by script on data/change_log_w15-w18.csv (6 April – 3 May 2026) and data/kpi_weekly_2026-w06-w18.csv. Polymex is a fictional company used by the FDE School.</footer>
 </div>
 </body>
 </html>
