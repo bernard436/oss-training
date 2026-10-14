@@ -92,38 +92,78 @@ body.hl .evo{outline:2px dashed var(--flame);outline-offset:4px}
 .chk td.ok{color:#2f7d4f;font-weight:600}.chk td.ko{color:var(--flame);font-weight:600}
 .demo{background:#2F6690;color:#fff;font:600 11px 'Geist Mono',monospace;border-radius:3px;padding:3px 7px;letter-spacing:.06em;text-transform:uppercase}
 
+
+/* ===== Friendly colour theme ===== */
+:root{--ink:#1B2733;--soft:#3A4756;--mute:#66748A;--g1:#93A0B3;--g2:#C9D2DE;--line:#E3E8EF;--p3:#F1F4F8;--paper:#F6F8FB;--flame:#D9534F;--brand:#2F6690;--brand2:#E8875F;--good:#2F8F5B;--warn:#D9962B;--bad:#D9534F}
+body{background:var(--paper);font-family:Inter,system-ui,sans-serif}
+h1,h2,h3{font-family:Inter,system-ui,sans-serif;text-transform:none;font-weight:700;letter-spacing:-.01em}
+h1{font-size:22px}h2{font-size:22px}h3{font-size:16px}
+header{background:var(--ink);color:#fff;border-bottom:0;box-shadow:0 2px 10px rgba(27,39,51,.15)}
+header h1{color:#fff}.logo{color:var(--brand2)}
+nav button{color:#C9D6E2;border-radius:999px;border:0;padding:8px 16px;letter-spacing:.04em}
+nav button:hover{background:rgba(255,255,255,.08);color:#fff}
+nav button.on{background:#fff;color:var(--ink);border-bottom:0}
+.who select{background:#26384A;color:#fff;border-color:#3B5068;border-radius:999px;padding:6px 12px}
+main{gap:20px}
+.btn{background:var(--brand);border-color:var(--brand);color:#fff;font-weight:600}
+.btn:hover{background:#245273;border-color:#245273;color:#fff}
+.btn.ghost{background:#fff;color:var(--brand);border-color:var(--brand)}
+.btn.ghost:hover{background:#EAF2F8;color:var(--brand)}
+select,input,textarea{border-radius:8px;border-color:var(--g2)}
+.panel{border:0;border-radius:14px;box-shadow:0 1px 3px rgba(27,39,51,.08),0 6px 18px rgba(27,39,51,.05)}
+.panel.ink{background:var(--ink)}
+.kpis{background:transparent;border:0;gap:12px}
+.kpi{background:#fff;border-radius:12px;box-shadow:0 1px 3px rgba(27,39,51,.08);border-top:4px solid var(--brand)}
+.kpi b{font-family:Inter;font-weight:700;font-size:26px}
+table{background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 1px 3px rgba(27,39,51,.08)}
+th{background:var(--p3);color:var(--soft);border-bottom:1px solid var(--line);padding:10px 12px}
+td{padding:9px 12px}
+tr:hover td{background:#FAFBFD}
+.tag{border:0;font-weight:600;padding:3px 10px}
+.tag.active{background:#E3EEF7;color:var(--brand)}
+.tag.proposed{background:#FCF1DE;color:#A26A10;border:0}
+.tag.applied{background:#E3F3EA;color:var(--good)}
+.tag.rejected{background:#FBE7E6;color:var(--bad)}
+.tag.retired{background:var(--p3);color:var(--g1)}
+.gantt{background:#fff;border-radius:12px;border:1px solid var(--line)}
+.gn{font-family:Inter;font-weight:700;color:var(--brand)}
+.blk{border-radius:5px;border-color:rgba(27,39,51,.35)}
+.msg{border-radius:10px;background:#EAF2F8;color:var(--ink)}
+.toast{border-radius:10px;background:var(--ink)}
+.toast.err{background:var(--bad);color:#fff}
+.goalbar{border:0;border-radius:16px;background:#fff;box-shadow:0 1px 3px rgba(27,39,51,.08),0 8px 24px rgba(27,39,51,.06)}
+.goalbar h3{font-size:18px;color:var(--ink)}
+.gm{border:0;border-radius:12px;background:var(--p3);border-top:6px solid var(--g2)}
+.gm.ok{background:#EAF6EF;border-top-color:var(--good)}
+.gm.ko{background:#FCEDEC;border-top-color:var(--bad)}
+.gm b{font-family:Inter;font-weight:800;font-size:28px}
+.gm.ok b{color:var(--good)}.gm.ko b{color:var(--bad)}
+.bar{background:#fff}.bar i{background:var(--brand)}
+.gm.ok .bar i{background:var(--good)}.gm.ko .bar i{background:var(--bad)}
+.grs span.ok::before{color:var(--good)}.grs span.ko::before{color:var(--bad)}
+.wait-ok{color:var(--good)}.wait-ko{color:var(--bad)}
+.chk td.ok{color:var(--good)}.chk td.ko{color:var(--bad)}
+.demo,.pill.demo{background:var(--brand2);color:#fff}
+.mark{background:var(--bad);border-radius:2px}
+.answer{font-family:Inter;font-weight:800;color:var(--brand)}
 </style>
 </head>
 <body>
 <header>
-  <h1>Lyon planning</h1>
+  <h1><span class="logo">◆</span> Lyon Planner</h1>
   <nav id="tabs"></nav>
   <div class="sp"></div>
-  <button class="btn ghost evo" onclick="whatsNew()">★ What's new <span class="new">10</span></button>
-  <div class="row"><span class="lbl">Acting as</span><select id="actor"></select></div>
+  <div class="row who"><span class="lbl" style="color:#C9D6E2">Signed in as</span><select id="actor"></select></div>
 </header>
-<div id="wn" class="hide" style="padding:16px 28px;border-bottom:1px solid var(--ink);background:var(--p3)">
-  <div class="row"><h2>What's new in this version</h2><span class="new">aligned with "What good looks like"</span><div class="sp"></div><label class="lbl"><input type="checkbox" id="hl" onchange="hl(this.checked)"> Outline the changes on screen</label><button class="btn ghost" onclick="whatsNew()">Close</button></div>
-  <table style="margin-top:8px"><tr><th>#</th><th>Change</th><th>Where to see it</th><th>Measure it serves</th></tr>
-  <tr><td class="mono">1</td><td><b>"Codra stays" banner</b>: the five measures with baseline and target, green or red, and the guardrails</td><td>Top of every tab</td><td>All five</td></tr>
-  <tr><td class="mono">3</td><td><b>Answer time on events</b>: each customer change shows if it was answered and how fast; "Answer the customer" records it; unanswered and Codra first</td><td>Events tab, right column</td><td>Median time to answer: 17.5 h → 1 h</td></tr>
-  <tr><td class="mono">4</td><td><b>Promise tab for Stéphane</b>: customer, product, tonnes, wished date → yes, or the earliest date that holds, computed by the solver on a copy of the plan</td><td>New tab "Promise"</td><td>Quoted lead time: 12.5 → 7 days</td></tr>
-  <tr><td class="mono">2</td><td><b>Publish with a check</b>: before publishing, Codra OTIF, moves inside 24 h, freeze, changeovers per shift; below target, a reason is required</td><td>Plan tab, "Publish"</td><td>Plans published, orders moved inside 24 h</td></tr>
-  <tr><td class="mono">5</td><td><b>Scorecard of the five measures</b>: baseline, best week, target, now, owner, guardrail, and the euro case</td><td>Scorecard tab</td><td>Makes the €3.0M signable</td></tr>
-  <tr><td class="mono">6</td><td><b>Home screen by person</b>: each person lands on their tab and only sees the buttons they may use</td><td>"Acting as" menu</td><td>Adoption</td></tr>
-  <tr><td class="mono">7</td><td><b>Richer Gantt</b>: 4-hour freeze shaded, Codra orders underlined in blue; override needs a reason (five whys in Rules)</td><td>Plan tab</td><td>Changeover hours, orders moved</td></tr>
-  <tr><td class="mono">8</td><td><b>Night tab for Kevin</b>: the night's risky orders, and per line what a 2-hour stop would cost, computed by the solver</td><td>New tab "Night"</td><td>Orders moved inside 24 h, Codra OTIF</td></tr>
-  <tr><td class="mono">9</td><td><b>Shift note</b>: what changed and why, in a few lines, for the night shift</td><td>Night tab, "Write the shift note"</td><td>Fewer surprises at night</td></tr>
-  <tr><td class="mono">10</td><td><b>Cleaner screens</b>: Hervé sees Plan and Scorecard only; technical tabs stay for the team</td><td>Acting as Hervé</td><td>Readability</td></tr>
-  <tr><td class="mono">+</td><td><b>Load Monday demo</b>: replays Monday 11 May so every number shows; answer times are demo values</td><td>Banner, as Corinne</td><td>—</td></tr></table>
-</div>
+
 <main id="main"></main>
 <div id="toast" class="toast hide"></div>
 <script>
 const $ = (s, el = document) => el.querySelector(s);
 const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const S = { tab: 'plan', actor: localStorage.getItem('actor') || 'human:corinne', types: {}, capture: null };
-const FAM = { PPN: ['#FFFFFF', 'natural'], PPW: ['#F3F3F3', 'white'], PPC: ['#C6C9CC', 'colored'], PPK: ['#0D0D0D', 'black'], PPG: ['#5E6064', 'glass-filled'], PA6: ['#888A8C', 'PA6'] };
+const FAM = { PPN: ['#F3E7C9', 'natural'], PPW: ['#FFFFFF', 'white'], PPC: ['#7FB3D5', 'colored'], PPK: ['#2B2F33', 'black'], PPG: ['#8E9AA6', 'glass-filled'], PA6: ['#E3B04B', 'PA6'] };
+const COLOR = { 'PPC-3110': '#5B8DEF', 'PPC-3120': '#E06666', 'PPC-3140': '#6BBF7A' };
 const T0 = Date.parse('2026-05-11T06:00:00Z'), SPAN = 168 * 3600e3;
 const pt = (s) => typeof s === 'number' ? s : Date.parse(String(s).replace(' ', 'T') + ':00Z');
 const fmt = (t) => new Date(t).toISOString().slice(5, 16).replace('T', ' ');
@@ -139,12 +179,12 @@ const HOME = { 'human:corinne': 'plan', 'human:sylvie': 'events', 'human:stephan
 const VISIBLE = { 'human:herve': ['scorecard', 'plan'], 'human:julien': ['scorecard', 'plan', 'audit'], 'human:stephane': ['promise', 'events', 'plan'], 'human:kevin': ['night', 'plan', 'execution', 'rules'], 'human:nadia': ['audit', 'plan'] };
 const can = (g) => (S.grants || []).some((x) => x === g || (x.endsWith('*') && g.startsWith(x.slice(0, -1))));
 async function loadMe() { try { const r = await fetch('/api/me', { headers: { 'x-actor': S.actor } }); S.grants = (await r.json()).grants; } catch (e) { S.grants = []; } }
-function tabs() { const vis = VISIBLE[S.actor]; $('#tabs').innerHTML = TABS.filter(([k]) => !vis || vis.includes(k)).map(([k, l]) => `<button class="${S.tab === k ? 'on' : ''} ${NEWTABS[k] ? 'evo' : ''}" onclick="go('${k}')">${l}${NEWTABS[k] ? '<span class="new">' + NEWTABS[k] + '</span>' : ''}</button>`).join(''); }
+function tabs() { const vis = VISIBLE[S.actor]; $('#tabs').innerHTML = TABS.filter(([k]) => !vis || vis.includes(k)).map(([k, l]) => `<button class="${S.tab === k ? 'on' : ''} ${NEWTABS[k] ? 'evo' : ''}" onclick="go('${k}')">${l}${NEWTABS[k] ? '' : ''}</button>`).join(''); }
 // EVOLUTION 1: the "Codra stays" banner, on every tab.
 async function goalBar() {
   let g; try { const r = await fetch('/api/goal', { headers: { 'x-actor': S.actor } }); if (!r.ok) return ''; g = await r.json(); } catch (e) { return ''; }
   const f = (m) => m.value == null ? '–' : m.value + m.unit;
-  return `<div class="goalbar evo"><div class="gh"><h3>Codra stays</h3><span class="new">new</span><span class="lbl">the five measures of "What good looks like" · green or red only once there are enough cases</span>${g.demo ? '<span class="demo">demo data · Monday 11 May replayed</span>' : ''}<div class="sp"></div>${can('write:plan:published') ? '<button class="btn ghost" onclick="loadDemo()">Load Monday demo</button>' : ''}</div>
+  return `<div class="goalbar evo"><div class="gh"><h3>Keep Codra</h3><span class="lbl">our five goals · judged once there are enough cases</span>${g.demo ? '<span class="demo">demo data · Monday 11 May replayed</span>' : ''}<div class="sp"></div>${can('write:plan:published') ? '<button class="btn ghost" onclick="loadDemo()">Load Monday demo</button>' : ''}</div>
     ${g.measures.every((m) => m.value == null) ? '<div class="lbl">No numbers yet: they come from what people do in the app (publish a plan, answer a customer, give a promise). Click "Load Monday demo" to see them all.</div>' : ''}
     <div class="gms">${g.measures.map((m) => `<div class="gm ${m.ok == null ? '' : m.ok ? 'ok' : 'ko'}" title="${esc(m.note)}"><div class="row" style="gap:6px"><span class="lbl">${esc(m.label)}</span><span class="dir">${m.better === 'up' ? '↑ higher is better' : '↓ lower is better'}</span></div><b>${f(m)}</b>
       <div class="bar"><i style="width:${m.progress ?? 0}%"></i></div><span class="t">was ${m.baseline}${m.unit} → target ${m.target}${m.unit}${m.progress != null ? ' · ' + m.progress + '% of the way' : ''}</span>
@@ -171,7 +211,7 @@ function gantt(p) {
   const frz = `<div class="frz" title="Freeze: the running order and the next one, 4 h (rule R08)" style="left:${fx(nowT)}%;width:${(fx(nowT + 4 * 3600e3) - fx(nowT)).toFixed(2)}%"></div>`;
   return '<div class="gantt evo">' + Object.entries(p.timed).map(([line, rows]) => `<div class="gl"><div class="gn">${line}</div><div class="gt">${days}${frz}` + rows.map((r) => {
     const x = (t) => Math.max(0, Math.min(100, (t - T0) / SPAN * 100));
-    const f = r.product_code.slice(0, 3); const [bg] = FAM[f] || ['#fff']; const dark = f === 'PPK' || f === 'PPG';
+    const f = r.product_code.slice(0, 3); const bg = COLOR[r.product_code] || (FAM[f] || ['#fff'])[0]; const dark = f === 'PPK' || f === 'PPG';
     const co = r.co_minutes ? `<div class="co" style="left:${x(r.co_start)}%;width:${(x(r.start) - x(r.co_start)).toFixed(2)}%" title="Changeover ${r.co_minutes} min (${r.co_rule || ''})"></div>` : '';
     return co + `<div class="blk ${viol.has(r.order_id) ? 'viol' : ''} ${late.has(r.order_id) ? 'late' : ''} ${/Codra/.test(r.customer) ? 'codra' : ''}" style="left:${x(r.start)}%;width:${Math.max(0.3, x(r.end) - x(r.start)).toFixed(2)}%;background:${bg};color:${dark ? '#FDFDFD' : '#0D0D0D'}" title="${r.order_id} ${esc(r.customer)} ${r.product_code} ${r.tonnes} t · ${fmt(r.start)} to ${fmt(r.end)} · due ${r.due}" onclick="pick('${r.order_id}')">${r.order_id.slice(-3)} ${esc(r.customer.split(' ')[0])}</div>`;
   }).join('') + '</div></div>').join('') + '</div>';
@@ -188,7 +228,7 @@ async function render() {
       ${p ? kpiStrip(p.kpis, st.draft && st.draft.before) : ''}
       <div id="exp" class="msg hide"></div><div id="pubcheck"></div>
       ${p ? gantt(p) : '<div class="panel">Run the daily plan to start. It sequences every open order of week 20 on M01 to M07 under the active rules.</div>'}
-      <div class="legend">${Object.entries(FAM).map(([k, [c, n]]) => `<span><i style="background:${c}"></i>${n}</span>`).join('')}<span><i style="background:repeating-linear-gradient(45deg,#C6C9CC 0 2px,transparent 2px 5px);border-color:#C6C9CC"></i>changeover</span><span><span class="mark"></span>late or rule violated</span><span class="evo"><i style="background:#fff;box-shadow:inset 0 -4px 0 #2F6690"></i>Codra order</span><span class="evo"><i style="background:repeating-linear-gradient(135deg,rgba(47,102,144,.1) 0 3px,rgba(47,102,144,.3) 3px 4px);border-color:#2F6690"></i>freeze, 4 h</span><span class="new">updated</span></div>
+      <div class="legend">${Object.entries(FAM).map(([k, [c, n]]) => `<span><i style="background:${c}"></i>${n}</span>`).join('')}<span><i style="background:repeating-linear-gradient(45deg,#C6C9CC 0 2px,transparent 2px 5px);border-color:#C6C9CC"></i>changeover</span><span><span class="mark"></span>late or rule violated</span><span class="evo"><i style="background:#fff;box-shadow:inset 0 -4px 0 #2F6690"></i>Codra order</span><span class="evo"><i style="background:repeating-linear-gradient(135deg,rgba(47,102,144,.1) 0 3px,rgba(47,102,144,.3) 3px 4px);border-color:#2F6690"></i>freeze, 4 h</span></div>
       <div id="pick"></div>
       ${st.draft && st.draft.moves && st.draft.moves.length ? '<h3>What moved</h3><table><tr><th>Order</th><th>Kind</th><th>From</th><th>To</th></tr>' + st.draft.moves.filter((x) => x.kind !== 'time').map((x) => `<tr><td class="mono">${x.order_id}</td><td>${x.kind}</td><td class="mono">${x.from ? x.from.line + ' ' + x.from.start.slice(5) : '–'}</td><td class="mono">${x.to ? x.to.line + ' ' + (x.to.start ? x.to.start.slice(5) : 'pos ' + x.to.position) : 'removed'}</td></tr>`).join('') + '</table>' : ''}
       ${p && p.violations.length ? '<h3>Rule violations</h3><table><tr><th>Rule</th><th>Order</th><th>Line</th><th>What</th></tr>' + p.violations.map((v) => `<tr><td class="mono">${v.rule}</td><td class="mono">${v.order_id || ''}</td><td>${v.line || ''}</td><td>${esc(v.what)}</td></tr>`).join('') + '</table>' : ''}`;
@@ -198,8 +238,8 @@ async function render() {
     const [ev, inbox] = await Promise.all([api('/api/events'), api('/api/inbox')]);
     m.innerHTML = `<div class="grid2"><div style="display:flex;flex-direction:column;gap:14px"><h2>Planning mailbox, Monday 11 May</h2>${inbox.map((x) => `<div class="panel"><div class="row"><span class="lbl">${x.id}</span><div class="sp"></div><button class="btn ghost" onclick="readMsg('${x.id}')">Read with the model</button><button class="btn ghost" onclick="manual('${x.id}')">Enter by hand</button></div><div class="msg" id="m-${x.id}">${esc(x.text)}</div></div>`).join('')}</div>
       <div style="display:flex;flex-direction:column;gap:14px"><h2>Events</h2><div id="evform"></div>
-      <div class="lbl evo">Customer changes not yet answered come first, Codra on top. Target: answer within 1 hour.<span class="new">updated</span></div>
-      <table><tr><th>Id</th><th>Type</th><th>What</th><th>At</th><th>Status</th><th class="evo">Customer answer <span class="new">new</span></th><th></th></tr>${ev.slice().sort((a, b) => { const k = (e) => (CUST_TYPES.includes(e.type) && e.answer_hours == null ? 0 : 2) + (/Codra/.test(custOf(e, st.state.orders)) ? 0 : 1); return k(a) - k(b) || String(b.event_id).localeCompare(String(a.event_id)); }).map((e) => `<tr><td class="mono">${e.event_id}</td><td>${e.type}${e.confidence != null ? '<div class="lbl">conf. ' + e.confidence + '</div>' : ''}</td><td class="mono">${esc(evText(e))}<div class="lbl">${esc(custOf(e, st.state.orders))}</div></td><td class="mono">${(e.at || '').slice(5)}</td><td><span class="tag ${e.status}">${e.status}</span></td><td>${!CUST_TYPES.includes(e.type) ? '<span class="lbl">not a customer request</span>' : e.answer_hours != null ? `<span class="${e.answer_hours <= 1 ? 'wait-ok' : 'wait-ko'}">answered in ${e.answer_hours} h</span><div class="lbl">at ${String(e.answered_at).slice(5)}</div>` : `<span class="wait-ko">not answered</span>${can('write:event:answered') ? `<div><button class="btn ghost" onclick="answerEv('${e.event_id}')">Answer the customer</button></div>` : ''}`}</td><td>${e.status === 'proposed' ? `<div class="row">${can('write:event:confirmed') ? `<button class="btn" onclick="confirmEv('${e.event_id}')">Confirm and repair</button>` : ''}${can('call:whatif') ? `<button class="btn ghost" onclick="whatifEv('${e.event_id}')">What if</button>` : ''}${can('write:event:confirmed') ? `<button class="btn ghost" onclick="rejectEv('${e.event_id}')">Reject</button>` : ''}</div>` : ''}</td></tr>`).join('')}</table></div></div>`;
+      <div class="lbl evo">Customer changes not yet answered come first, Codra on top. Target: answer within 1 hour.</div>
+      <table><tr><th>Id</th><th>Type</th><th>What</th><th>At</th><th>Status</th><th class="evo">Customer answer </th><th></th></tr>${ev.slice().sort((a, b) => { const k = (e) => (CUST_TYPES.includes(e.type) && e.answer_hours == null ? 0 : 2) + (/Codra/.test(custOf(e, st.state.orders)) ? 0 : 1); return k(a) - k(b) || String(b.event_id).localeCompare(String(a.event_id)); }).map((e) => `<tr><td class="mono">${e.event_id}</td><td>${e.type}${e.confidence != null ? '<div class="lbl">conf. ' + e.confidence + '</div>' : ''}</td><td class="mono">${esc(evText(e))}<div class="lbl">${esc(custOf(e, st.state.orders))}</div></td><td class="mono">${(e.at || '').slice(5)}</td><td><span class="tag ${e.status}">${e.status}</span></td><td>${!CUST_TYPES.includes(e.type) ? '<span class="lbl">not a customer request</span>' : e.answer_hours != null ? `<span class="${e.answer_hours <= 1 ? 'wait-ok' : 'wait-ko'}">answered in ${e.answer_hours} h</span><div class="lbl">at ${String(e.answered_at).slice(5)}</div>` : `<span class="wait-ko">not answered</span>${can('write:event:answered') ? `<div><button class="btn ghost" onclick="answerEv('${e.event_id}')">Answer the customer</button></div>` : ''}`}</td><td>${e.status === 'proposed' ? `<div class="row">${can('write:event:confirmed') ? `<button class="btn" onclick="confirmEv('${e.event_id}')">Confirm and repair</button>` : ''}${can('call:whatif') ? `<button class="btn ghost" onclick="whatifEv('${e.event_id}')">What if</button>` : ''}${can('write:event:confirmed') ? `<button class="btn ghost" onclick="rejectEv('${e.event_id}')">Reject</button>` : ''}</div>` : ''}</td></tr>`).join('')}</table></div></div>`;
     S.events = ev; S.inbox = inbox;
   }
   if (S.tab === 'rules') {
@@ -236,7 +276,7 @@ async function render() {
     const f = (m) => m.value == null ? '–' : m.value + m.unit;
     const rows = [['On time, all orders', 'on_time_pct', '%'], ['On time, Codra', 'codra_on_time_pct', '%'], ['Changeover hours', 'changeover_hours', ' h'], ['Changeovers', 'changeovers', ''], ['Late orders', 'late', ''], ['Rule violations', 'violations', '']];
     const v = (k, key) => k ? (key === 'late' ? k.late.length : k[key]) : '–';
-    m.innerHTML = `<div class="row"><h2>Scorecard · What good looks like</h2><span class="new">updated</span>${g.demo ? '<span class="demo">demo data</span>' : ''}</div>
+    m.innerHTML = `<div class="row"><h2>Scorecard · What good looks like</h2>${g.demo ? '<span class="demo">demo data</span>' : ''}</div>
       <table class="evo"><tr><th>Measure</th><th>Level</th><th>Baseline W15–W18</th><th>Best week</th><th>Target</th><th>Now</th><th>Owner, measured by</th><th>Guardrail</th></tr>${g.measures.map((x) => `<tr><td><b>${esc(x.label)}</b><div class="lbl">${esc(x.note)}</div></td><td>${META[x.id][0]}</td><td class="mono">${x.baseline}${x.unit}</td><td class="mono">${META[x.id][1]}</td><td class="mono">${x.target}${x.unit}</td><td class="mono ${x.ok == null ? '' : x.ok ? 'wait-ok' : 'wait-ko'}">${f(x)}</td><td>${META[x.id][2]}</td><td>${META[x.id][3]}</td></tr>`).join('')}</table>
       <div class="grid2"><div class="panel"><h3>Guardrails</h3><table class="chk">${g.guardrails.map((x) => `<tr><td>${esc(x.label)}</td><td class="mono">${x.limit}</td><td class="mono ${x.ok == null ? '' : x.ok ? 'ok' : 'ko'}">${x.value ?? '–'}</td></tr>`).join('')}</table></div>
       <div class="panel"><h3>The gain in euros, conservative · to be signed by Julien</h3><table><tr><td>Codra's volume kept · 5,000 t × €447</td><td class="mono">€2.24M</td></tr><tr><td>Half the Friday overtime · €0.9M × 50%</td><td class="mono">€0.45M</td></tr><tr><td>Start-up scrap, 20% fewer changeovers</td><td class="mono">€0.34M</td></tr><tr><td><b>Total, a year</b></td><td class="mono"><b>€3.03M</b></td></tr></table></div></div>
@@ -248,7 +288,7 @@ async function render() {
     // EVOLUTIONS 8 and 9: Kevin's night view and the shift note.
     const nv = await api('/api/night?now=' + encodeURIComponent(S.nightNow || '2026-05-11 22:00'));
     const lines = ['M01', 'M02', 'M03', 'M04', 'M05', 'M06', 'M07'];
-    m.innerHTML = `<div class="row"><h2>Night view</h2><span class="new">new</span><span class="lbl">For Kevin: before the shift, the risky orders; if a line stops, what it costs, computed by the solver</span><div class="sp"></div><input id="nnow" class="mono" style="width:150px" value="${esc(nv.now)}" onchange="S.nightNow=this.value;render()"><button class="btn ghost" onclick="shiftNote()">Write the shift note</button></div>
+    m.innerHTML = `<div class="row"><h2>Night view</h2><span class="lbl">For Kevin: before the shift, the risky orders; if a line stops, what it costs, computed by the solver</span><div class="sp"></div><input id="nnow" class="mono" style="width:150px" value="${esc(nv.now)}" onchange="S.nightNow=this.value;render()"><button class="btn ghost" onclick="shiftNote()">Write the shift note</button></div>
       <div id="note" class="msg hide"></div>
       <div class="grid2 evo"><div style="display:flex;flex-direction:column;gap:10px"><h3>Orders running tonight · riskiest first</h3>
       ${nv.orders.length ? '<table><tr><th>Line</th><th>Order</th><th>Customer</th><th>Start → end</th><th>Due</th><th>Risk</th></tr>' + nv.orders.map((r) => `<tr><td class="mono">${r.line}</td><td class="mono">${r.order_id}</td><td>${esc(r.customer)}</td><td class="mono">${r.start.slice(5)} → ${r.end.slice(11)}</td><td class="mono">${r.due.slice(5)}</td><td>${r.risk ? '<span class="wait-ko">' + r.risk.map(esc).join(' · ') + '</span>' : '<span class="lbl">none</span>'}</td></tr>`).join('') + '</table>' : '<div class="panel">No published plan, or nothing runs in this window. Publish a plan first (as Corinne).</div>'}</div>
@@ -259,7 +299,7 @@ async function render() {
     // EVOLUTION 4: Stéphane's promise screen.
     const ps = await api('/api/promises'); const customers = [...new Set(st.state.orders.map((o) => o.customer))].sort(); const prods = (st.products || []).map((p) => p.product_code);
     const last = S.lastPromise;
-    m.innerHTML = `<div class="row"><h2>Promise a date</h2><span class="new">new</span><span class="lbl">For Stéphane: an answer that holds, computed on a copy of the published plan. Nothing is changed.</span></div>
+    m.innerHTML = `<div class="row"><h2>Promise a date</h2><span class="lbl">For Stéphane: an answer that holds, computed on a copy of the published plan. Nothing is changed.</span></div>
       ${st.published ? '' : '<div class="panel">Publish a plan first (Plan tab, as Corinne): promises are computed on the published plan.</div>'}
       <div class="grid2 evo"><div class="panel"><h3>The customer asks</h3><div class="f">
         <label>Customer</label><select id="q-cust">${customers.map((c) => `<option ${c === 'Codra Retail' ? 'selected' : ''}>${esc(c)}</option>`).join('')}</select>
@@ -298,7 +338,7 @@ async function daily() { const r = await api('/api/plan/daily', { now: $('#now')
 // EVOLUTION 2: publish with a check.
 async function publish() {
   const c = await api('/api/publish-check');
-  $('#pubcheck').innerHTML = `<div class="panel evo"><div class="row"><h3>Before you publish</h3><span class="new">new</span><div class="sp"></div><span class="${c.ok ? 'wait-ok' : 'wait-ko'}">${c.ok ? 'All checks pass' : 'Some checks are below target'}</span></div>
+  $('#pubcheck').innerHTML = `<div class="panel evo"><div class="row"><h3>Before you publish</h3><div class="sp"></div><span class="${c.ok ? 'wait-ok' : 'wait-ko'}">${c.ok ? 'All checks pass' : 'Some checks are below target'}</span></div>
     <table class="chk"><tr><th>Check</th><th>This draft</th><th>Target</th></tr>${c.checks.map((x) => `<tr><td>${esc(x.label)}</td><td class="mono ${x.ok == null ? '' : x.ok ? 'ok' : 'ko'}">${esc(x.value)}</td><td class="mono">${esc(x.target)}</td></tr>`).join('')}</table>
     <div class="row"><input id="pubnote" placeholder="${c.ok ? 'Note (optional)' : 'Why publish anyway? (required: it becomes a lead for a rule)'}" style="flex:1;min-width:320px"><button class="btn" onclick="publishNow()">Publish</button><button class="btn ghost" onclick="$('#pubcheck').innerHTML=''">Cancel</button></div></div>`;
 }
@@ -357,7 +397,6 @@ async function recordX() { await api('/api/execution', { order_id: $('#x-order')
   $('#actor').innerHTML = st.actors.map((a) => `<option value="${a}" ${a === S.actor ? 'selected' : ''}>${a.replace('human:', '').replace(/^./, (c) => c.toUpperCase())}</option>`).join('');
   $('#actor').onchange = async (e) => { S.actor = e.target.value; localStorage.setItem('actor', S.actor); await loadMe(); toast('Acting as ' + S.actor.replace('human:', '')); go(HOME[S.actor] || 'plan'); };
   await loadMe(); S.tab = HOME[S.actor] || 'plan';
-  try { if (localStorage.getItem('hl')) { document.body.classList.add('hl'); } } catch (e) {}
   tabs(); render();
 })();
 </script>
