@@ -85,6 +85,24 @@ body[data-view="stated"] .colheads, body[data-view="real"] .colheads{grid-templa
   .card.s::before{content:"Stated";font:600 11px var(--mono);text-transform:uppercase;letter-spacing:.08em;color:var(--stated)}
   .card.r::before{content:"Reality";font:600 11px var(--mono);text-transform:uppercase;letter-spacing:.08em;color:var(--real)}
 }
+/* physical flow */
+.phys{display:flex;flex-direction:column;gap:16px}
+.stations{display:grid;grid-template-columns:repeat(5,1fr);gap:0;counter-reset:st}
+@media (max-width:820px){.stations{grid-template-columns:1fr}}
+.st{min-width:0;position:relative;background:var(--surface);border:1px solid var(--line);padding:14px 14px 14px 16px;display:flex;flex-direction:column;gap:6px;margin-right:14px}
+.st:not(:last-child)::after{content:"";position:absolute;right:-15px;top:50%;width:0;height:0;border:8px solid transparent;border-left:12px solid var(--muted);transform:translateY(-50%)}
+@media (max-width:820px){.st{margin:0 0 14px}.st:not(:last-child)::after{right:auto;left:24px;top:auto;bottom:-23px;border:8px solid transparent;border-top:12px solid var(--muted);transform:none}}
+.st.key{border:2px solid var(--fg)}
+.st .tag{font:600 10px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.st b{font:700 22px/1.1 var(--display);font-variant-numeric:tabular-nums}
+.st p{font-size:13px;color:var(--muted)}
+.lt{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:18px 20px;display:flex;flex-direction:column;gap:12px}
+.ltrow{display:grid;grid-template-columns:200px 1fr 110px;gap:14px;align-items:center}
+@media (max-width:640px){.ltrow{grid-template-columns:1fr;gap:6px}}
+.lttrack{position:relative;height:22px;background:var(--bg);border-radius:4px;min-width:0}
+.ltbar{position:absolute;top:0;bottom:0;border-radius:4px}
+.ltv{font:600 20px var(--display);text-align:right;font-variant-numeric:tabular-nums}
+@media (max-width:640px){.ltv{text-align:left}}
 .close{background:var(--real-soft);border-radius:8px;padding:18px 20px;display:flex;flex-direction:column;gap:8px}
 footer{font:12px/1.7 var(--mono);color:var(--muted)}
 </style>
@@ -102,6 +120,25 @@ footer{font:12px/1.7 var(--mono);color:var(--muted)}
     <button type="button" id="v-real" data-v="real" aria-pressed="false">Reality only</button>
   </div>
 </header>
+
+<section class="phys" aria-label="Physical flow of the plastic">
+  <span class="eyebrow">Context · the physical flow</span>
+  <h2>The life of the plastic at Lyon</h2>
+  <p class="lede">Example from 6 May: order O58872, 18 t of white PPW-2010 for Codra, made on M05.</p>
+  <div class="stations">
+    <div class="st"><span class="tag">1 · Raw materials</span><b>In stock</b><p>PP resin, colour masterbatch, carbon black, glass fibre (silo feeding M01, M02, M05), PA6 dried before use.</p></div>
+    <div class="st"><span class="tag">2 · Mixing hall</span><b>Not measured</b><p>Dosing and blending to the recipe. The kit gives no times.</p></div>
+    <div class="st key"><span class="tag">3 · Extrusion M01–M07 · the constraint</span><b>≈ 9 h + changeover</b><p>About 2 t/h. Changeover 15 min to 4 h depending on the previous product (25–90 min here).</p></div>
+    <div class="st"><span class="tag">4 · Lab release</span><b>2 h</b><p>Every lot waits for its tests: 2 h standard, up to 4 h for PA6, 6 h for automotive colours. A failed lot is made again.</p></div>
+    <div class="st"><span class="tag">5 · Packing and shipping</span><b>6 h transport</b><p>Packing time not given. Transport 3 h (Lyon) to 10 h (Lille); 6 h to Codra in Corbas.</p></div>
+  </div>
+  <div class="lt">
+    <div class="ltrow"><span>Plastic inside the plant</span><div class="lttrack"><div class="ltbar" style="left:0;width:5.4%;background:var(--fg)"></div></div><span class="ltv">≈ 18 h</span></div>
+    <div class="ltrow"><span style="color:var(--real)">Lead time quoted to Codra</span><div class="lttrack"><div class="ltbar" style="left:0;width:64.3%;background:var(--real)"></div><div class="ltbar" style="left:64.3%;width:35.7%;background:var(--real);opacity:.45"></div></div><span class="ltv" style="color:var(--real)">9–14 days</span></div>
+    <p class="lede" style="font-size:14px">Making the plastic takes less than a day. Most of the lead time comes from the planning: how the decisions about what to make, where and when, are taken and passed on. That information flow is the subject of the rest of this page.</p>
+  </div>
+  <span class="src">context/plant-lyon.md · knowledge/02, 03, 04, 08, 10 · field/03, field/06 · field/09 10:41. The 18 h is computed from these files (inferred; packing excluded).</span>
+</section>
 
 <section class="budget" aria-label="Planning hours per week">
   <h2>Hours spent on planning, per week</h2>
