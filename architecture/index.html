@@ -117,6 +117,25 @@ td b.big{font:700 18px var(--display)}
 .ph span{font:12px var(--mono);color:var(--muted)}
 .ph p{font-size:13px}
 .ph.p0{background:var(--sys-soft)} .ph.p1{background:var(--rules-soft)} .ph.p2{background:var(--code-soft)} .ph.p3{background:var(--solver-soft)} .ph.off{background:repeating-linear-gradient(45deg,var(--surface) 0 6px,var(--line) 6px 7px)} .ph.p4{background:var(--human-soft)}
+
+/* built by us */
+.wb{display:inline-flex;align-items:center;gap:5px;font:700 10px var(--mono);letter-spacing:.08em;text-transform:uppercase;background:var(--fg);color:var(--bg);border-radius:3px;padding:2px 7px;white-space:nowrap}
+.node.ours{outline:3px solid var(--fg);outline-offset:2px}
+.node .wb{align-self:flex-start;margin-top:3px}
+.orch{grid-column:1/-1;border:2px dashed var(--fg);border-radius:8px;padding:8px 10px;display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;font-size:13px}
+.build{border:2px solid var(--fg);border-radius:6px;padding:10px 12px;display:flex;flex-direction:column;gap:6px;font-size:14px}
+.build ul{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:3px}
+.three{display:grid;grid-template-columns:1fr 1fr 1.5fr;gap:14px;align-items:start}
+@media (max-width:900px){.three{grid-template-columns:1fr}}
+.panel.ours{border:3px solid var(--fg)}
+.apps{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+@media (max-width:900px){.apps{grid-template-columns:1fr 1fr}}
+@media (max-width:560px){.apps{grid-template-columns:1fr}}
+.app{min-width:0;background:var(--surface);border:2px solid var(--fg);border-radius:8px;padding:14px;display:flex;flex-direction:column;gap:6px}
+.app h3{font-size:18px}
+.app .who{font:600 12px var(--mono);color:var(--human)}
+.app p{font-size:14px}
+.app .ph2{font:11px var(--mono);color:var(--muted)}
 .close{background:var(--human-soft);border-radius:8px;padding:18px 20px;display:flex;flex-direction:column;gap:8px}
 footer{font:12px/1.7 var(--mono);color:var(--muted)}
 </style>
@@ -174,14 +193,15 @@ footer{font:12px/1.7 var(--mono);color:var(--muted)}
         <h4>Read (existing systems)</h4>
         <div class="node sys"><b>SAP</b>open orders, due dates · read-only</div>
         <div class="node sys"><b>LineLog</b>what ran, stops · CSV 06:00</div>
-        <div class="node sys"><b>Lab database</b>holds, releases · nightly copy</div>
+        <div class="node sys ours"><b>Lab database</b>holds, releases · nightly copy<span class="wb">★ We build</span><span style="font-size:12px">our connector to Access</span></div>
         <div class="node sys"><b>MaintPro</b>maintenance windows · API</div>
         <div class="node sys"><b>Planning mailbox</b>customer changes · shared</div>
       </div>
       <div class="arrow">→</div>
       <div class="col">
-        <h4>Compute (platform)</h4>
+        <h4>Compute (platform engines, our orchestration)</h4>
         <div class="mid">
+          <div class="orch"><span class="wb">★ We build</span><span><b>Orchestrator:</b> which loop runs when, on which trigger, with which human gate.</span><span><b>Ontology mapping:</b> SAP, LineLog, lab fields → orders, lines, products, events.</span></div>
           <div class="node rules wide"><b>Rules engine</b>110 rules, each with an owner; every decision cites a rule id<span class="g"><i class="gate"></i>Rule owner activates</span></div>
           <div class="node llm"><b>Event reader (LLM)</b>email or note → one structured event, with confidence<span class="g"><i class="gate"></i>Corinne confirms</span></div>
           <div class="node solver"><b>Long solver</b>05:30 daily, 7 days, all lines<span class="g"><i class="gate"></i>Corinne publishes</span></div>
@@ -192,17 +212,42 @@ footer{font:12px/1.7 var(--mono);color:var(--muted)}
       <div class="arrow">→</div>
       <div class="col">
         <h4>Publish and measure</h4>
-        <div class="node code"><b>Published plan</b>one version a day plus repairs, audit trail</div>
+        <div class="node code ours"><b>Review &amp; publish app</b>one version a day plus repairs, audit trail<span class="wb">★ We build</span></div>
         <div class="node llm"><b>Shift note (LLM)</b>what changed and why, for shift leaders</div>
-        <div class="node code"><b>SAP write-back</b>off in v1; project with group IT<span class="g"><i class="gate"></i>Steering committee</span></div>
-        <div class="node code"><b>Scorecard</b>same KPIs for every plan<span class="g"><i class="gate"></i>Julien signs</span></div>
+        <div class="node code ours"><b>SAP write-back</b>off in v1; built with group IT<span class="wb">★ We build</span><span class="g"><i class="gate"></i>Steering committee</span></div>
+        <div class="node code ours"><b>Scorecard</b>WGLL measures and guardrails<span class="wb">★ We build</span><span class="g"><i class="gate"></i>Julien signs</span></div>
       </div>
     </div>
     <div class="legend">
-      <span class="chip sys">Existing system</span><span class="chip rules">Expert system</span><span class="chip solver">Solver</span><span class="chip llm">Language model</span><span class="chip code">Our code</span><span class="chip human"><i class="gate"></i>A person decides</span>
+      <span class="chip sys">Existing system</span><span class="chip rules">Expert system</span><span class="chip solver">Solver</span><span class="chip llm">Language model</span><span class="chip code">Our code</span><span class="chip human"><i class="gate"></i>A person decides</span><span class="wb">★ We build</span>
     </div>
   </div>
   <p class="small"><b>Model architecture:</b> a deterministic workflow with models inside, not an autonomous agent or a swarm. Solvers decide the sequence; language models only read unstructured text and write explanations; every write goes through a permission, a human gate and an audit line. Nadia holds the kill switch.</p>
+</section>
+
+<section>
+  <span class="eyebrow">What we build ourselves</span>
+  <h2>The client keeps its systems, the platform gives the engines, we build the Lyon layer</h2>
+  <div class="three">
+    <div class="panel"><h3>Lyon already has</h3><ul><li>SAP: orders, due dates, ATP</li><li>LineLog: what ran, stops</li><li>Lab database (Access)</li><li>MaintPro</li><li>Corinne's workbook, the notebooks</li></ul><p class="small">Kept as they are. Read-only first.</p></div>
+    <div class="panel"><h3>The platform gives (configured)</h3><ul><li>Rules engine</li><li>Long and fast solvers</li><li>Plan evaluation, store</li><li>Permissions, audit, kill switch</li><li>Model gateway, standard connectors</li></ul><p class="small">Tested and reused across plants; we configure, we do not rewrite.</p></div>
+    <div class="panel ours"><h3>★ We build for Lyon</h3><ul>
+      <li><b>The Lyon rule book:</b> 110 rules, each with a source and an owner</li>
+      <li><b>The ontology mapping:</b> SAP, LineLog and lab fields → orders, lines, products, events</li>
+      <li><b>The orchestrator:</b> the daily loop, the event loop, the what-if loop, and their human gates</li>
+      <li><b>Six apps</b> for the people who decide (below)</li>
+      <li><b>The lab connector</b> to Access, and the <b>SAP write-back</b> with group IT</li>
+      <li><b>The tests:</b> real emails for the event reader, replayed weeks for the solver</li></ul></div>
+  </div>
+  <h3>Six apps, one per person who decides</h3>
+  <div class="apps">
+    <div class="app"><span class="who">Corinne</span><h3>Review &amp; publish</h3><p>The 05:30 plan next to yesterday's, the rule behind each choice, one button to publish.</p><span class="ph2">Phase 2–3 · step 3</span></div>
+    <div class="app"><span class="who">Corinne, Sylvie</span><h3>Event intake</h3><p>Every email, call, LineLog note and lab hold as a structured event; confirm or correct.</p><span class="ph2">Phase 3 · step 4</span></div>
+    <div class="app"><span class="who">Kevin</span><h3>Night view</h3><p>Before the shift: the risky sequences and, if a line stops, the ranked swaps.</p><span class="ph2">Phase 3 · step 5</span></div>
+    <div class="app"><span class="who">Stéphane</span><h3>What-if</h3><p>"18 t of PPW-2010 by Thursday?" Yes, or the earliest date that holds, in minutes.</p><span class="ph2">Phase 3 · step 6</span></div>
+    <div class="app"><span class="who">Corinne, Patrick, Amina</span><h3>Rules capture</h3><p>Write, explain and activate a rule; every override asks "which rule is missing?"</p><span class="ph2">Phase 1 · step 1</span></div>
+    <div class="app"><span class="who">Hervé, Julien</span><h3>Scorecard</h3><p>OTIF for Codra, lead time, answer time, orders moved, plans published, and the five guardrails.</p><span class="ph2">Phase 0 → · step 8</span></div>
+  </div>
 </section>
 
 <section>
@@ -213,42 +258,42 @@ footer{font:12px/1.7 var(--mono);color:var(--muted)}
     <article class="step"><div class="stephead"><span class="num">1</span><div><h3>Capture the rules</h3><span class="when">Rules workshop, then each disagreement</span><span class="chip rules">Expert system · rules engine</span></div></div>
       <p class="choice"><b>Why this type:</b> the rules are explicit and checkable; a plan can then say which rule drove each choice.</p>
       <div class="decide"><i class="gate"></i><span><b>The rule owner activates each rule</b> (Corinne, Patrick, Amina): it is their knowledge and their accountability.</span></div>
-      <dl class="rows"><dt>Replaces</dt><dd>Notebooks since 2009, the workbook, Corinne's head</dd><dt>Moves</dt><dd>Every override carries a reason; changeovers ≤ 4 per shift</dd></dl></article>
+      <div class="build"><span class="wb">★ We build</span><ul><li>Rules capture app: each rule with its source, owner and status</li><li>The 110 rules written with Corinne, Patrick and Amina</li></ul></div><dl class="rows"><dt>Replaces</dt><dd>Notebooks since 2009, the workbook, Corinne's head</dd><dt>Moves</dt><dd>Every override carries a reason; changeovers ≤ 4 per shift</dd></dl></article>
 
     <article class="step"><div class="stephead"><span class="num">2</span><div><h3>Read the plant's state</h3><span class="when">05:00 daily, then on each export</span><span class="chip sys">Existing systems · read-only</span></div></div>
       <p class="choice"><b>Why this type:</b> SAP stays the system of record; nothing is migrated, each fact keeps one owner system.</p>
       <div class="decide none"><i class="gate"></i><span><b>No decision:</b> read-only. Nadia owns the access and the kill switch.</span></div>
-      <dl class="rows"><dt>Replaces</dt><dd>Friday's manual SAP export, phone calls from lab and maintenance</dd><dt>Moves</dt><dd>Plan built on today's facts</dd></dl></article>
+      <div class="build"><span class="wb">★ We build</span><ul><li>Ontology mapping: client fields → orders, lines, products, events</li><li>Connector to the lab's Access database (no API today)</li></ul></div><dl class="rows"><dt>Replaces</dt><dd>Friday's manual SAP export, phone calls from lab and maintenance</dd><dt>Moves</dt><dd>Plan built on today's facts</dd></dl></article>
 
     <article class="step"><div class="stephead"><span class="num">3</span><div><h3>Daily rolling plan</h3><span class="when">05:30 every day · horizon 7 days</span><span class="chip solver">Long solver · optimisation</span></div></div>
       <p class="choice"><b>Why this type:</b> sequencing 7 lines under 110 rules is combinatorial; a solver finds a feasible, low-changeover plan in seconds. A language model cannot guarantee feasibility.</p>
       <div class="decide"><i class="gate"></i><span><b>Corinne reviews and publishes.</b> She knows what is not in the data and stays accountable for the plan.</span></div>
-      <dl class="rows"><dt>Replaces</dt><dd>Friday plan (4–5 h) and the 07:30 replan (52 min a day)</dd><dt>Moves</dt><dd>Plans published from the system 0 → 90%; changeover hours (entitlement −42%)</dd></dl></article>
+      <div class="build"><span class="wb">★ We build</span><ul><li>Orchestrator: the 05:30 run, roll-forward, gates</li><li>Review &amp; publish screen: today vs yesterday, the rule behind each choice</li></ul></div><dl class="rows"><dt>Replaces</dt><dd>Friday plan (4–5 h) and the 07:30 replan (52 min a day)</dd><dt>Moves</dt><dd>Plans published from the system 0 → 90%; changeover hours (entitlement −42%)</dd></dl></article>
 
     <article class="step"><div class="stephead"><span class="num">4</span><div><h3>Take in an event</h3><span class="when">Each email, call, LineLog note, lab hold</span><span class="chip llm">Language model · extraction</span></div></div>
       <p class="choice"><b>Why this type:</b> changes arrive as free text; a small model turns each one into a structured event with its evidence. Emails are untrusted input, so the model gets no write rights.</p>
       <div class="decide"><i class="gate"></i><span><b>Corinne confirms the event</b> before it touches the plan: a misread date or quantity is costly.</span></div>
-      <dl class="rows"><dt>Replaces</dt><dd>Stéphane's emails, free-text LineLog comments</dd><dt>Moves</dt><dd>Median answer time 17.5 h → 1 h</dd></dl></article>
+      <div class="build"><span class="wb">★ We build</span><ul><li>Event intake app: shared mailbox, LineLog, lab, with a "confirm" button</li><li>Prompts, event schema and the test set of real emails</li></ul></div><dl class="rows"><dt>Replaces</dt><dd>Stéphane's emails, free-text LineLog comments</dd><dt>Moves</dt><dd>Median answer time 17.5 h → 1 h</dd></dl></article>
 
     <article class="step"><div class="stephead"><span class="num">5</span><div><h3>Repair the plan</h3><span class="when">Each confirmed event · 2 to 4 a day, plus nights</span><span class="chip solver">Fast solver · local repair</span></div></div>
       <p class="choice"><b>Why this type:</b> a repair must be local, quick and stable: keep the running order and the next (~4 h), move as little as possible.</p>
       <div class="decide"><i class="gate"></i><span><b>Corinne accepts the repair. At night, Kevin chooses</b> among the proposed swaps: he asked for this (field/04).</span></div>
-      <dl class="rows"><dt>Replaces</dt><dd>Repairs by hand, 12 to 26 min each; night swaps alone</dd><dt>Moves</dt><dd>Orders moved inside 24 h 20% → 10%; OTIF for Codra</dd></dl></article>
+      <div class="build"><span class="wb">★ We build</span><ul><li>Repair screen for Corinne: the moves, accept or refuse</li><li>Kevin's night view: risky sequences and ranked swaps before the shift</li></ul></div><dl class="rows"><dt>Replaces</dt><dd>Repairs by hand, 12 to 26 min each; night swaps alone</dd><dt>Moves</dt><dd>Orders moved inside 24 h 20% → 10%; OTIF for Codra</dd></dl></article>
 
     <article class="step"><div class="stephead"><span class="num">6</span><div><h3>Answer the customer</h3><span class="when">On demand: "can we do 18 t by Thursday?"</span><span class="chip solver">Solver in what-if mode</span></div></div>
       <p class="choice"><b>Why this type:</b> the answer holds because it is computed on today's plan and rules, not on yesterday's SAP plus margin.</p>
       <div class="decide"><i class="gate"></i><span><b>Stéphane promises.</b> A promise is a commercial commitment.</span></div>
-      <dl class="rows"><dt>Replaces</dt><dd>Promise from SAP ATP with hidden margin</dd><dt>Moves</dt><dd>Quoted lead time 12.5 → 7 days; answer 17.5 h → 1 h</dd></dl></article>
+      <div class="build"><span class="wb">★ We build</span><ul><li>What-if screen for Stéphane: product, tonnes, date → yes / earliest date</li></ul></div><dl class="rows"><dt>Replaces</dt><dd>Promise from SAP ATP with hidden margin</dd><dt>Moves</dt><dd>Quoted lead time 12.5 → 7 days; answer 17.5 h → 1 h</dd></dl></article>
 
     <article class="step"><div class="stephead"><span class="num">7</span><div><h3>Publish and explain</h3><span class="when">After each approval</span><span class="chip code">Our code</span><span class="chip llm">Language model · note</span></div></div>
       <p class="choice"><b>Why this type:</b> publishing must be controlled and traced, so it is code; the shift note is language, so a model drafts it.</p>
       <div class="decide"><i class="gate"></i><span><b>Corinne publishes; the steering committee decides SAP write-back</b>, built with group IT (6 to 8 weeks). Until then one keying a day remains, which clashes with the "0 re-keying by June" guardrail: to settle with Sylvie and Hervé.</span></div>
-      <dl class="rows"><dt>Replaces</dt><dd>Re-keying every version, 26.5 h a week</dd><dt>Moves</dt><dd>Sylvie's re-keying 26.5 h → 0 (guardrail)</dd></dl></article>
+      <div class="build"><span class="wb">★ We build</span><ul><li>Publish flow and shift-note prompt</li><li>SAP write-back, with group IT (after the summer)</li></ul></div><dl class="rows"><dt>Replaces</dt><dd>Re-keying every version, 26.5 h a week</dd><dt>Moves</dt><dd>Sylvie's re-keying 26.5 h → 0 (guardrail)</dd></dl></article>
 
     <article class="step"><div class="stephead"><span class="num">8</span><div><h3>Measure</h3><span class="when">Weekly</span><span class="chip code">Plan evaluation · scorecard</span></div></div>
       <p class="choice"><b>Why this type:</b> the same KPIs for any plan, human or machine, published or executed, so the comparison is fair.</p>
       <div class="decide"><i class="gate"></i><span><b>Julien signs</b> the baseline in week 1 and the gain each month.</span></div>
-      <dl class="rows"><dt>Replaces</dt><dd>Schedule adherence, not measured since 2024</dd><dt>Moves</dt><dd>The five measures above</dd></dl></article>
+      <div class="build"><span class="wb">★ We build</span><ul><li>Scorecard for Hervé and Julien: the five measures and the guardrails</li></ul></div><dl class="rows"><dt>Replaces</dt><dd>Schedule adherence, not measured since 2024</dd><dt>Moves</dt><dd>The five measures above</dd></dl></article>
 
   </div>
 </section>
@@ -276,14 +321,7 @@ footer{font:12px/1.7 var(--mono);color:var(--muted)}
   <p class="small">The model proposes, code checks, a person decides. Every call goes through the model gateway (EU endpoint, structured answers only, logged), with a test set rerun at each change.</p>
 </section>
 
-<section>
-  <span class="eyebrow">Out of the box or built for Lyon</span>
-  <h2>Most of it exists; Lyon's part is the rules, the orchestration and the apps</h2>
-  <div class="two">
-    <div class="panel"><h3>Out of the box (configured)</h3><ul><li>Rules engine: Lyon's 110 rules and owners</li><li>Long and fast solvers: horizon, freeze, schedule</li><li>Plan evaluation, store, audit, permissions, kill switch</li><li>Model gateway: which model for which role</li><li>Connectors: SAP reader, CSV, REST, mailbox</li></ul></div>
-    <div class="panel"><h3>Built for Lyon</h3><ul><li>Mapping SAP, LineLog and lab fields to orders, lines, products, events</li><li>The orchestrator: which loop runs when, with which gate</li><li>Mini-apps: review and publish, event intake, what-if, rules capture, scorecard</li><li>Connector to the lab's Access database</li><li>SAP write-back, with group IT</li></ul></div>
-  </div>
-</section>
+
 
 <section>
   <span class="eyebrow">Deployment</span>
