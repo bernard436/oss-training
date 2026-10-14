@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Changeover Stopwatch</title>
+<style>
+:root{--ink:#1B2733;--bg:#F5F3EF;--card:#FFFFFF;--line:#DDD8CF;--accent:#B4441F;--blue:#2F6690;--soft:#E8875F;--muted:#5A6570;--ok:#2E7D4F}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 -apple-system,Segoe UI,Roboto,Arial,sans-serif}
+header{background:var(--ink);color:#fff;padding:14px 16px}
+header a{color:#B8C4CA;text-decoration:none;font-size:13px}
+h1{margin:4px 0 2px;font-size:22px}
+.q{color:#E8C9B8;font-size:14px;margin:0}
+main{max-width:720px;margin:0 auto;padding:16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:14px}
+label{display:block;font-size:13px;color:var(--muted);margin:8px 0 4px}
+select,input{width:100%;font-size:18px;padding:10px;border:1px solid var(--line);border-radius:8px;background:#fff}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+button{font-size:18px;padding:14px;border:0;border-radius:10px;cursor:pointer;width:100%;font-weight:600}
+.go{background:var(--blue);color:#fff}
+.stop{background:var(--accent);color:#fff}
+.ghost{background:#EDEAE4;color:var(--ink);font-size:15px;padding:10px}
+.big{font-size:44px;font-weight:700;text-align:center;font-variant-numeric:tabular-nums;margin:6px 0}
+.bar{height:12px;background:#EDEAE4;border-radius:6px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--ok)}
+.meta{display:flex;justify-content:space-between;font-size:14px;color:var(--muted);margin:6px 0}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{text-align:left;padding:6px 4px;border-bottom:1px solid var(--line)}
+th{color:var(--muted);font-weight:600}
+.done{color:var(--ok);font-weight:700}
+.note{font-size:13px;color:var(--muted)}
+.tools{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 16px;border-radius:8px;display:none}
+</style>
+</head>
+<body>
+<header>
+<a href="../">← Discovery apps</a>
+<h1>Changeover stopwatch</h1>
+<p class="q">How long does each changeover really take?</p>
+</header>
+<main>
+
+<div class="card">
+  <div class="meta"><span id="pairsTxt"></span><span id="daysTxt"></span></div>
+  <div class="bar"><i id="pairsBar" style="width:0"></i></div>
+  <p class="note" style="margin:8px 0 0">Target: 3 measures per product pair, over about 2 weeks.</p>
+</div>
+
+<div class="card">
+  <label for="line">Line</label>
+  <select id="line"></select>
+  <div class="row">
+    <div><label for="from">From product</label><select id="from"></select></div>
+    <div><label for="to">To product</label><select id="to"></select></div>
+  </div>
+  <div id="timer" class="big">00:00</div>
+  <div id="startBox"><button class="go" id="startBtn">▶ Start changeover</button></div>
+  <div id="endBox" style="display:none">
+    <label for="scrap">Start-up scrap (kg)</label>
+    <input id="scrap" type="number" inputmode="decimal" min="0" step="0.5" value="0">
+    <div style="height:10px"></div>
+    <button class="stop" id="endBtn">■ First good part, end</button>
+    <div style="height:8px"></div>
+    <button class="ghost" id="cancelBtn">Cancel this measure</button>
+  </div>
+</div>
+
+<div class="card">
+  <h3 style="margin:0 0 8px">Results per pair and line</h3>
+  <div id="results"></div>
+</div>
+
+<div class="card">
+  <div class="tools">
+    <button class="ghost" id="csvBtn">⬇ Download CSV</button>
+    <button class="ghost" id="delBtn">🗑 End study, delete data</button>
+  </div>
+  <p class="note">Data stays on this device only. Use one shared phone or tablet per line. No names are recorded: only line, products, times and kg.</p>
+</div>
+</main>
+<div class="toast" id="toast"></div>
+
+<script>
+const KEY='polymex_changeover_v1', TARGET=3, DAYS=14;
+const LINES=['M01','M02','M03','M04','M05','M06','M07'];
+const PRODUCTS=['PPN-1010','PPN-1020','PPW-2010','PPW-2030','PPC-3110 blue','PPC-3120 red','PPC-3140 green','PPK-4010','PPK-4040','PPG-5030','PPG-5031','PA6-6010','PA6-6040'];
+const $=id=>document.getElementById(id);
+function load(){try{return JSON.parse(localStorage.getItem(KEY))||{records:[],running:{}}}catch(e){return {records:[],running:{}}}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(db))}catch(e){toast('Could not save on this device')}}
+let db=load();
+function fill(sel,arr){sel.innerHTML=arr.map(v=>`<option>${v}</option>`).join('')}
+fill($('line'),LINES);fill($('from'),PRODUCTS);fill($('to'),PRODUCTS);$('to').selectedIndex=1;
+const p=new URLSearchParams(location.search);
+if(p.get('line')&&LINES.includes(p.get('line').toUpperCase()))$('line').value=p.get('line').toUpperCase();
+function toast(t){const e=$('toast');e.textContent=t;e.style.display='block';setTimeout(()=>e.style.display='none',2200)}
+function mmss(ms){const s=Math.max(0,Math.floor(ms/1000));const h=Math.floor(s/3600),m=Math.floor(s%3600/60),x=s%60;return (h?h+':':'')+String(m).padStart(2,'0')+':'+String(x).padStart(2,'0')}
+function lastPair(){const r=[...db.records].reverse().find(r=>r.line===$('line').value);if(r){$('from').value=r.to}}
+function view(){
+  const run=db.running[$('line').value];
+  $('startBox').style.display=run?'none':'block';
+  $('endBox').style.display=run?'block':'none';
+  $('line').disabled=false;$('from').disabled=!!run;$('to').disabled=!!run;
+  if(run){$('from').value=run.from;$('to').value=run.to}
+  tick();summary();
+}
+function tick(){const run=db.running[$('line').value];$('timer').textContent=run?mmss(Date.now()-new Date(run.start)):'00:00'}
+setInterval(tick,1000);
+$('line').onchange=()=>{if(!db.running[$('line').value])lastPair();view()};
+$('startBtn').onclick=()=>{
+  if($('from').value===$('to').value){toast('Pick two different products');return}
+  db.running[$('line').value]={from:$('from').value,to:$('to').value,start:new Date().toISOString()};
+  if(!db.started)db.started=new Date().toISOString();
+  save();view();toast('Started on '+$('line').value);
+};
+$('endBtn').onclick=()=>{
+  const line=$('line').value,run=db.running[line];if(!run)return;
+  const end=new Date();const min=Math.round((end-new Date(run.start))/60000);
+  db.records.push({id:Date.now(),line,from:run.from,to:run.to,start:run.start,end:end.toISOString(),minutes:min,scrap_kg:Number($('scrap').value)||0});
+  delete db.running[line];$('scrap').value=0;save();
+  $('from').value=run.to;view();toast('Saved: '+min+' min');
+};
+$('cancelBtn').onclick=()=>{if(confirm('Cancel this measure?')){delete db.running[$('line').value];save();view()}};
+function median(a){const s=[...a].sort((x,y)=>x-y),n=s.length;return n?(n%2?s[(n-1)/2]:(s[n/2-1]+s[n/2])/2):0}
+function summary(){
+  const g={};
+  db.records.forEach(r=>{const k=r.from+' → '+r.to+'|'+r.line;(g[k]=g[k]||{pair:r.from+' → '+r.to,line:r.line,m:[],s:[]});g[k].m.push(r.minutes);g[k].s.push(r.scrap_kg)});
+  const rows=Object.values(g).sort((a,b)=>b.m.length-a.m.length);
+  const done=rows.filter(r=>r.m.length>=TARGET).length;
+  $('pairsTxt').innerHTML=`<b>${done} of ${rows.length}</b> pairs measured 3×, ${db.records.length} measures`;
+  $('pairsBar').style.width=(rows.length?done/rows.length*100:0)+'%';
+  const d=db.started?Math.floor((Date.now()-new Date(db.started))/864e5)+1:0;
+  $('daysTxt').textContent=d?`Day ${Math.min(d,DAYS)} of ${DAYS}`:'Not started';
+  $('results').innerHTML=rows.length?`<table><tr><th>Pair</th><th>Line</th><th>n</th><th>Median min</th><th>Avg scrap kg</th></tr>`+
+    rows.map(r=>`<tr><td>${r.pair}</td><td>${r.line}</td><td class="${r.m.length>=TARGET?'done':''}">${r.m.length}/${TARGET}</td><td>${median(r.m)}</td><td>${(r.s.reduce((a,b)=>a+b,0)/r.s.length).toFixed(1)}</td></tr>`).join('')+'</table>'
+    :'<p class="note">No measure yet. Press Start when the line stops for a changeover.</p>';
+}
+function csvCell(v){v=String(v??'');return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v}
+$('csvBtn').onclick=()=>{
+  const h=['line','from_product','to_product','start','end','minutes','scrap_kg'];
+  const csv=[h.join(',')].concat(db.records.map(r=>[r.line,r.from,r.to,r.start,r.end,r.minutes,r.scrap_kg].map(csvCell).join(','))).join('\n');
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
+  a.download='changeover_'+new Date().toISOString().slice(0,10)+'.csv';a.click();
+};
+$('delBtn').onclick=()=>{if(confirm('Have you downloaded the CSV and had it validated? This deletes all data on this device.')){try{localStorage.removeItem(KEY)}catch(e){}db={records:[],running:{}};view();toast('All data deleted')}};
+lastPair();view();
+</script>
+</body>
+</html>

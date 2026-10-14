@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Material Arrival Check</title>
+<style>
+:root{--ink:#1B2733;--bg:#F5F3EF;--card:#FFFFFF;--line:#DDD8CF;--accent:#B4441F;--blue:#2F6690;--muted:#5A6570;--ok:#2E7D4F}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 -apple-system,Segoe UI,Roboto,Arial,sans-serif}
+header{background:var(--ink);color:#fff;padding:14px 16px}
+header a{color:#B8C4CA;text-decoration:none;font-size:13px}
+h1{margin:4px 0 2px;font-size:22px}
+.q{color:#E8C9B8;font-size:14px;margin:0}
+main{max-width:760px;margin:0 auto;padding:16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:14px}
+h3{margin:0 0 8px}
+label{display:block;font-size:13px;color:var(--muted);margin:6px 0 4px}
+input{width:100%;font-size:17px;padding:10px;border:1px solid var(--line);border-radius:8px;background:#fff}
+.row3{display:grid;grid-template-columns:1fr 1fr 140px;gap:8px}
+@media(max-width:560px){.row3{grid-template-columns:1fr}}
+button{cursor:pointer;border:0;border-radius:10px;font-weight:600}
+.add{background:var(--blue);color:#fff;font-size:16px;padding:12px;width:100%;margin-top:10px}
+.item{display:grid;grid-template-columns:1fr 64px 64px;gap:8px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}
+.item b{display:block}
+.item small{color:var(--muted)}
+.yes,.no{font-size:26px;padding:10px 0}
+.yes{background:#DCEFE3;color:var(--ok)}
+.no{background:#F6E0D8;color:var(--accent)}
+.checked{opacity:.5}
+.bar{height:12px;background:#EDEAE4;border-radius:6px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--ok)}
+.meta{display:flex;justify-content:space-between;font-size:14px;color:var(--muted);margin:6px 0}
+table{width:100%;border-collapse:collapse;font-size:14px;margin-bottom:12px}
+th,td{text-align:left;padding:6px 4px;border-bottom:1px solid var(--line)}
+th{color:var(--muted)}
+.late{color:var(--accent);font-weight:700}
+.note{font-size:13px;color:var(--muted)}
+.tools{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tools button{font-size:15px;padding:10px;background:#EDEAE4}
+.toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 16px;border-radius:8px;display:none}
+</style>
+</head>
+<body>
+<header>
+<a href="../">← Discovery apps</a>
+<h1>Material arrival check</h1>
+<p class="q">Do suppliers deliver on time?</p>
+</header>
+<main>
+
+<div class="card">
+  <div class="meta"><span id="daysTxt">Not started</span><span id="nTxt"></span></div>
+  <div class="bar"><i id="bar" style="width:0"></i></div>
+  <p class="note" style="margin:8px 0 0">Duration: 3 weeks. Once a day, around 14:00: tick ✓ if it is on site, ✗ if not.</p>
+</div>
+
+<div class="card">
+  <h3>Today's list</h3>
+  <div id="list"></div>
+</div>
+
+<div class="card">
+  <h3>Add an expected delivery</h3>
+  <div class="row3">
+    <div><label for="sup">Supplier</label><input id="sup" list="supList" placeholder="e.g. Supplier A"></div>
+    <div><label for="mat">Material</label><input id="mat" list="matList" placeholder="e.g. Masterbatch blue"></div>
+    <div><label for="due">Promised date</label><input id="due" type="date"></div>
+  </div>
+  <datalist id="supList"></datalist><datalist id="matList"></datalist>
+  <button class="add" id="addBtn">+ Add to the list</button>
+</div>
+
+<div class="card">
+  <h3>Promised vs actual</h3>
+  <div id="results"></div>
+</div>
+
+<div class="card">
+  <div class="tools">
+    <button id="csvBtn">⬇ Download CSV</button>
+    <button id="delBtn">🗑 End study, delete data</button>
+  </div>
+  <p class="note">Data stays on this device only (the warehouse PC or tablet). No names: only supplier, material and dates.</p>
+</div>
+</main>
+<div class="toast" id="toast"></div>
+
+<script>
+const KEY='polymex_material_v1', DAYS=21;
+const MATS=['Masterbatch blue','Masterbatch red','Masterbatch green','Masterbatch black','Masterbatch white','PP homopolymer','PP copolymer','Talc','Glass fibre','PA6 resin','Additive'];
+const $=id=>document.getElementById(id);
+const today=()=>new Date().toISOString().slice(0,10);
+function load(){try{return JSON.parse(localStorage.getItem(KEY))||{items:[]}}catch(e){return {items:[]}}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(db))}catch(e){toast('Could not save on this device')}}
+let db=load();
+function toast(t){const e=$('toast');e.textContent=t;e.style.display='block';setTimeout(()=>e.style.display='none',2200)}
+const dayDiff=(a,b)=>Math.round((new Date(a)-new Date(b))/864e5);
+$('due').value=today();
+$('addBtn').onclick=()=>{
+  const s=$('sup').value.trim(),m=$('mat').value.trim(),d=$('due').value;
+  if(!s||!m||!d){toast('Supplier, material and date please');return}
+  if(!db.started)db.started=new Date().toISOString();
+  db.items.push({id:Date.now(),supplier:s,material:m,promised:d,arrived:null,checks:[]});
+  save();$('mat').value='';view();toast('Added');
+};
+$('list').onclick=e=>{
+  const b=e.target.closest('button');if(!b)return;
+  const it=db.items.find(i=>i.id==b.dataset.id);if(!it)return;
+  const t=today();
+  it.checks=it.checks.filter(c=>c.date!==t);
+  if(b.dataset.a==='yes'){it.arrived=t;it.checks.push({date:t,ok:true});toast('On site: '+it.material)}
+  else{it.arrived=null;it.checks.push({date:t,ok:false});toast('Not here yet: '+it.material)}
+  save();view();
+};
+function view(){
+  const t=today();
+  $('supList').innerHTML=[...new Set(db.items.map(i=>i.supplier))].map(s=>`<option value="${s}">`).join('');
+  $('matList').innerHTML=[...new Set(MATS.concat(db.items.map(i=>i.material)))].map(s=>`<option value="${s}">`).join('');
+  const open=db.items.filter(i=>!i.arrived||i.arrived===t).filter(i=>i.promised<=t||i.arrived===t||dayDiff(i.promised,t)<=1).sort((a,b)=>a.promised.localeCompare(b.promised));
+  $('list').innerHTML=open.length?open.map(i=>{
+    const c=i.checks.find(c=>c.date===t);const late=dayDiff(t,i.promised);
+    return `<div class="item ${c?'checked':''}"><div><b>${i.material}</b><small>${i.supplier} · promised ${i.promised}${late>0&&!i.arrived?` · <span class="late">${late} d late</span>`:''}${c?(c.ok?' · ✓ today':' · ✗ today'):''}</small></div>
+    <button class="yes" data-a="yes" data-id="${i.id}">✓</button><button class="no" data-a="no" data-id="${i.id}">✗</button></div>`}).join('')
+    :'<p class="note">Nothing expected today or overdue. Add tomorrow\'s deliveries below.</p>';
+  const d=db.started?Math.floor((Date.now()-new Date(db.started))/864e5)+1:0;
+  $('daysTxt').innerHTML=d?`<b>Day ${Math.min(d,DAYS)} of ${DAYS}</b>`:'Not started';
+  $('bar').style.width=Math.min(100,d/DAYS*100)+'%';
+  const done=db.items.filter(i=>i.arrived);
+  $('nTxt').textContent=`${done.length} deliveries closed, ${db.items.length-done.length} open`;
+  function table(key,title){
+    const g={};done.forEach(i=>{const k=i[key];(g[k]=g[k]||[]).push(dayDiff(i.arrived,i.promised))});
+    const rows=Object.entries(g).map(([k,a])=>({k,n:a.length,ot:a.filter(x=>x<=0).length,avg:a.reduce((s,x)=>s+x,0)/a.length,max:Math.max(...a)})).sort((a,b)=>b.avg-a.avg);
+    return `<table><tr><th>${title}</th><th>n</th><th>On time</th><th>Avg gap (d)</th><th>Worst (d)</th></tr>`+
+      rows.map(r=>`<tr><td>${r.k}</td><td>${r.n}</td><td>${Math.round(r.ot/r.n*100)}%</td><td class="${r.avg>0?'late':''}">${r.avg>0?'+':''}${r.avg.toFixed(1)}</td><td>${r.max>0?'+':''}${r.max}</td></tr>`).join('')+'</table>';
+  }
+  $('results').innerHTML=done.length?table('supplier','Supplier')+table('material','Material')+'<p class="note">Gap = actual day − promised day. Positive means late.</p>'
+    :'<p class="note">Results appear once the first delivery is ticked ✓.</p>';
+}
+function csvCell(v){v=String(v??'');return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v}
+$('csvBtn').onclick=()=>{
+  const csv=['supplier,material,promised,arrived,gap_days,checks'].concat(db.items.map(i=>[i.supplier,i.material,i.promised,i.arrived||'',i.arrived?dayDiff(i.arrived,i.promised):'',i.checks.map(c=>c.date+(c.ok?':ok':':missing')).join(' ')].map(csvCell).join(','))).join('\n');
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
+  a.download='material_arrival_'+today()+'.csv';a.click();
+};
+$('delBtn').onclick=()=>{if(confirm('Have you downloaded the CSV and had it validated? This deletes all data on this device.')){try{localStorage.removeItem(KEY)}catch(e){}db={items:[]};view();toast('All data deleted')}};
+view();
+</script>
+</body>
+</html>

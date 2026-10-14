@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Discovery Apps</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+:root{--ink:#1B2733;--bg:#F5F3EF;--card:#FFFFFF;--line:#DDD8CF;--accent:#B4441F;--blue:#2F6690;--muted:#5A6570}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 -apple-system,Segoe UI,Roboto,Arial,sans-serif}
+header{background:var(--ink);color:#fff;padding:24px 16px}
+header .in,main{max-width:960px;margin:0 auto}
+h1{margin:0 0 6px;font-size:28px}
+header p{margin:0;color:#B8C4CA}
+main{padding:16px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.card{background:var(--card);border:1px solid var(--line);border-top:6px solid var(--blue);border-radius:12px;padding:18px;display:flex;flex-direction:column;gap:8px}
+.card h2{margin:0;font-size:20px}
+.card .q{color:var(--accent);font-weight:600;margin:0}
+.card dl{margin:0;font-size:14px;display:grid;grid-template-columns:70px 1fr;gap:4px 8px}
+.card dt{color:var(--muted)}
+.card dd{margin:0}
+.open{display:block;text-align:center;background:var(--blue);color:#fff;text-decoration:none;padding:12px;border-radius:10px;font-weight:600}
+.qr{align-self:center;padding:8px;background:#fff}
+.rules{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px;margin-top:14px}
+.rules h3{margin:0 0 8px}
+.rules ul{margin:0;padding-left:20px}
+.lineqr{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:12px;margin-top:10px}
+.lineqr div{text-align:center;font-size:13px;font-weight:600}
+@media print{header,.open,.rules{display:none}.card{break-inside:avoid}}
+</style>
+</head>
+<body>
+<header><div class="in">
+<h1>Polymex Lyon · discovery apps</h1>
+<p>Three throwaway apps, one question each. They are deleted once the answer is in.</p>
+</div></header>
+<main>
+<div class="grid">
+  <div class="card">
+    <h2>Changeover stopwatch</h2>
+    <p class="q">How long does each changeover really take?</p>
+    <dl><dt>Who</dt><dd>Line operators</dd><dt>Effort</dt><dd>Start, then end + kg scrap</dd><dt>Target</dt><dd>3 measures per pair, ~2 weeks</dd><dt>Output</dt><dd>Real minutes per pair and line, start-up scrap</dd></dl>
+    <div class="qr" id="qr1"></div>
+    <a class="open" href="changeover/">Open</a>
+  </div>
+  <div class="card">
+    <h2>Night swap reasons</h2>
+    <p class="q">Why do we swap orders at night?</p>
+    <dl><dt>Who</dt><dd>Kevin and shift leaders</dd><dt>Effort</dt><dd>1 tap per swap</dd><dt>Target</dt><dd>20 swaps, ~4 weeks</dd><dt>Output</dt><dd>Causes ranked by frequency</dd></dl>
+    <div class="qr" id="qr2"></div>
+    <a class="open" href="night-swap/">Open</a>
+  </div>
+  <div class="card">
+    <h2>Material arrival check</h2>
+    <p class="q">Do suppliers deliver on time?</p>
+    <dl><dt>Who</dt><dd>Warehouse</dd><dt>Effort</dt><dd>✓ or ✗ on the daily list</dd><dt>Target</dt><dd>3 weeks</dd><dt>Output</dt><dd>Promised vs actual, per supplier and material</dd></dl>
+    <div class="qr" id="qr3"></div>
+    <a class="open" href="material/">Open</a>
+  </div>
+</div>
+
+<div class="rules">
+  <h3>Line QR codes for the changeover stopwatch</h3>
+  <p style="margin:0;font-size:14px;color:var(--muted)">Print this page and stick one code on each line: scanning opens the stopwatch with the line already selected.</p>
+  <div class="lineqr" id="lineqr"></div>
+</div>
+
+<div class="rules">
+  <h3>Rules for every discovery app</h3>
+  <ul>
+    <li>One question, a target fixed in advance, a visible counter.</li>
+    <li>One or two taps, from a QR code or a phone link. No login.</li>
+    <li>No link to SAP or LineLog. Data stays on the device that captured it.</li>
+    <li>Download the CSV every day.</li>
+    <li>At the end: export, validation by the owner, then delete the app and the raw data.</li>
+    <li>No names, no individual tracking: figures per line and shift only. The works council is informed before start.</li>
+  </ul>
+</div>
+</main>
+<script>
+const base=location.href.replace(/index\.html$/,'').replace(/\/?$/,'/');
+function qr(el,url,size){try{new QRCode(document.getElementById(el)||el,{text:url,width:size,height:size})}catch(e){}}
+qr('qr1',base+'changeover/',120);qr('qr2',base+'night-swap/',120);qr('qr3',base+'material/',120);
+const box=document.getElementById('lineqr');
+['M01','M02','M03','M04','M05','M06','M07'].forEach(l=>{const d=document.createElement('div');const q=document.createElement('div');d.appendChild(q);d.appendChild(document.createTextNode('Line '+l));box.appendChild(d);qr(q,base+'changeover/?line='+l,100)});
+</script>
+</body>
+</html>

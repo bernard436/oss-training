@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Night Swap Reasons</title>
+<style>
+:root{--ink:#1B2733;--bg:#F5F3EF;--card:#FFFFFF;--line:#DDD8CF;--accent:#B4441F;--blue:#2F6690;--muted:#5A6570;--ok:#2E7D4F}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 -apple-system,Segoe UI,Roboto,Arial,sans-serif}
+header{background:var(--ink);color:#fff;padding:14px 16px}
+header a{color:#B8C4CA;text-decoration:none;font-size:13px}
+h1{margin:4px 0 2px;font-size:22px}
+.q{color:#E8C9B8;font-size:14px;margin:0}
+main{max-width:720px;margin:0 auto;padding:16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:14px}
+label{display:block;font-size:13px;color:var(--muted);margin:0 0 4px}
+select{width:100%;font-size:18px;padding:10px;border:1px solid var(--line);border-radius:8px;background:#fff}
+.reasons{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.reasons button{font-size:17px;padding:18px 10px;border:2px solid var(--blue);background:#fff;color:var(--ink);border-radius:12px;font-weight:600;cursor:pointer;text-align:left}
+.reasons button span{display:block;font-size:24px}
+.reasons button:active{background:#E5EEF5}
+.big{font-size:40px;font-weight:700}
+.bar{height:12px;background:#EDEAE4;border-radius:6px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--ok)}
+.meta{display:flex;justify-content:space-between;align-items:baseline;font-size:14px;color:var(--muted)}
+.rank{display:grid;grid-template-columns:150px 1fr 70px;gap:8px;align-items:center;font-size:14px;margin:6px 0}
+.rank .b{height:16px;background:var(--accent);border-radius:4px}
+.note{font-size:13px;color:var(--muted)}
+.tools{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.tools button{font-size:14px;padding:10px;border:0;border-radius:10px;background:#EDEAE4;cursor:pointer}
+.toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 16px;border-radius:8px;display:none}
+</style>
+</head>
+<body>
+<header>
+<a href="../">← Discovery apps</a>
+<h1>Night swap reasons</h1>
+<p class="q">Why do we swap orders at night?</p>
+</header>
+<main>
+
+<div class="card">
+  <div class="meta"><span><span class="big" id="count">0</span> of 20 swaps</span><span id="daysTxt"></span></div>
+  <div class="bar"><i id="bar" style="width:0"></i></div>
+  <p class="note" style="margin:8px 0 0">Target: 20 swaps, over about 4 weeks. One tap per swap.</p>
+</div>
+
+<div class="card">
+  <label for="line">Line that changed its plan</label>
+  <select id="line"></select>
+  <div class="reasons" id="reasons"></div>
+</div>
+
+<div class="card">
+  <h3 style="margin:0 0 8px">Causes, most frequent first</h3>
+  <div id="ranking"></div>
+</div>
+
+<div class="card">
+  <div class="tools">
+    <button id="undoBtn">↶ Undo last</button>
+    <button id="csvBtn">⬇ CSV</button>
+    <button id="delBtn">🗑 End, delete</button>
+  </div>
+  <p class="note">Data stays on this device only (the shift leaders' shared phone or the night office PC). No names: only line, time and reason.</p>
+</div>
+</main>
+<div class="toast" id="toast"></div>
+
+<script>
+const KEY='polymex_nightswap_v1', TARGET=20, DAYS=28;
+const LINES=['M01','M02','M03','M04','M05','M06','M07'];
+const REASONS=[['📦','Material missing'],['🔧','Breakdown'],['👥','Crew short'],['🧪','Quality hold'],['🔩','Mould or tool not ready'],['⚡','Rush order'],['📋','Plan not feasible'],['…','Other']];
+const $=id=>document.getElementById(id);
+function load(){try{return JSON.parse(localStorage.getItem(KEY))||{records:[]}}catch(e){return {records:[]}}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(db))}catch(e){toast('Could not save on this device')}}
+let db=load();
+$('line').innerHTML=LINES.map(l=>`<option>${l}</option>`).join('');
+const p=new URLSearchParams(location.search);
+if(p.get('line')&&LINES.includes(p.get('line').toUpperCase()))$('line').value=p.get('line').toUpperCase();
+function toast(t){const e=$('toast');e.textContent=t;e.style.display='block';setTimeout(()=>e.style.display='none',2200)}
+$('reasons').innerHTML=REASONS.map(([i,r])=>`<button data-r="${r}"><span>${i}</span>${r}</button>`).join('');
+$('reasons').onclick=e=>{
+  const b=e.target.closest('button');if(!b)return;
+  if(!db.started)db.started=new Date().toISOString();
+  db.records.push({id:Date.now(),at:new Date().toISOString(),line:$('line').value,reason:b.dataset.r});
+  save();view();toast('Saved: '+b.dataset.r+' on '+$('line').value);
+};
+$('undoBtn').onclick=()=>{if(db.records.length&&confirm('Remove the last swap?')){db.records.pop();save();view()}};
+function view(){
+  const n=db.records.length;
+  $('count').textContent=n;$('bar').style.width=Math.min(100,n/TARGET*100)+'%';
+  const d=db.started?Math.floor((Date.now()-new Date(db.started))/864e5)+1:0;
+  $('daysTxt').textContent=d?`Day ${Math.min(d,DAYS)} of ${DAYS}`:'Not started';
+  const c={};db.records.forEach(r=>c[r.reason]=(c[r.reason]||0)+1);
+  const rows=Object.entries(c).sort((a,b)=>b[1]-a[1]);const max=rows.length?rows[0][1]:1;
+  $('ranking').innerHTML=rows.length?rows.map(([r,v])=>`<div class="rank"><span>${r}</span><div class="b" style="width:${v/max*100}%"></div><span>${v} · ${Math.round(v/n*100)}%</span></div>`).join('')
+    +(n<TARGET?`<p class="note">Indicative only until ${TARGET} swaps are logged.</p>`:'')
+    :'<p class="note">No swap yet. Tap a reason each time a line runs something other than the plan.</p>';
+}
+function csvCell(v){v=String(v??'');return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v}
+$('csvBtn').onclick=()=>{
+  const csv=['at,line,reason'].concat(db.records.map(r=>[r.at,r.line,r.reason].map(csvCell).join(','))).join('\n');
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
+  a.download='night_swaps_'+new Date().toISOString().slice(0,10)+'.csv';a.click();
+};
+$('delBtn').onclick=()=>{if(confirm('Have you downloaded the CSV and had it validated? This deletes all data on this device.')){try{localStorage.removeItem(KEY)}catch(e){}db={records:[]};view();toast('All data deleted')}};
+view();
+</script>
+</body>
+</html>
