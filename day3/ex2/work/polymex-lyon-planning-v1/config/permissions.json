@@ -22,7 +22,12 @@
    "tool:write_explanation",
    "audit",
    "event:answered",
-   "promise"
+   "promise",
+   "ontology",
+   "ontology:proposed",
+   "ontology:validated",
+   "feedback",
+   "assistant"
   ]
  },
  "kill_switch": {
@@ -36,6 +41,11 @@
    ]
   },
   "rule_activation": {
+   "approvers": [
+    "human:corinne"
+   ]
+  },
+  "ontology_change": {
    "approvers": [
     "human:corinne"
    ]
@@ -53,7 +63,11 @@
     "write:rule:validated",
     "call:whatif",
     "write:event:answered",
-    "write:promise"
+    "write:promise",
+    "read:ontology",
+    "write:feedback",
+    "call:assistant",
+    "write:ontology:validated"
    ]
   },
   "human:sylvie": {
@@ -64,7 +78,10 @@
     "write:event:confirmed",
     "write:rule:proposed",
     "call:whatif",
-    "write:event:answered"
+    "write:event:answered",
+    "read:ontology",
+    "write:feedback",
+    "call:assistant"
    ]
   },
   "human:stephane": {
@@ -73,7 +90,10 @@
     "read:plan:published",
     "call:whatif",
     "write:event:answered",
-    "write:promise"
+    "write:promise",
+    "read:ontology",
+    "write:feedback",
+    "call:assistant"
    ]
   },
   "human:kevin": {
@@ -82,13 +102,17 @@
     "read:plan:published",
     "write:execution",
     "write:rule:proposed",
-    "call:whatif"
+    "call:whatif",
+    "read:ontology",
+    "write:feedback",
+    "call:assistant"
    ]
   },
   "human:nadia": {
    "why": "IT. Reads the audit trail; holds the kill switch and enables SAP write-back in this file.",
    "grants": [
-    "read:audit"
+    "read:audit",
+    "read:ontology"
    ]
   },
   "agent:event-reader": {
@@ -130,14 +154,24 @@
   "human:herve": {
    "why": "Site director, sponsor. Reads the published plan and the scorecard.",
    "grants": [
-    "read:plan:published"
+    "read:plan:published",
+    "read:ontology"
    ]
   },
   "human:julien": {
    "why": "Plant controller. Reads the scorecard and the audit trail to sign the baseline and the gain.",
    "grants": [
     "read:plan:published",
-    "read:audit"
+    "read:audit",
+    "read:ontology"
+   ]
+  },
+  "agent:ontology-assistant": {
+   "why": "Reads a mail or a remark and PROPOSES one change to the model (a field, a link, a rule). Cannot apply it: Corinne validates.",
+   "grants": [
+    "call:llm:ontology_assistant",
+    "call:tool:propose_change",
+    "write:ontology:proposed"
    ]
   }
  }

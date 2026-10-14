@@ -2,7 +2,8 @@
  "default_model": "claude-sonnet-4-5",
  "models": {
   "event_reader": "claude-haiku-4-5",
-  "explainer": "claude-sonnet-4-5"
+  "explainer": "claude-sonnet-4-5",
+  "ontology_assistant": "claude-sonnet-4-5"
  },
  "max_tokens": 1024,
  "endpoint": "https://api.anthropic.com/v1/messages",

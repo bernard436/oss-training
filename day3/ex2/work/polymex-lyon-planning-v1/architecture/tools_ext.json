@@ -1,0 +1,23 @@
+[
+ {
+  "name": "propose_change",
+  "description": "Propose ONE change to the Lyon planning model (ontology or rule register) suggested by a message or a piece of feedback. Use only objects, rule types, families, products, lines and customers that exist. If nothing in the model should change, use kind 'none'.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "kind": { "type": "string", "enum": ["add_field", "add_link", "add_object", "rule", "none"] },
+    "target": { "type": "string", "description": "Object the change applies to (add_field, add_link: subject object)" },
+    "name": { "type": "string", "description": "Name of the new field, link verb or object" },
+    "object": { "type": "string", "description": "add_link: the object linked to" },
+    "description": { "type": "string" },
+    "rule_type": { "type": "string" },
+    "params": { "type": "object" },
+    "statement": { "type": "string", "description": "rule: the rule in plain words" },
+    "rationale": { "type": "string" },
+    "evidence": { "type": "string", "description": "The words of the source that support the change" },
+    "confidence": { "type": "number" }
+   },
+   "required": ["kind", "rationale"]
+  }
+ }
+]

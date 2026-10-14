@@ -43,3 +43,19 @@ test('the demo day fills every measure, the night view lists risks, the check is
   assert.ok(c.checks.length >= 6);
   await assert.rejects(() => O.loadDemo({ actor: 'human:stephane' }));
 });
+test('the assistant proposes, only Corinne validates, and the ontology changes', async () => {
+  const A = await import('../architecture/assistant.mjs');
+  store.reset();
+  const c = await A.askAssistant({ actor: 'human:sylvie', source: { kind: 'mail', id: 'x', text: 'Phone note: Patrick called, M02 feeder again. They stop the line at 10:00.' } });
+  assert.equal(c.status, 'proposed'); assert.equal(c.kind, 'add_field');
+  assert.throws(() => A.decideChange({ actor: 'human:sylvie', id: c.id, decision: 'apply' }));
+  assert.throws(() => A.decideChange({ actor: 'agent:ontology-assistant', id: c.id, decision: 'apply' }));
+  A.decideChange({ actor: 'human:corinne', id: c.id, decision: 'apply' });
+  const o = A.getOntology({ actor: 'human:herve' });
+  assert.ok(o.objects.find((x) => x.name === 'Line').fields.includes('known_weak_part'));
+  const r = await A.askAssistant({ actor: 'human:kevin', source: { kind: 'feedback', id: 'F1', text: 'Black to blue on M04 took 150 minutes, black PPK then blue PPC.' } });
+  assert.equal(r.kind, 'rule');
+  const applied = A.decideChange({ actor: 'human:corinne', id: r.id, decision: 'apply' });
+  assert.ok(applied.rule_id);
+  assert.ok(store.read('rules').find((x) => x.id === applied.rule_id && x.status === 'active'));
+});

@@ -5,6 +5,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import * as O from '../architecture/orchestrator.mjs';
+import * as A from '../architecture/assistant.mjs';
 import * as store from '../platform/store.mjs';
 import { guard, audit, readAudit, permissions } from '../platform/harness/harness.mjs';
 import { compile } from '../platform/rules/engine.mjs';
@@ -91,6 +92,15 @@ const routes = {
   'GET /api/night': (b, actor) => O.nightView({ actor, now: b.now || '2026-05-11 22:00' }),
   'POST /api/night/stop': (b, actor) => O.nightStop({ actor, line: b.line, from: b.from, hours: +b.hours || 2 }),
   'POST /api/demo': (b, actor) => O.loadDemo({ actor }),
+  // Ontology, feedback, mail and the assistant
+  'GET /api/ontology': (b, actor) => A.getOntology({ actor }),
+  'GET /api/feedback': (b, actor) => A.listFeedback({ actor }),
+  'POST /api/feedback': (b, actor) => A.addFeedback({ actor, text: b.text, about: b.about }),
+  'POST /api/feedback/decide': (b, actor) => A.decideFeedback({ actor, id: b.id, outcome: b.outcome }),
+  'GET /api/mail': (b, actor) => A.listMail({ actor }),
+  'POST /api/mail': (b, actor) => A.addMail({ actor, text: b.text }),
+  'POST /api/assistant': (b, actor) => A.askAssistant({ actor, source: b }),
+  'POST /api/changes/decide': (b, actor) => A.decideChange({ actor, id: b.id, decision: b.decision }),
   'POST /api/reset': (b, actor) => { guard(actor, 'write', 'plan:published'); store.reset(); audit(actor, 'reset', {}); return { ok: true }; },
 };
 

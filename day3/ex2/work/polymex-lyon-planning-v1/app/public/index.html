@@ -146,6 +146,32 @@ tr:hover td{background:#FAFBFD}
 .demo,.pill.demo{background:var(--brand2);color:#fff}
 .mark{background:var(--bad);border-radius:2px}
 .answer{font-family:Inter;font-weight:800;color:var(--brand)}
+
+/* Ontology, feedback, mail */
+.ogrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px}
+.obj{background:#fff;border-radius:14px;padding:14px 16px;box-shadow:0 1px 3px rgba(27,39,51,.08);display:flex;flex-direction:column;gap:6px;border-top:5px solid var(--brand)}
+.obj h3{display:flex;justify-content:space-between;align-items:baseline}.obj h3 b{font-size:22px;color:var(--brand)}
+.chips{display:flex;flex-wrap:wrap;gap:4px}.chips span{font:500 11px 'Geist Mono',monospace;background:var(--p3);color:var(--soft);border-radius:6px;padding:2px 7px}
+.chips span.added{background:#E3F3EA;color:var(--good)}
+.prop{background:#fff;border-radius:12px;padding:12px 14px;box-shadow:0 1px 3px rgba(27,39,51,.08);display:flex;flex-direction:column;gap:6px;border-left:5px solid var(--brand2)}
+.prop.applied{border-left-color:var(--good)}.prop.rejected,.prop.rejected-by-code{border-left-color:var(--bad)}.prop.nothing{border-left-color:var(--g2)}
+.ai{display:inline-flex;align-items:center;gap:6px;font:600 12px Inter;border-radius:999px;padding:4px 10px;background:#EAF2F8;color:var(--brand)}
+.mailc{background:#fff;border-radius:12px;padding:12px 14px;box-shadow:0 1px 3px rgba(27,39,51,.08);display:flex;flex-direction:column;gap:8px}
+
+/* Race to the goal */
+.pct{font:700 13px Inter;color:var(--brand)}
+.gm.ok .pct{color:var(--good)}.gm.ko .pct{color:var(--bad)}
+.race{display:flex;flex-direction:column;gap:3px}
+.track{position:relative;height:12px;background:#fff;border-radius:999px;border:1px solid var(--line)}
+.track i{position:absolute;left:0;top:0;bottom:0;border-radius:999px;background:var(--brand)}
+.gm.ok .track i{background:var(--good)}.gm.ko .track i{background:var(--bad)}
+.track em{position:absolute;top:-4px;width:18px;height:18px;margin-left:-9px;border-radius:50%;background:#fff;border:3px solid var(--ink)}
+.track::after{content:'';position:absolute;right:-2px;top:-5px;width:4px;height:20px;background:repeating-linear-gradient(var(--ink) 0 4px,#fff 4px 8px);border-radius:1px}
+.ends{display:flex;justify-content:space-between;font-size:11px;color:var(--mute)}
+.overall{display:inline-flex;align-items:center;gap:10px;font-size:13px;color:var(--ink);background:var(--p3);border-radius:999px;padding:6px 12px}
+.overall b{font-size:18px;color:var(--brand)}
+.otrack{position:relative;display:inline-block;width:160px;height:10px;background:#fff;border-radius:999px;border:1px solid var(--line)}
+.otrack i{position:absolute;left:0;top:0;bottom:0;border-radius:999px;background:linear-gradient(90deg,var(--brand2),var(--brand))}
 </style>
 </head>
 <body>
@@ -172,11 +198,11 @@ async function api(path, b) {
   const j = await r.json(); if (!r.ok) { toast(j.error || r.status, true); throw new Error(j.error); } return j;
 }
 function toast(t, err) { const el = $('#toast'); el.textContent = t; el.className = 'toast' + (err ? ' err' : ''); clearTimeout(el._t); el._t = setTimeout(() => el.classList.add('hide'), err ? 7000 : 3500); }
-const TABS = [['plan', 'Plan'], ['events', 'Events'], ['promise', 'Promise'], ['night', 'Night'], ['rules', 'Rules'], ['execution', 'Execution'], ['scorecard', 'Scorecard'], ['audit', 'Audit']];
+const TABS = [['plan', 'Plan'], ['events', 'Events'], ['mail', 'Mail'], ['promise', 'Promise'], ['night', 'Night'], ['feedback', 'Feedback'], ['ontology', 'Ontology'], ['rules', 'Rules'], ['execution', 'Execution'], ['scorecard', 'Scorecard'], ['audit', 'Audit']];
 const NEWTABS = { promise: 'new', night: 'new', events: 'updated', plan: 'updated', scorecard: 'updated' };
 // EVOLUTIONS 6 and 10: each person lands on their screen and sees only their tabs and buttons.
 const HOME = { 'human:corinne': 'plan', 'human:sylvie': 'events', 'human:stephane': 'promise', 'human:kevin': 'night', 'human:herve': 'scorecard', 'human:julien': 'scorecard', 'human:nadia': 'audit' };
-const VISIBLE = { 'human:herve': ['scorecard', 'plan'], 'human:julien': ['scorecard', 'plan', 'audit'], 'human:stephane': ['promise', 'events', 'plan'], 'human:kevin': ['night', 'plan', 'execution', 'rules'], 'human:nadia': ['audit', 'plan'] };
+const VISIBLE = { 'human:herve': ['scorecard', 'plan', 'ontology'], 'human:julien': ['scorecard', 'plan', 'audit', 'ontology'], 'human:stephane': ['promise', 'mail', 'events', 'feedback', 'plan'], 'human:kevin': ['night', 'plan', 'feedback', 'execution', 'rules'], 'human:nadia': ['audit', 'ontology', 'plan'] };
 const can = (g) => (S.grants || []).some((x) => x === g || (x.endsWith('*') && g.startsWith(x.slice(0, -1))));
 async function loadMe() { try { const r = await fetch('/api/me', { headers: { 'x-actor': S.actor } }); S.grants = (await r.json()).grants; } catch (e) { S.grants = []; } }
 function tabs() { const vis = VISIBLE[S.actor]; $('#tabs').innerHTML = TABS.filter(([k]) => !vis || vis.includes(k)).map(([k, l]) => `<button class="${S.tab === k ? 'on' : ''} ${NEWTABS[k] ? 'evo' : ''}" onclick="go('${k}')">${l}${NEWTABS[k] ? '' : ''}</button>`).join(''); }
@@ -184,10 +210,10 @@ function tabs() { const vis = VISIBLE[S.actor]; $('#tabs').innerHTML = TABS.filt
 async function goalBar() {
   let g; try { const r = await fetch('/api/goal', { headers: { 'x-actor': S.actor } }); if (!r.ok) return ''; g = await r.json(); } catch (e) { return ''; }
   const f = (m) => m.value == null ? '–' : m.value + m.unit;
-  return `<div class="goalbar evo"><div class="gh"><h3>Keep Codra</h3><span class="lbl">our five goals · judged once there are enough cases</span>${g.demo ? '<span class="demo">demo data · Monday 11 May replayed</span>' : ''}<div class="sp"></div>${can('write:plan:published') ? '<button class="btn ghost" onclick="loadDemo()">Load Monday demo</button>' : ''}</div>
+  return `<div class="goalbar evo"><div class="gh"><h3>Keep Codra</h3><span class="lbl">our five goals · judged once there are enough cases</span>${(() => { const ps = g.measures.filter((x) => x.progress != null); if (!ps.length) return ''; const avg = Math.round(ps.reduce((a, x) => a + x.progress, 0) / ps.length); return `<span class="overall">Race to "What good looks like": <b>${avg}%</b><span class="otrack"><i style="width:${avg}%"></i></span><span class="lbl">${ps.length} of 5 measured</span></span>`; })()}${g.demo ? '<span class="demo">demo data · Monday 11 May replayed</span>' : ''}<div class="sp"></div>${can('write:plan:published') ? '<button class="btn ghost" onclick="loadDemo()">Load Monday demo</button>' : ''}</div>
     ${g.measures.every((m) => m.value == null) ? '<div class="lbl">No numbers yet: they come from what people do in the app (publish a plan, answer a customer, give a promise). Click "Load Monday demo" to see them all.</div>' : ''}
-    <div class="gms">${g.measures.map((m) => `<div class="gm ${m.ok == null ? '' : m.ok ? 'ok' : 'ko'}" title="${esc(m.note)}"><div class="row" style="gap:6px"><span class="lbl">${esc(m.label)}</span><span class="dir">${m.better === 'up' ? '↑ higher is better' : '↓ lower is better'}</span></div><b>${f(m)}</b>
-      <div class="bar"><i style="width:${m.progress ?? 0}%"></i></div><span class="t">was ${m.baseline}${m.unit} → target ${m.target}${m.unit}${m.progress != null ? ' · ' + m.progress + '% of the way' : ''}</span>
+    <div class="gms">${g.measures.map((m) => `<div class="gm ${m.ok == null ? '' : m.ok ? 'ok' : 'ko'}" title="${esc(m.note)}"><div class="row" style="gap:6px"><span class="lbl">${esc(m.label)}</span><span class="dir">${m.better === 'up' ? '↑ higher is better' : '↓ lower is better'}</span></div><div class="row" style="align-items:baseline;gap:10px"><b>${f(m)}</b><span class="pct">${m.progress == null ? '' : m.progress + '% of the way'}</span></div>
+      <div class="race"><div class="track"><i style="width:${m.progress ?? 0}%"></i>${m.progress == null ? '' : `<em style="left:${m.progress}%"></em>`}</div><div class="ends"><span>start ${m.baseline}${m.unit}</span><span>goal ${m.target}${m.unit}</span></div></div>
       <span class="t">${esc(m.note)}</span>
       ${m.value == null ? '' : !m.enough ? `<span class="pill na">${m.n} of ${m.min} cases needed: not judged yet</span>` : m.kind === 'demo' ? '<span class="pill demo">demo values</span>' : m.kind === 'planned' ? '<span class="pill na">planned, not yet delivered</span>' : ''}</div>`).join('')}</div>
     <div class="grs"><span class="lbl">Guardrails</span>${g.guardrails.map((x) => `<span class="${x.ok == null ? 'na' : x.ok ? 'ok' : 'ko'}">${esc(x.label)} ${x.limit}: ${x.value ?? '–'}</span>`).join('')}</div></div>`;
@@ -277,7 +303,7 @@ async function render() {
     const rows = [['On time, all orders', 'on_time_pct', '%'], ['On time, Codra', 'codra_on_time_pct', '%'], ['Changeover hours', 'changeover_hours', ' h'], ['Changeovers', 'changeovers', ''], ['Late orders', 'late', ''], ['Rule violations', 'violations', '']];
     const v = (k, key) => k ? (key === 'late' ? k.late.length : k[key]) : '–';
     m.innerHTML = `<div class="row"><h2>Scorecard · What good looks like</h2>${g.demo ? '<span class="demo">demo data</span>' : ''}</div>
-      <table class="evo"><tr><th>Measure</th><th>Level</th><th>Baseline W15–W18</th><th>Best week</th><th>Target</th><th>Now</th><th>Owner, measured by</th><th>Guardrail</th></tr>${g.measures.map((x) => `<tr><td><b>${esc(x.label)}</b><div class="lbl">${esc(x.note)}</div></td><td>${META[x.id][0]}</td><td class="mono">${x.baseline}${x.unit}</td><td class="mono">${META[x.id][1]}</td><td class="mono">${x.target}${x.unit}</td><td class="mono ${x.ok == null ? '' : x.ok ? 'wait-ok' : 'wait-ko'}">${f(x)}</td><td>${META[x.id][2]}</td><td>${META[x.id][3]}</td></tr>`).join('')}</table>
+      <table class="evo"><tr><th>Measure</th><th>Level</th><th>Baseline W15–W18</th><th>Best week</th><th>Target</th><th>Now</th><th>Race to the goal</th><th>Owner, measured by</th><th>Guardrail</th></tr>${g.measures.map((x) => `<tr><td><b>${esc(x.label)}</b><div class="lbl">${esc(x.note)}</div></td><td>${META[x.id][0]}</td><td class="mono">${x.baseline}${x.unit}</td><td class="mono">${META[x.id][1]}</td><td class="mono">${x.target}${x.unit}</td><td class="mono ${x.ok == null ? '' : x.ok ? 'wait-ok' : 'wait-ko'}">${f(x)}</td><td style="min-width:160px">${x.progress == null ? '–' : `<div class="track" style="margin:6px 0"><i style="width:${x.progress}%"></i><em style="left:${x.progress}%"></em></div><span class="lbl">${x.progress}% of the way${x.enough ? '' : ' · not judged yet'}</span>`}</td><td>${META[x.id][2]}</td><td>${META[x.id][3]}</td></tr>`).join('')}</table>
       <div class="grid2"><div class="panel"><h3>Guardrails</h3><table class="chk">${g.guardrails.map((x) => `<tr><td>${esc(x.label)}</td><td class="mono">${x.limit}</td><td class="mono ${x.ok == null ? '' : x.ok ? 'ok' : 'ko'}">${x.value ?? '–'}</td></tr>`).join('')}</table></div>
       <div class="panel"><h3>The gain in euros, conservative · to be signed by Julien</h3><table><tr><td>Codra's volume kept · 5,000 t × €447</td><td class="mono">€2.24M</td></tr><tr><td>Half the Friday overtime · €0.9M × 50%</td><td class="mono">€0.45M</td></tr><tr><td>Start-up scrap, 20% fewer changeovers</td><td class="mono">€0.34M</td></tr><tr><td><b>Total, a year</b></td><td class="mono"><b>€3.03M</b></td></tr></table></div></div>
       <h3>Adoption: decisions taken in the app</h3>
@@ -311,6 +337,30 @@ async function render() {
         <div class="panel ${last ? '' : 'hide'}" id="q-res">${last ? promiseCard(last) : ''}</div></div>
       <h3>Promises given</h3><table><tr><th>Id</th><th>Asked</th><th>Customer</th><th>Product</th><th>Tonnes</th><th>Wished</th><th>Promised</th><th>Lead time</th><th>As asked?</th></tr>${ps.slice().reverse().map((x) => `<tr><td class="mono">${x.id}</td><td class="mono">${x.at.slice(5)}</td><td>${esc(x.customer)}</td><td class="mono">${x.product_code}</td><td>${x.tonnes}</td><td class="mono">${x.wished.slice(5)}</td><td class="mono">${x.promised_due ? x.promised_due.slice(5) : 'none in 14 days'}</td><td class="${x.lead_days != null && x.lead_days <= 7 ? 'wait-ok' : 'wait-ko'}">${x.lead_days ?? '–'} d</td><td>${x.feasible_as_asked ? 'yes' : 'no, later date'}</td></tr>`).join('')}</table>`;
   }
+  if (S.tab === 'mail') {
+    const [mails, ont] = await Promise.all([api('/api/mail'), api('/api/ontology')]); S.mails = mails;
+    const props = ont.changes.filter((c) => c.source.kind === 'mail');
+    m.innerHTML = `<div class="row"><h2>Mail</h2><span class="ai">${ont.ai ? '● AI connected' : '○ AI: rules of thumb (no key set)'}</span><span class="lbl">Turn a message into an event for the plan, or ask the AI what it changes in the model</span></div>
+      <div class="grid2"><div style="display:flex;flex-direction:column;gap:12px">${mails.map((x) => `<div class="mailc"><div class="row"><span class="lbl">${esc(x.id)} · ${esc(x.source)}</span><div class="sp"></div>${can('write:event:proposed') ? `<button class="btn ghost" onclick="mailToEvent('${x.id}')">Turn into an event</button>` : ''}${can('call:assistant') ? `<button class="btn" onclick="askAI('mail','${x.id}')">Ask the AI</button>` : ''}</div><div class="msg">${esc(x.text)}</div><div id="ai-${x.id}"></div></div>`).join('')}</div>
+      <div style="display:flex;flex-direction:column;gap:12px"><div class="panel"><h3>Paste a new message</h3><textarea id="newmail" placeholder="From: … Subject: … The message as received"></textarea><div class="row"><button class="btn" onclick="addMail()">Add to the mailbox</button></div></div>
+      <h3>What the AI proposed from mail</h3>${props.length ? props.map(changeCard).join('') : '<div class="lbl">Nothing yet. Click "Ask the AI" on a message.</div>'}</div></div>`;
+  }
+  if (S.tab === 'feedback') {
+    const [fb, ont] = await Promise.all([api('/api/feedback'), api('/api/ontology')]); S.fb = fb;
+    m.innerHTML = `<div class="row"><h2>Feedback</h2><span class="ai">${ont.ai ? '● AI connected' : '○ AI: rules of thumb (no key set)'}</span><span class="lbl">Every disagreement is information: a missing rule, wrong data, or not a rule</span></div>
+      <div class="grid2"><div class="panel"><h3>Tell us what happened</h3><input id="fb-about" placeholder="About (order, line, product…)"><textarea id="fb-text" placeholder="E.g. On M04 the change from black to blue took 150 minutes, the worn screw holds black."></textarea><div class="row"><button class="btn" onclick="sendFb()">Send</button></div></div>
+      <div class="panel"><h3>How it works</h3><div>1. Anyone writes what happened. 2. The AI proposes what it changes in the model. 3. Corinne decides: a rule, a data fix, not a rule, or a change to the ontology.</div></div></div>
+      <table><tr><th>Id</th><th>From</th><th>Kind</th><th>What happened</th><th>Outcome</th><th></th></tr>${fb.map((f) => `<tr><td class="mono">${esc(f.id)}</td><td>${esc(String(f.by || '').replace('human:', ''))}</td><td>${esc(f.kind)}</td><td>${esc(f.text)}${f.about ? '<div class="lbl">' + esc(f.about) + '</div>' : ''}<div id="ai-${f.id}"></div></td><td><span class="tag ${f.outcome === 'open' ? 'proposed' : 'applied'}">${esc(f.outcome || 'open')}</span></td><td><div class="row">${can('call:assistant') ? `<button class="btn ghost" onclick="askAI('feedback','${f.id}')">Ask the AI</button>` : ''}${can('write:rule:validated') && f.outcome === 'open' ? ['rule', 'data fix', 'not a rule', 'ontology'].map((o) => `<button class="btn ghost" onclick="decideFb('${f.id}','${o}')">${o}</button>`).join('') : ''}</div></td></tr>`).join('') || '<tr><td colspan="6" class="lbl">No feedback yet.</td></tr>'}</table>`;
+  }
+  if (S.tab === 'ontology') {
+    const ont = await api('/api/ontology'); const added = new Set(ont.changes.filter((c) => c.status === 'applied' && c.kind === 'add_field').map((c) => c.target + '.' + c.name));
+    const pending = ont.changes.filter((c) => c.status === 'proposed');
+    m.innerHTML = `<div class="row"><h2>Ontology</h2><span class="ai">${ont.ai ? '● AI connected' : '○ AI: rules of thumb (no key set)'}</span><span class="lbl">What the plant is made of, how things link, and which rules constrain them. The AI proposes changes; Corinne validates.</span></div>
+      ${pending.length ? `<div class="panel"><h3>${pending.length} change(s) waiting for Corinne</h3>${pending.map(changeCard).join('')}</div>` : ''}
+      <div class="ogrid">${ont.objects.map((o) => `<div class="obj"><h3>${esc(o.name)} <b>${o.count ?? ''}</b></h3><div>${esc(o.what)}</div><div class="lbl">Source: ${esc(o.source)} · owner ${esc(o.owner)}${o.constraints ? ' · ' + o.constraints + ' rule(s)' : ''}</div><div class="chips">${o.fields.map((f) => `<span class="${added.has(o.name + '.' + f) ? 'added' : ''}">${esc(f)}</span>`).join('')}</div></div>`).join('')}</div>
+      <div class="grid2"><div><h3>Links</h3><table><tr><th>Subject</th><th>Link</th><th>Object</th></tr>${ont.links.map(([a, l, b]) => `<tr><td>${esc(a)}</td><td><i>${esc(l)}</i></td><td>${esc(b)}</td></tr>`).join('')}</table></div>
+      <div><h3>History of changes</h3>${ont.changes.filter((c) => c.status !== 'proposed').map(changeCard).join('') || '<div class="lbl">No change yet. Ask the AI from the Mail or Feedback tab.</div>'}</div></div>`;
+  }
   if (S.tab === 'audit') {
     const a = await api('/api/audit');
     m.innerHTML = `<h2>Audit trail</h2><table><tr><th>When</th><th>Who</th><th>What</th><th>Details</th></tr>${a.map((x) => `<tr><td class="mono">${x.at.slice(5, 19).replace('T', ' ')}</td><td class="mono">${esc(x.actor)}</td><td>${esc(x.what)}</td><td class="mono" style="max-width:640px;word-break:break-word">${esc(JSON.stringify(x.payload).slice(0, 260))}</td></tr>`).join('')}</table>`;
@@ -332,6 +382,26 @@ const CUST_TYPES = ['date_change', 'quantity_change', 'rush_order', 'cancellatio
 function addMin(s, n) { const t = Date.parse(String(s).replace(' ', 'T') + ':00Z') + n * 60e3; return new Date(t).toISOString().slice(0, 16).replace('T', ' '); }
 async function answerEv(id) { const e = S.events.find((x) => x.event_id === id); const t = prompt('When did the customer get the answer? (plant time)', addMin(e.at, 30)); if (!t) return; const r = await api('/api/events/answer', { event_id: id, answered_at: t }); toast('Answered in ' + r.answer_hours + ' h'); render(); }
 function custOf(e, orders) { return e.customer || (orders.find((o) => o.order_id === e.order_id) || {}).customer || ''; }
+
+// Ontology, feedback, mail: the AI proposes, Corinne decides.
+function changeCard(c) {
+  const what = c.kind === 'rule' ? `New rule <b>${esc(c.rule_type)}</b>: ${esc(c.statement || '')} <span class="mono">${esc(JSON.stringify(c.params || {}))}</span>` : c.kind === 'add_field' ? `Add field <b>${esc(c.name)}</b> to <b>${esc(c.target)}</b>${c.description ? ': ' + esc(c.description) : ''}` : c.kind === 'add_link' ? `Add link <b>${esc(c.target)}</b> <i>${esc(c.name)}</i> <b>${esc(c.object)}</b>` : c.kind === 'add_object' ? `Add object <b>${esc(c.name)}</b>` : 'No change to the model';
+  const cls = c.status === 'proposed' ? '' : c.status === 'applied' ? 'applied' : c.status === 'nothing to change' ? 'nothing' : 'rejected';
+  return `<div class="prop ${cls}"><div class="row"><span class="mono">${esc(c.id)}</span><span class="tag ${c.status === 'applied' ? 'applied' : c.status === 'proposed' ? 'proposed' : 'retired'}">${esc(c.status)}</span><span class="lbl">by ${esc(c.by)} · from ${esc(c.source.kind)} ${esc(c.source.id || '')}</span><div class="sp"></div>${c.status === 'proposed' && can('write:ontology:validated') ? `<button class="btn" onclick="decideChange('${c.id}','apply')">Validate</button><button class="btn ghost" onclick="decideChange('${c.id}','reject')">Reject</button>` : ''}</div>
+    <div>${what}</div><div class="lbl">Why: ${esc(c.rationale || '')}${c.problems && c.problems.length ? ' · refused by code: ' + esc(c.problems.join('; ')) : ''}${c.rule_id ? ' · became rule ' + esc(c.rule_id) : ''}</div></div>`;
+}
+async function askAI(kind, id) {
+  const src = kind === 'mail' ? (S.mails || []).find((x) => x.id === id) : (S.fb || []).find((x) => x.id === id);
+  const el = $('#ai-' + id); if (el) el.innerHTML = '<div class="lbl">The AI is reading…</div>';
+  const c = await api('/api/assistant', { kind, id, text: src.text });
+  if (el) el.innerHTML = changeCard(c);
+  toast(c.status === 'proposed' ? 'Proposal ' + c.id + ' waits for Corinne in Ontology' : c.status);
+}
+async function decideChange(id, decision) { const c = await api('/api/changes/decide', { id, decision }); toast(id + ' ' + c.status + (c.rule_id ? ': rule ' + c.rule_id + ' is active' : '')); render(); }
+async function addMail() { await api('/api/mail', { text: $('#newmail').value }); toast('Added to the mailbox'); render(); }
+async function mailToEvent(id) { const x = (S.mails || []).find((m) => m.id === id); try { await api('/api/events/read', { text: x.text, source: id }); toast('Event proposed: see Events'); } catch (e) { S.inbox = S.mails; go('events'); setTimeout(() => manual(id), 300); } }
+async function sendFb() { await api('/api/feedback', { text: $('#fb-text').value, about: $('#fb-about').value }); toast('Thank you: feedback recorded'); render(); }
+async function decideFb(id, outcome) { await api('/api/feedback/decide', { id, outcome }); toast(id + ': ' + outcome); render(); }
 function evText(e) { return ({ quantity_change: `${e.order_id} to ${e.tonnes} t`, date_change: `${e.order_id} due ${e.due}`, rush_order: `${e.order_id} ${e.customer} ${e.product_code} ${e.tonnes} t due ${e.due}`, cancellation: `${e.order_id}`, material_late: `${e.order_id} material from ${e.available_from}`, quality_hold: `${e.order_id} re-run, due ${e.due}`, machine_down: `${e.line} ${e.from} to ${e.to}` })[e.type] || JSON.stringify(e); }
 
 async function daily() { const r = await api('/api/plan/daily', { now: $('#now').value }); toast('Daily plan drafted in ' + r.runtime_ms + ' ms'); render(); }
