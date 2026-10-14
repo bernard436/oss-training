@@ -143,6 +143,21 @@ tr:last-child td{border-bottom:0}
 .s-mat{background:var(--raw)} .s-eq{background:var(--mix)} .s-cl{background:var(--ext);opacity:.6} .s-ex{background:var(--ext)} .s-lab{background:var(--lab)} .s-pk{background:var(--muted)} .s-tr{background:var(--ship)}
 .quoted{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:baseline;border-top:1px dashed var(--line);padding-top:12px;font-size:14px}
 .quoted b{font:700 22px var(--display);color:var(--think)}
+
+.gap{display:flex;flex-direction:column;gap:10px;border-top:1px dashed var(--line);padding-top:14px}
+.gap h3{font-size:18px}
+.grow{display:grid;grid-template-columns:28px 210px 1fr 150px;gap:12px;align-items:center;font-size:14px}
+@media (max-width:760px){.grow{grid-template-columns:24px 1fr 90px}.grow .gtr{grid-column:1/-1}}
+.grow .rk{font:700 16px var(--display);color:var(--muted);text-align:right}
+.grow .gtr{position:relative;height:22px;background:var(--bg);border-radius:3px;min-width:0}
+.grow .gtr i{position:absolute;inset:0 auto 0 0;border-radius:3px}
+.grow .gv{font:700 18px var(--display);font-variant-numeric:tabular-nums;color:var(--real)}
+.grow .gv small{font:400 12px var(--body);color:var(--muted);margin-left:4px}
+.grow.top{background:var(--real-soft);border:2px solid var(--real);border-radius:6px;padding:8px 10px}
+.grow.top .rk,.grow.top .nm{color:var(--real)}
+.grow.top .nm{font-weight:700}
+.grow.top .gv{font-size:24px}
+.grow.zero{opacity:.55}
 .close{background:var(--real-soft);border-radius:8px;padding:18px 20px;display:flex;flex-direction:column;gap:8px}
 .close p{max-width:85ch}
 footer{font:12px/1.7 var(--mono);color:var(--muted)}
@@ -399,6 +414,7 @@ footer{font:12px/1.7 var(--mono);color:var(--muted)}
       <div class="taxis"><span></span><div class="ticks"><span style="left:0.00%">0 h</span><span style="left:16.67%">12 h</span><span style="left:33.33%">24 h</span><span style="left:50.00%">36 h</span><span style="left:66.67%">48 h</span><span style="left:83.33%">60 h</span><span style="left:100.00%">72 h</span></div></div>
     </div>
     <div class="tkey"><span><i class="s-mat"></i>Waiting for material</span><span><i class="s-eq"></i>Waiting for shared equipment</span><span><i class="s-cl"></i>Changeover</span><span><i class="s-ex"></i>Extrusion</span><span><i class="s-lab"></i>Lab</span><span><i class="s-pk"></i>Packing</span><span><i class="s-tr"></i>Transport</span></div>
+    <div class="gap"><h3>Where the difference comes from, largest first</h3><p class="small">Extra hours in the worst case compared with what they think (58 h − 19 h = 39 h), sorted.</p><div class="grow top"><span class="rk">1</span><span class="nm">Waiting for material<br><small style="color:var(--muted);font-size:12px">0 h → 24 h · 62% of the extra time · 17× in 4 weeks</small></span><div class="gtr"><i class="s-mat" style="width:100.0%"></i></div><span class="gv">+24 h</span></div><div class="grow"><span class="rk">2</span><span class="nm">Waiting for shared equipment<br><small style="color:var(--muted);font-size:12px">0 → 4 h · 10%</small></span><div class="gtr"><i class="s-eq" style="width:16.7%"></i></div><span class="gv">+4 h</span></div><div class="grow"><span class="rk">3</span><span class="nm">Lab hold<br><small style="color:var(--muted);font-size:12px">2 h → 6 h · 10% · 16 holds in 4 weeks</small></span><div class="gtr"><i class="s-lab" style="width:16.7%"></i></div><span class="gv">+4 h</span></div><div class="grow"><span class="rk">4</span><span class="nm">Transport<br><small style="color:var(--muted);font-size:12px">6 h → 10 h · 10% · depends on the customer</small></span><div class="gtr"><i class="s-tr" style="width:16.7%"></i></div><span class="gv">+4 h</span></div><div class="grow"><span class="rk">5</span><span class="nm">Changeover<br><small style="color:var(--muted);font-size:12px">1 h → 4 h · 8% · but it happens 203× a week</small></span><div class="gtr"><i class="s-cl" style="width:12.5%"></i></div><span class="gv">+3 h</span></div><div class="grow zero"><span class="rk">6</span><span class="nm">Extrusion<br><small style="color:var(--muted);font-size:12px">8.9 h → 8.9 h · no gap</small></span><div class="gtr"><i class="s-ex" style="width:0.0%"></i></div><span class="gv">+0 h</span></div><div class="grow zero"><span class="rk">7</span><span class="nm">Packing<br><small style="color:var(--muted);font-size:12px">1 h → 1 h · no gap</small></span><div class="gtr"><i class="s-pk" style="width:0.0%"></i></div><span class="gv">+0 h</span></div></div>
     <div class="quoted"><span>Lead time quoted to the customer:</span><b>9 – 14 days = 216 – 336 h</b><span>off this chart: about 4 to 6 times the worst case.</span></div>
   </div>
   <p class="small">Calculation: extrusion 18 t at 2.02 t/h in every case. Best case: changeover 15 min, lab 2 h, packing 1 h, transport 3 h. Worst case: material one day late, 4 h wait for shared equipment, 4 h changeover, 6 h lab hold, packing 1 h, transport 10 h. The worst case adds up every maximum at once, so it is an upper bound (inferred), not a typical lot.</p>
