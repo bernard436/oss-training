@@ -181,6 +181,7 @@ export async function goalStatus({ actor = 'human:corinne' } = {}) {
       { label: "Corinne's hours above 40", limit: '≤ 4 h', value: '12.5 h · HR', ok: null },
       { label: "Sylvie's re-keying", limit: '0 by June', value: '26.5 h · Sylvie', ok: null },
     ],
+    demo: store.read('demo'),
   };
   for (const m of out.measures) m.ok = m.value == null ? null : (m.better === 'up' ? m.value >= m.target : m.value <= m.target);
   return out;
@@ -221,4 +222,76 @@ export async function promise({ request, actor }) {
   promises.push(p); store.write('promises', promises);
   audit(actor, 'promise.answered', { id, customer, feasible_as_asked: p.feasible_as_asked, promised_due: p.promised_due, lead_days: p.lead_days });
   return p;
+}
+
+// ======================================================================================
+// EVOLUTIONS 2, 5, 8, 9 and the demo day
+// 2. publishCheck: what Corinne must see before she publishes (moves inside 24 h, freeze, guardrails, Codra).
+// 8. nightView: the night's risky orders and, per line, what a 2-hour stop would cost (solver what-if).
+// 9. shift note: explain() above, called from the Night tab.
+// Demo: loadDemo replays Monday 11 May so every number of the banner can be seen. Answer times are DEMO data.
+// ======================================================================================
+export function publishCheck({ actor }) {
+  guard(actor, 'read', 'plan:published');
+  const d = store.read('draft'); if (!d) return { draft: false, checks: [], ok: true };
+  let maxCo = 0; { const T0 = parseTime('2026-05-11 06:00'), c = {}; for (const [line, rows] of Object.entries(d.timed)) for (const r of rows) if (r.co_minutes > 0) { const k = line + ':' + Math.floor((r.co_start - T0) / (8 * 3600e3)); c[k] = (c[k] || 0) + 1; } maxCo = Math.max(0, ...Object.values(c)); }
+  const moves = (d.moves || []).filter((m) => m.kind !== 'time').length;
+  const pct24 = d.kind === 'short' ? Math.round(1000 * (d.moved_24h || 0) / d.kpis.orders) / 10 : 0;
+  const freezeBroken = (d.violations || []).filter((v) => /R08|freeze/i.test(v.rule + ' ' + v.what)).length;
+  const checks = [
+    { label: 'OTIF for Codra', value: d.kpis.codra_on_time_pct + '%', target: '≥ 95%', ok: d.kpis.codra_on_time_pct >= 95 },
+    { label: 'OTIF, all customers (guardrail)', value: d.kpis.on_time_pct + '%', target: '≥ 84%', ok: d.kpis.on_time_pct >= 84 },
+    { label: 'Orders moved inside 24 h by this change', value: (d.moved_24h || 0) + ' (' + pct24 + '%)', target: '≤ 10%', ok: pct24 <= 10 },
+    { label: 'Orders that change line or sequence', value: String(moves), target: 'information', ok: null },
+    { label: 'Freeze of 4 h kept (rule R08)', value: freezeBroken ? freezeBroken + ' broken' : 'kept', target: 'kept', ok: freezeBroken === 0 },
+    { label: 'Changeovers per line per shift (guardrail R06)', value: String(maxCo), target: '≤ 4', ok: maxCo <= 4 },
+    { label: 'Rule violations', value: String(d.kpis.violations), target: '0', ok: d.kpis.violations === 0 },
+  ];
+  return { draft: true, kind: d.kind, checks, ok: checks.every((c) => c.ok !== false) };
+}
+
+export async function nightView({ actor, now = '2026-05-11 22:00' }) {
+  guard(actor, 'read', 'plan:published');
+  const p = store.read('published'); if (!p) return { now, orders: [], lines: [] };
+  const t0 = parseTime(now), t1 = t0 + 8 * 3600e3;
+  const orders = Object.fromEntries(store.read('state').orders.map((o) => [o.order_id, o]));
+  const rows = toRows(p).filter((r) => parseTime(r.end) > t0 && parseTime(r.start) < t1);
+  const out = rows.map((r) => {
+    const o = orders[r.order_id] || {}; const slackH = Math.round((parseTime(r.due) - parseTime(r.end)) / 36e4) / 10;
+    const why = [];
+    if (slackH < 12) why.push('only ' + slackH + ' h before due');
+    if (o.available_from && parseTime(o.available_from) > parseTime(r.start) - 2 * 3600e3) why.push('material arrives ' + o.available_from.slice(5));
+    if (/Codra/.test(r.customer)) why.push('Codra');
+    if (r.changeover_minutes >= 90) why.push(r.changeover_minutes + ' min changeover');
+    return { ...r, slack_h: slackH, risk: why.length ? why : null };
+  }).sort((a, b) => (b.risk ? b.risk.length : 0) - (a.risk ? a.risk.length : 0) || a.slack_h - b.slack_h);
+  audit(actor, 'night.viewed', { now, orders: out.length, risky: out.filter((x) => x.risk).length });
+  return { now, orders: out };
+}
+
+export async function nightStop({ actor, line, from, hours = 2 }) {
+  guard(actor, 'call', 'whatif');
+  const to = fmtTime(parseTime(from) + hours * 3600e3);
+  const { published, res } = repair({ type: 'machine_down', line, from, to, at: from, event_id: 'NIGHT-' + line });
+  const moves = res.moves.filter((m) => m.kind !== 'time').map((m) => m.order_id + ' ' + (m.from ? m.from.line : 'new') + ' → ' + (m.to ? m.to.line : 'removed'));
+  audit(actor, 'night.whatif', { line, from, hours, moves: moves.length });
+  return { line, from, to, moves, on_time_before: published.kpis.on_time_pct, on_time_after: res.kpis.on_time_pct, codra_before: published.kpis.codra_on_time_pct, codra_after: res.kpis.codra_on_time_pct };
+}
+
+export async function loadDemo({ actor }) {
+  guard(actor, 'write', 'plan:published');
+  store.reset();
+  await dailyRun({ now: '2026-05-11 05:30' });
+  await publish({ actor, note: 'Demo: Monday daily plan' });
+  const evs = fs.readFileSync(new URL('../data/replay/events_2026-05-11.jsonl', import.meta.url), 'utf8').trim().split('\n').map((l) => JSON.parse(l));
+  const answerMinutes = { E01: 35, E03: 50, E04: 25, E07: 70, E08: 15 }; // DEMO values, not measured
+  for (const e of evs) {
+    await onEvent({ event: e, actor: 'human:sylvie' });
+    await publish({ actor, note: 'Demo: repair ' + e.event_id });
+    if (answerMinutes[e.event_id]) await answerEvent({ event_id: e.event_id, answered_at: fmtTime(parseTime(e.at) + answerMinutes[e.event_id] * 60e3), actor: 'human:sylvie' });
+  }
+  await promise({ request: { customer: 'Codra Retail', product_code: 'PPW-2010', tonnes: 18, wished: '2026-05-14 12:00', at: '2026-05-11 11:00' }, actor: 'human:stephane' });
+  store.write('demo', { loaded_at: new Date().toISOString(), note: 'Monday 11 May replayed; answer times are demo values' });
+  audit(actor, 'demo.loaded', {});
+  return { ok: true };
 }

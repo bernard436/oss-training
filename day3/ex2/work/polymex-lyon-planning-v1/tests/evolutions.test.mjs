@@ -29,3 +29,17 @@ test('a promise gives the earliest date that holds and changes no plan', async (
   assert.equal(JSON.stringify(store.read('state')), s0); assert.equal(JSON.stringify(store.read('published')), p0);
   await assert.rejects(() => O.promise({ request: { customer: 'Codra Retail', product_code: 'PPW-2010', tonnes: 18, wished: '2026-05-14 12:00', at: '2026-05-11 11:00' }, actor: 'human:kevin' }));
 });
+test('the demo day fills every measure, the night view lists risks, the check is computed', async () => {
+  await O.loadDemo({ actor: 'human:corinne' });
+  const g = await O.goalStatus({ actor: 'human:corinne' });
+  for (const m of g.measures) assert.notEqual(m.value, null, m.label + ' has no value');
+  assert.ok(g.demo);
+  const nv = await O.nightView({ actor: 'human:kevin', now: '2026-05-11 22:00' });
+  assert.ok(nv.orders.length > 0);
+  const st = await O.nightStop({ actor: 'human:kevin', line: 'M03', from: '2026-05-11 23:00', hours: 2 });
+  assert.equal(typeof st.on_time_after, 'number');
+  await O.dailyRun({ now: '2026-05-12 05:30' });
+  const c = O.publishCheck({ actor: 'human:corinne' });
+  assert.ok(c.checks.length >= 6);
+  await assert.rejects(() => O.loadDemo({ actor: 'human:stephane' }));
+});

@@ -30,7 +30,7 @@ const routes = {
   'GET /api/state': () => ({ state: store.read('state'), products: store.read('products'), published: store.read('published'), draft: store.read('draft'), actors: Object.keys(permissions().actors).filter((a) => a.startsWith('human:')) }),
   'GET /api/rule-types': () => RULE_TYPES,
   'POST /api/plan/daily': (b, actor) => O.dailyRun({ now: b.now || '2026-05-11 05:30', actor: actor === 'human:corinne' ? 'service:long-solver' : actor }),
-  'POST /api/plan/publish': (b, actor) => O.publish({ actor, note: b.note }),
+  'POST /api/plan/publish': (b, actor) => { const c = O.publishCheck({ actor }); if (!c.ok && !(b.note || '').trim()) throw Object.assign(new Error('A check is below target: write the reason before publishing.'), { status: 400 }); return O.publish({ actor, note: b.note }); },
   'POST /api/plan/discard': (b, actor) => { guard(actor, 'write', 'plan:published'); store.write('draft', null); audit(actor, 'plan.draft.discarded', { reason: b.reason || '' }); return { ok: true }; },
   'POST /api/plan/override': (b, actor) => {
     guard(actor, 'write', 'plan:published');
@@ -85,6 +85,12 @@ const routes = {
   'POST /api/events/answer': (b, actor) => O.answerEvent({ event_id: b.event_id, answered_at: b.answered_at, actor }),
   'POST /api/promise': (b, actor) => O.promise({ request: b, actor }),
   'GET /api/promises': () => store.read('promises') || [],
+  // EVOLUTIONS 2, 5, 6, 8, 9 and demo
+  'GET /api/me': (b, actor) => ({ actor, grants: (permissions().actors[actor] || {}).grants || [] }),
+  'GET /api/publish-check': (b, actor) => O.publishCheck({ actor }),
+  'GET /api/night': (b, actor) => O.nightView({ actor, now: b.now || '2026-05-11 22:00' }),
+  'POST /api/night/stop': (b, actor) => O.nightStop({ actor, line: b.line, from: b.from, hours: +b.hours || 2 }),
+  'POST /api/demo': (b, actor) => O.loadDemo({ actor }),
   'POST /api/reset': (b, actor) => { guard(actor, 'write', 'plan:published'); store.reset(); audit(actor, 'reset', {}); return { ok: true }; },
 };
 
